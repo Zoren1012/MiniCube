@@ -54,6 +54,9 @@ emplacements changent ensemble ; `package.ps1` lit le premier et le transmet aux
 - **Les listes n'étaient pas habillées par le thème.** Le catalogue de versions s'affichait
   en blanc au milieu d'un dialogue sombre — un défaut présent depuis l'origine, et devenu
   visible avec cette fenêtre.
+- **L'onglet Mise à jour affichait « null »** quand le réseau échouait : plusieurs
+  exceptions réseau n'ont aucun message. Les pannes courantes sont désormais nommées —
+  serveur injoignable, connexion qui n'aboutit pas.
 
 ---
 

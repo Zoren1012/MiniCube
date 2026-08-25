@@ -242,9 +242,8 @@ public class UpdateService {
             return new CheckResult(Status.ERROR, null,
                     "GitHub a repondu HTTP " + e.status() + ".");
         } catch (Exception e) {
-            Log.warn("Verification GitHub impossible : " + e.getMessage());
-            return new CheckResult(Status.ERROR, null,
-                    "La verification n'a pas abouti : " + e.getMessage());
+            Log.warn("Verification GitHub impossible : " + describe(e));
+            return new CheckResult(Status.ERROR, null, describe(e));
         }
     }
 
@@ -384,8 +383,7 @@ public class UpdateService {
             return new CheckResult(Status.AVAILABLE, info, "");
         } catch (Exception e) {
             Log.warn("Verification des mises a jour impossible : " + e.getMessage());
-            return new CheckResult(Status.ERROR, null,
-                    "La verification n'a pas abouti : " + e.getMessage());
+            return new CheckResult(Status.ERROR, null, describe(e));
         }
     }
 
@@ -517,5 +515,26 @@ public class UpdateService {
             return String.format("%.0f Ko", bytes / 1024d);
         }
         return String.format("%.1f Mo", bytes / (1024d * 1024d));
+    }
+
+    /**
+     * Decrit une panne en termes comprehensibles.
+     *
+     * <p>Plusieurs exceptions reseau n'ont aucun message : afficher {@code null} au
+     * joueur ne lui apprend rien. Les cas courants sont donc nommes, et les autres
+     * repliees sur le type de l'erreur, qui vaut toujours mieux que rien.</p>
+     */
+    private static String describe(Exception error) {
+        if (error instanceof java.net.UnknownHostException) {
+            return "Serveur injoignable : verifiez votre connexion.";
+        }
+        if (error instanceof java.net.SocketTimeoutException
+                || error instanceof java.net.ConnectException) {
+            return "La connexion n'a pas abouti : reessayez plus tard.";
+        }
+        String message = error.getMessage();
+        return "La verification n'a pas abouti : "
+                + (message == null || message.isBlank()
+                ? error.getClass().getSimpleName() : message);
     }
 }
