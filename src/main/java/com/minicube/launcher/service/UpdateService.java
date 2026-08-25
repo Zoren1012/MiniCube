@@ -9,41 +9,68 @@ import com.minicube.launcher.util.Json;
 import com.minicube.launcher.util.Log;
 import com.minicube.launcher.util.OsUtil;
 import com.minicube.launcher.util.Safety;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Locale;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
- * Mise a jour automatique du launcher.
+ * Mise a jour du launcher.
  *
- * <p>Le launcher interroge un descripteur JSON dont l'adresse est configurable
- * ({@code updateUrl}) :</p>
- * <pre>
- * { "version": "1.1.0",
- *   "url": "https://exemple.fr/MiniCube-1.1.0.jar",
- *   "sha1": "...",
- *   "mandatory": false,
- *   "changelog": "Correction du lancement des versions Forge" }
- * </pre>
+ * <p>Deux sources sont possibles, la premiere ayant la priorite :</p>
+ *
+ * <ul>
+ *   <li><b>Les publications GitHub</b>, si {@code githubRepo} est renseigne. Le service
+ *       lit la derniere publication du depot, y choisit le fichier adapte a la maniere
+ *       dont MiniCube a ete installe, et recupere son empreinte dans le fichier
+ *       {@code .sha256} publie a cote.</li>
+ *   <li><b>Un descripteur JSON</b> a l'adresse {@code updateUrl}, pour heberger ses
+ *       mises a jour ailleurs que sur GitHub.</li>
+ * </ul>
+ *
+ * <p>Dans les deux cas, le fichier telecharge sera <b>execute</b> : une adresse chiffree
+ * et une empreinte verifiable sont exigees, sans exception.</p>
  */
 public class UpdateService {
 
+    /** Adresse de l'interface de programmation de GitHub. */
+    private static final String GITHUB_API = "https://api.github.com/repos/";
+
     /**
-     * Description d'une mise a jour disponible.
+     * Une mise a jour disponible.
      *
-     * @param version   numero de la nouvelle version
-     * @param url       adresse du jar a telecharger
-     * @param sha1      empreinte attendue (facultative)
-     * @param changelog resume des nouveautes
-     * @param mandatory true si la mise a jour doit etre installee avant de jouer
+     * @param version     numero de la nouvelle version
+     * @param url         adresse du fichier a telecharger
+     * @param hash        empreinte attendue
+     * @param algorithm   algorithme de l'empreinte : SHA-256 ou SHA-1
+     * @param changelog   description des nouveautes, telle que publiee
+     * @param publishedAt date de publication, au format ISO ou vide
+     * @param releaseUrl  page de la publication, pour consulter le detail
+     * @param assetName   nom du fichier telecharge
+     * @param mandatory   true si la mise a jour doit etre installee avant de jouer
+     * @param installer   true si le fichier est un installeur a executer, false pour un
+     *                    jar sur lequel il faut redemarrer
      */
-    public record UpdateInfo(String version, String url, String sha1, String changelog,
-                             boolean mandatory) {
+    public record UpdateInfo(String version, String url, String hash, String algorithm,
+                             String changelog, String publishedAt, String releaseUrl,
+                             String assetName, boolean mandatory, boolean installer) {
+
+        /** Taille lisible du changelog, tronque pour l'affichage. */
+        public String shortChangelog(int maxLength) {
+            String text = changelog == null ? "" : changelog.trim();
+            if (text.length() <= maxLength) {
+                return text;
+            }
+            return text.substring(0, maxLength).trim() + "...";
+        }
     }
 
     private final ConfigService config;
@@ -53,16 +80,193 @@ public class UpdateService {
     }
 
     /**
-     * Verifie la disponibilite d'une nouvelle version.
+     * Indique si MiniCube s'execute depuis une installation empaquetee.
+     *
+     * <p>Les lanceurs produits par jpackage renseignent {@code jpackage.app-path}. La
+     * distinction compte : une installation empaquetee se met a jour en executant un
+     * installeur, alors qu'un jar se met a jour en redemarrant sur le nouveau jar.</p>
+     */
+    public static boolean isPackagedInstall() {
+        return System.getProperty("jpackage.app-path") != null;
+    }
+
+    /**
+     * Cherche une mise a jour, quelle que soit la source configuree.
      *
      * <p>Methode bloquante : a appeler depuis un thread de fond. Toute erreur est
-     * absorbee, une verification de mise a jour ne doit jamais empecher de jouer.</p>
+     * absorbee et journalisee ; une verification de mise a jour ne doit jamais empecher
+     * de jouer.</p>
      *
-     * @return la mise a jour disponible, ou un optional vide
+     * @return la mise a jour disponible, ou un optional vide si tout est a jour
      */
-    public Optional<UpdateInfo> checkForUpdate() {
+    public Optional<UpdateInfo> check() {
+        String repository = config.settings().getGithubRepo();
+        if (!repository.isBlank()) {
+            return checkGitHub(repository);
+        }
+        return checkDescriptor();
+    }
+
+    /** Variante respectant le reglage de mise a jour automatique, utilisee au demarrage. */
+    public Optional<UpdateInfo> checkAtStartup() {
+        if (!config.settings().isAutoUpdateLauncher()) {
+            return Optional.empty();
+        }
+        return check();
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Source : publications GitHub                                        */
+    /* ------------------------------------------------------------------ */
+
+    /**
+     * Lit la derniere publication d'un depot GitHub.
+     *
+     * @param repository depot au format {@code proprietaire/nom}
+     */
+    private Optional<UpdateInfo> checkGitHub(String repository) {
+        try {
+            Map<String, String> headers = new HashMap<>();
+            headers.put("Accept", "application/vnd.github+json");
+            headers.put("X-GitHub-Api-Version", "2022-11-28");
+
+            JsonObject release = Http.getJson(
+                    GITHUB_API + repository.trim() + "/releases/latest", headers);
+
+            if (Json.bool(release, "draft", false)) {
+                return Optional.empty();
+            }
+            // Une version de developpement n'est proposee que si l'utilisateur en a
+            // deja une : sinon elle surprendrait quelqu'un qui suit les versions stables.
+            if (Json.bool(release, "prerelease", false)) {
+                Log.debug("Derniere publication marquee comme preliminaire, ignoree");
+                return Optional.empty();
+            }
+
+            String version = normalizeVersion(Json.string(release, "tag_name", ""));
+            if (version.isBlank() || compareVersions(version, Constants.APP_VERSION) <= 0) {
+                Log.debug("Le launcher est a jour (" + Constants.APP_VERSION + ")");
+                return Optional.empty();
+            }
+
+            List<JsonObject> assets = assetsOf(release);
+            JsonObject asset = pickAsset(assets);
+            if (asset == null) {
+                Log.warn("Publication " + version + " sans fichier telechargeable adapte");
+                return Optional.empty();
+            }
+            String assetName = Json.string(asset, "name", "");
+            String hash = readCompanionHash(assets, assetName);
+            if (hash.isBlank()) {
+                Log.warn("Publication " + version + " refusee : aucun fichier "
+                        + assetName + ".sha256 ne l'accompagne, l'integrite du "
+                        + "telechargement ne peut pas etre verifiee.");
+                return Optional.empty();
+            }
+
+            UpdateInfo info = new UpdateInfo(
+                    version,
+                    Json.string(asset, "browser_download_url", ""),
+                    hash,
+                    "SHA-256",
+                    Json.string(release, "body", ""),
+                    Json.string(release, "published_at", ""),
+                    Json.string(release, "html_url", ""),
+                    assetName,
+                    false,
+                    assetName.toLowerCase(Locale.ROOT).endsWith(".exe"));
+            Log.info("Mise a jour disponible sur GitHub : " + version);
+            return Optional.of(info);
+        } catch (Exception e) {
+            Log.warn("Verification des publications GitHub impossible : " + e.getMessage());
+            return Optional.empty();
+        }
+    }
+
+    private List<JsonObject> assetsOf(JsonObject release) {
+        List<JsonObject> assets = new java.util.ArrayList<>();
+        for (JsonElement element : Json.array(release, "assets")) {
+            if (element.isJsonObject()) {
+                assets.add(element.getAsJsonObject());
+            }
+        }
+        return assets;
+    }
+
+    /**
+     * Choisit le fichier correspondant a la maniere dont MiniCube est installe.
+     *
+     * <p>Une installation empaquetee se met a jour avec l'installeur, une execution
+     * depuis le jar avec un nouveau jar. Prendre l'un pour l'autre laisserait
+     * l'utilisateur avec un fichier qu'il ne peut pas utiliser.</p>
+     */
+    private JsonObject pickAsset(List<JsonObject> assets) {
+        boolean packaged = isPackagedInstall();
+        String preferred = packaged ? ".exe" : ".jar";
+
+        for (JsonObject asset : assets) {
+            String name = Json.string(asset, "name", "").toLowerCase(Locale.ROOT);
+            if (name.endsWith(preferred) && !name.endsWith(".sha256")) {
+                return asset;
+            }
+        }
+        // Repli : l'autre format vaut mieux que rien, l'utilisateur saura quoi en faire.
+        for (JsonObject asset : assets) {
+            String name = Json.string(asset, "name", "").toLowerCase(Locale.ROOT);
+            if ((name.endsWith(".exe") || name.endsWith(".jar")) && !name.endsWith(".sha256")) {
+                return asset;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Recupere l'empreinte publiee a cote du fichier.
+     *
+     * <p>Convention retenue : un fichier {@code <nom>.sha256} contenant l'empreinte,
+     * seule ou au format de la commande {@code sha256sum} (empreinte, espaces, nom).</p>
+     *
+     * @return l'empreinte en hexadecimal, ou une chaine vide si elle est absente
+     */
+    private String readCompanionHash(List<JsonObject> assets, String assetName) {
+        String expected = (assetName + ".sha256").toLowerCase(Locale.ROOT);
+        for (JsonObject asset : assets) {
+            if (!Json.string(asset, "name", "").toLowerCase(Locale.ROOT).equals(expected)) {
+                continue;
+            }
+            try {
+                String url = Json.string(asset, "browser_download_url", "");
+                Safety.requireSecureUrl(url, "Empreinte de la mise a jour");
+                String body = Http.getString(url).trim();
+                // Le format sha256sum est "empreinte  nom" : on ne garde que le
+                // premier champ, quelle que soit la nature du separateur.
+                String first = body.split("[ \t]+")[0].trim();
+                return first.matches("[0-9a-fA-F]{64}") ? first.toLowerCase(Locale.ROOT) : "";
+            } catch (Exception e) {
+                Log.warn("Empreinte illisible pour " + assetName + " : " + e.getMessage());
+                return "";
+            }
+        }
+        return "";
+    }
+
+    /** Retire le "v" des etiquettes de la forme v1.2.3. */
+    private String normalizeVersion(String tag) {
+        String cleaned = tag == null ? "" : tag.trim();
+        if (cleaned.startsWith("v") || cleaned.startsWith("V")) {
+            cleaned = cleaned.substring(1);
+        }
+        return cleaned;
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Source : descripteur JSON                                           */
+    /* ------------------------------------------------------------------ */
+
+    /** Lit un descripteur heberge par vos soins, pour ne pas dependre de GitHub. */
+    private Optional<UpdateInfo> checkDescriptor() {
         String url = config.settings().getUpdateUrl();
-        if (url.isBlank() || !config.settings().isAutoUpdateLauncher()) {
+        if (url.isBlank()) {
             return Optional.empty();
         }
         try {
@@ -73,12 +277,22 @@ public class UpdateService {
                 Log.debug("Le launcher est a jour (" + Constants.APP_VERSION + ")");
                 return Optional.empty();
             }
+            // Les deux algorithmes sont acceptes ; SHA-256 est prefere s'il est fourni.
+            String sha256 = Json.string(payload, "sha256", "");
+            String sha1 = Json.string(payload, "sha1", "");
+            String assetUrl = Json.string(payload, "url", "");
+
             UpdateInfo info = new UpdateInfo(
                     remoteVersion,
-                    Json.string(payload, "url", ""),
-                    Json.string(payload, "sha1", ""),
+                    assetUrl,
+                    sha256.isBlank() ? sha1 : sha256,
+                    sha256.isBlank() ? "SHA-1" : "SHA-256",
                     Json.string(payload, "changelog", ""),
-                    Json.bool(payload, "mandatory", false));
+                    Json.string(payload, "publishedAt", ""),
+                    Json.string(payload, "releaseUrl", ""),
+                    assetUrl.substring(assetUrl.lastIndexOf('/') + 1),
+                    Json.bool(payload, "mandatory", false),
+                    assetUrl.toLowerCase(Locale.ROOT).endsWith(".exe"));
             Log.info("Mise a jour disponible : " + remoteVersion);
             return Optional.of(info);
         } catch (Exception e) {
@@ -87,28 +301,33 @@ public class UpdateService {
         }
     }
 
+    /* ------------------------------------------------------------------ */
+    /* Telechargement et installation                                      */
+    /* ------------------------------------------------------------------ */
+
     /**
-     * Telecharge le paquet de mise a jour dans {@code ~/.minicube/updates}.
+     * Telecharge la mise a jour dans {@code ~/.minicube/updates}.
      *
-     * <p>Deux exigences sont posees avant tout telechargement, parce que ce fichier
-     * sera <b>execute</b> : l'adresse doit etre chiffree, et une empreinte SHA-1 doit
-     * accompagner la mise a jour. Sans elles, quiconque parviendrait a se placer entre
-     * le launcher et le serveur, ou a prendre la main sur ce serveur, ferait executer
-     * le code de son choix sur toutes les machines equipees.</p>
+     * <p>Deux exigences sont posees avant tout telechargement, parce que ce fichier sera
+     * <b>execute</b> : l'adresse doit etre chiffree, et une empreinte doit accompagner la
+     * publication. Sans elles, quiconque parviendrait a se placer entre le launcher et le
+     * serveur, ou a prendre la main sur ce serveur, ferait executer le code de son choix
+     * sur toutes les machines equipees.</p>
      *
      * @return le fichier telecharge, dont l'empreinte a ete verifiee
-     * @throws Safety.UnsafeInputException si l'adresse ou l'empreinte manquent aux regles
      */
     public Path download(UpdateInfo info, Consumer<Progress> onProgress) throws IOException {
         Safety.requireSecureUrl(info.url(), "Mise a jour du launcher");
-        if (info.sha1().isBlank()) {
-            throw new Safety.UnsafeInputException("Mise a jour refusee : le descripteur ne "
-                    + "fournit pas d'empreinte SHA-1. Un paquet execute sans verification "
-                    + "d'integrite n'est pas acceptable.");
+        if (info.hash().isBlank()) {
+            throw new Safety.UnsafeInputException("Mise a jour refusee : aucune empreinte "
+                    + "ne l'accompagne. Un paquet execute sans verification d'integrite "
+                    + "n'est pas acceptable.");
         }
         Files.createDirectories(LauncherPaths.updatesDir());
-        Path target = LauncherPaths.updatesDir()
-                .resolve("MiniCube-" + info.version() + ".jar");
+        String fileName = info.assetName().isBlank()
+                ? "MiniCube-" + info.version() + (info.installer() ? ".exe" : ".jar")
+                : info.assetName();
+        Path target = LauncherPaths.updatesDir().resolve(fileName);
 
         onProgress.accept(Progress.indeterminate("Telechargement de la version "
                 + info.version() + "..."));
@@ -116,32 +335,59 @@ public class UpdateService {
         Http.download(info.url(), target, bytes -> {
             received[0] += bytes;
             onProgress.accept(Progress.of("Telechargement de la mise a jour",
-                    GameFileServiceSizeHelper.format(received[0]), -1));
+                    formatSize(received[0]), -1));
         });
 
-        if (!Hashing.verify(target, info.sha1())) {
+        onProgress.accept(Progress.indeterminate("Verification de l'integrite..."));
+        if (!verify(target, info)) {
             Files.deleteIfExists(target);
-            throw new IOException("Empreinte incorrecte : mise a jour rejetee.");
+            throw new IOException("Empreinte incorrecte : mise a jour rejetee. Le fichier "
+                    + "telecharge ne correspond pas a celui publie.");
         }
-        onProgress.accept(Progress.done("Mise a jour telechargee."));
-        Log.info("Mise a jour enregistree dans " + target);
+        onProgress.accept(Progress.done("Mise a jour prete."));
+        Log.info("Mise a jour verifiee : " + target.getFileName());
         return target;
     }
 
+    private boolean verify(Path file, UpdateInfo info) throws IOException {
+        String actual = "SHA-256".equals(info.algorithm())
+                ? Hashing.sha256(file)
+                : Hashing.sha1(file);
+        return actual.equalsIgnoreCase(info.hash());
+    }
+
     /**
-     * Redemarre le launcher sur la nouvelle version.
+     * Installe la mise a jour telechargee.
      *
-     * <p>Un nouveau processus Java est lance sur le jar telecharge, puis le processus
-     * courant se termine. Le remplacement effectif du fichier est laisse au nouveau
-     * processus, ce qui evite d'ecraser un jar en cours d'utilisation sous Windows.</p>
+     * <p>Deux chemins selon l'installation : un installeur est lance puis MiniCube se
+     * retire pour le laisser remplacer les fichiers, tandis qu'un jar est demarre dans
+     * un nouveau processus. Dans les deux cas, le processus courant se termine : on ne
+     * peut pas remplacer un programme pendant qu'il s'execute.</p>
+     *
+     * @param downloaded fichier renvoye par {@link #download}
      */
-    public void restartWith(Path newJar) throws IOException {
-        Path java = OsUtil.currentJavaExecutable();
-        List<String> command = List.of(java.toString(), "-jar", newJar.toAbsolutePath().toString());
-        Log.info("Redemarrage sur " + newJar.getFileName());
-        new ProcessBuilder(command).inheritIO().start();
+    public void install(Path downloaded) throws IOException {
+        if (!Files.isRegularFile(downloaded)) {
+            throw new IOException("Fichier de mise a jour introuvable : " + downloaded);
+        }
+        String name = downloaded.getFileName().toString().toLowerCase(Locale.ROOT);
+
+        if (name.endsWith(".exe")) {
+            Log.info("Lancement de l'installeur " + downloaded.getFileName());
+            new ProcessBuilder(downloaded.toAbsolutePath().toString()).start();
+        } else {
+            Path java = OsUtil.currentJavaExecutable();
+            Log.info("Redemarrage sur " + downloaded.getFileName());
+            new ProcessBuilder(java.toString(), "-jar",
+                    downloaded.toAbsolutePath().toString()).inheritIO().start();
+        }
+        Log.close();
         System.exit(0);
     }
+
+    /* ------------------------------------------------------------------ */
+    /* Comparaison de versions                                             */
+    /* ------------------------------------------------------------------ */
 
     /**
      * Compare deux numeros de version de la forme {@code 1.2.3}.
@@ -174,19 +420,14 @@ public class UpdateService {
         }
     }
 
-    /** Petit utilitaire de formatage partage avec le telechargement des fichiers du jeu. */
-    static final class GameFileServiceSizeHelper {
-        private GameFileServiceSizeHelper() {
+    /** Taille lisible, utilisee pendant le telechargement. */
+    static String formatSize(long bytes) {
+        if (bytes < 1024) {
+            return bytes + " o";
         }
-
-        static String format(long bytes) {
-            if (bytes < 1024) {
-                return bytes + " o";
-            }
-            if (bytes < 1024 * 1024) {
-                return String.format("%.0f Ko", bytes / 1024d);
-            }
-            return String.format("%.1f Mo", bytes / (1024d * 1024d));
+        if (bytes < 1024 * 1024) {
+            return String.format("%.0f Ko", bytes / 1024d);
         }
+        return String.format("%.1f Mo", bytes / (1024d * 1024d));
     }
 }

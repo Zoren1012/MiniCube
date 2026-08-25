@@ -7,7 +7,6 @@ import com.minicube.launcher.model.Notification;
 import com.minicube.launcher.model.Progress;
 import com.minicube.launcher.model.ServerEntry;
 import com.minicube.launcher.service.GameLaunchService;
-import com.minicube.launcher.service.UpdateService;
 import com.minicube.launcher.ui.Icons;
 import com.minicube.launcher.ui.ThemeManager;
 import com.minicube.launcher.ui.Ui;
@@ -20,8 +19,6 @@ import com.minicube.launcher.util.I18n;
 import com.minicube.launcher.util.Log;
 import com.minicube.launcher.util.OsUtil;
 import javafx.scene.Node;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.ToggleButton;
 import javafx.stage.Stage;
 
@@ -54,6 +51,7 @@ public class ShellController {
     private ShadersController shaders;
     private ModsController mods;
     private SettingsController settings;
+    private UpdatesController updates;
     private LogsController logs;
 
     private boolean launching;
@@ -138,6 +136,10 @@ public class ShellController {
             case MODS -> {
                 mods = new ModsController(context, stage, this::selectedVersionId);
                 return Ui.scroll(mods.root());
+            }
+            case UPDATES -> {
+                updates = new UpdatesController(context, stage);
+                return Ui.scroll(updates.root());
             }
             case SETTINGS -> {
                 settings = new SettingsController(context, stage, this::selectedVersionId,
@@ -411,45 +413,23 @@ public class ShellController {
     private void onNotification(Notification notification) {
         view.toastLayer().show(notification);
     }
-
-    /** Verifie au demarrage si une nouvelle version du launcher est disponible. */
+    /**
+     * Signale au demarrage qu'une version plus recente existe.
+     *
+     * <p>Le telechargement n'est pas propose ici : une boite de dialogue qui surgit
+     * pendant que l'utilisateur veut jouer est une gene. La notification renvoie vers
+     * l'onglet Mise a jour, ou l'action est deliberee.</p>
+     */
     private void checkForLauncherUpdate() {
-        Fx.async(() -> context.updates().checkForUpdate(), update -> {
+        Fx.async(() -> context.updates().checkAtStartup(), update -> {
             if (update.isEmpty()) {
                 return;
             }
-            proposeUpdate(update.get());
+            context.notifications().info(I18n.tr("updates.title"),
+                    I18n.tr("updates.notification", update.get().version()));
         }, error -> Log.debug("Verification de mise a jour ignoree : " + error.getMessage()));
     }
 
-    /** Propose le telechargement puis le redemarrage sur la nouvelle version. */
-    private void proposeUpdate(UpdateService.UpdateInfo info) {
-        Alert alert = new Alert(Alert.AlertType.CONFIRMATION,
-                I18n.tr("update.question", info.version()) + "\n\n" + info.changelog(),
-                ButtonType.OK, ButtonType.CANCEL);
-        alert.setHeaderText(I18n.tr("update.available", info.version()));
-        alert.initOwner(stage);
-        alert.showAndWait().ifPresent(response -> {
-            if (response != ButtonType.OK) {
-                return;
-            }
-            view.setProgressVisible(true);
-            Fx.async(() -> {
-                var jar = context.updates().download(info, this::publishProgress);
-                return jar;
-            }, jar -> {
-                view.setProgressVisible(false);
-                try {
-                    context.updates().restartWith(jar);
-                } catch (Exception e) {
-                    context.notifications().error(I18n.tr("update.title"), e.getMessage());
-                }
-            }, error -> {
-                view.setProgressVisible(false);
-                context.notifications().error(I18n.tr("update.title"), error.getMessage());
-            });
-        });
-    }
 
     /** Onglets deja construits, utilise pour les rafraichir apres un changement global. */
     public List<ShellView.Tab> loadedTabs() {

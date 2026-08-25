@@ -28,6 +28,25 @@ jobs:
       - name: Recuperer le code
         uses: actions/checkout@v4
 
+      - name: Verifier que l etiquette correspond a la version du code
+        # Le projet est compile d'apres APP_VERSION mais publie sous le nom de
+        # l'etiquette. Si les deux divergent, le launcher proposerait indefiniment
+        # une mise a jour qui installe la version deja presente : l'utilisateur
+        # tournerait en rond sans comprendre. Mieux vaut refuser la publication.
+        if: startsWith(github.ref, 'refs/tags/')
+        shell: pwsh
+        run: |
+          $code = (Select-String -Path 'src\main\java\com\minicube\launcher\core\Constants.java' `
+                   -Pattern 'APP_VERSION\s*=\s*"([^"]+)"').Matches[0].Groups[1].Value
+          $tag = "${{ github.ref_name }}" -replace '^v', ''
+          Write-Host "APP_VERSION : $code"
+          Write-Host "etiquette   : $tag"
+          if ($code -ne $tag) {
+            throw "L'etiquette v$tag ne correspond pas a APP_VERSION ($code). " +
+                  "Corrigez Constants.java, ou reposez l'etiquette sur la bonne version."
+          }
+          Write-Host "Les deux concordent."
+
       - name: Installer le JDK 21
         uses: actions/setup-java@v4
         with:
@@ -55,6 +74,18 @@ jobs:
                       -Pattern 'APP_VERSION\s*=\s*"([^"]+)"').Matches[0].Groups[1].Value
           Compress-Archive -Path 'dist\MiniCube\*' -DestinationPath "dist\MiniCube-$version-windows.zip"
 
+      - name: Calculer les empreintes
+        # MiniCube refuse d'installer une mise a jour dont il ne peut pas verifier
+        # l'integrite. Chaque fichier publie est donc accompagne de son empreinte
+        # SHA-256, que l'onglet Mise a jour telecharge avant le fichier lui-meme.
+        shell: pwsh
+        run: |
+          Get-ChildItem 'dist\*' -File -Include '*.exe', '*.zip' | ForEach-Object {
+            $hash = (Get-FileHash $_.FullName -Algorithm SHA256).Hash.ToLower()
+            "$hash  $($_.Name)" | Set-Content -Path "$($_.FullName).sha256" -Encoding ascii
+            Write-Host "$($_.Name) -> $hash"
+          }
+
       - name: Publier
         # Cette etape ne s'execute que pour une etiquette : un lancement manuel se
         # contente de verifier que la fabrication passe.
@@ -63,11 +94,13 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
-          gh release create "${{ github.ref_name }}" `
-            (Get-ChildItem dist -Filter '*.exe' | ForEach-Object { $_.FullName }) `
-            (Get-ChildItem dist -Filter '*.zip' | ForEach-Object { $_.FullName }) `
+          # Les .sha256 doivent accompagner les fichiers : sans eux, l'onglet Mise a
+          # jour du launcher refusera la publication faute de pouvoir la verifier.
+          $fichiers = Get-ChildItem 'dist\*' -File -Include '*.exe', '*.zip', '*.sha256' |
+                      ForEach-Object { $_.FullName }
+          gh release create "${{ github.ref_name }}" $fichiers `
             --title "MiniCube ${{ github.ref_name }}" `
-            --notes "Installeur Windows. Aucun prerequis : le runtime Java est inclus.`n`nVoir CHANGELOG.md pour le detail des changements."
+            --notes "Installeur Windows, aucun prerequis : le runtime Java est inclus.`n`nLes fichiers .sha256 permettent au launcher de verifier l'integrite de la mise a jour.`n`nVoir CHANGELOG.md pour le detail des changements."
 
       - name: Conserver les livrables meme sans etiquette
         if: "!startsWith(github.ref, 'refs/tags/')"

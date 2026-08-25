@@ -123,6 +123,7 @@ public class SettingsController {
             view.autoInstallMods().setSelected(settings.isAutoInstallRequiredMods());
             view.gameDirectory().setText(settings.getGameDirectory());
             view.msClientId().setText(settings.getMsClientId());
+            view.githubRepo().setText(settings.getGithubRepo());
             view.cloudSyncEnabled().setSelected(settings.isCloudSyncEnabled());
             view.cloudSyncUrl().setText(settings.getCloudSyncUrl());
             view.cloudSyncToken().setText(settings.getCloudSyncToken());
@@ -173,6 +174,7 @@ public class SettingsController {
         settings.setVerifyFilesBeforeLaunch(view.verifyFiles().isSelected());
         settings.setAutoInstallRequiredMods(view.autoInstallMods().isSelected());
         settings.setMsClientId(view.msClientId().getText().trim());
+        settings.setGithubRepo(view.githubRepo().getText().trim());
         settings.setCloudSyncEnabled(view.cloudSyncEnabled().isSelected());
         settings.setCloudSyncUrl(view.cloudSyncUrl().getText().trim());
         settings.setCloudSyncToken(view.cloudSyncToken().getText().trim());
@@ -312,7 +314,7 @@ public class SettingsController {
 
     private void checkUpdates() {
         view.checkUpdatesButton().setDisable(true);
-        Fx.async(() -> context.updates().checkForUpdate(), update -> {
+        Fx.async(() -> context.updates().check(), update -> {
             view.checkUpdatesButton().setDisable(false);
             if (update.isEmpty()) {
                 context.notifications().info(I18n.tr("settings.title"),

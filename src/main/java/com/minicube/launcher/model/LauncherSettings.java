@@ -67,6 +67,13 @@ public class LauncherSettings {
     private String serversUrl = Constants.DEFAULT_SERVERS_URL;
     private String modsManifestUrl = Constants.DEFAULT_MODS_MANIFEST_URL;
     private String updateUrl = Constants.DEFAULT_UPDATE_URL;
+    /**
+     * Depot GitHub surveille pour les mises a jour, au format proprietaire/nom.
+     *
+     * <p>Prioritaire sur updateUrl : renseigner ce champ suffit, la publication et son
+     * empreinte sont lues directement dans les Releases du depot.</p>
+     */
+    private String githubRepo = Constants.DEFAULT_GITHUB_REPO;
 
     /* --- Sauvegarde cloud ---------------------------------------------- */
 
@@ -302,6 +309,14 @@ public class LauncherSettings {
 
     public void setModsManifestUrl(String modsManifestUrl) {
         this.modsManifestUrl = modsManifestUrl;
+    }
+
+    public String getGithubRepo() {
+        return githubRepo == null ? "" : githubRepo.trim();
+    }
+
+    public void setGithubRepo(String githubRepo) {
+        this.githubRepo = githubRepo;
     }
 
     public String getUpdateUrl() {

@@ -62,6 +62,7 @@ public class SettingsView {
             I18n.tr("action.openFolder"));
 
     private final TextField msClientId = new TextField();
+    private final TextField githubRepo = new TextField();
 
     private final CheckBox cloudSyncEnabled = new CheckBox();
     private final TextField cloudSyncUrl = new TextField();
@@ -83,7 +84,8 @@ public class SettingsView {
     public SettingsView() {
         root = Ui.page(I18n.tr("settings.title"), I18n.tr("settings.subtitle"),
                 memoryCard(), javaCard(), appearanceCard(), behaviourCard(),
-                installationCard(), accountCard(), cloudCard(), maintenanceCard(),
+                installationCard(), accountCard(), updateSourceCard(), cloudCard(),
+                maintenanceCard(),
                 actionsRow());
     }
 
@@ -174,6 +176,8 @@ public class SettingsView {
     }
 
     private VBox accountCard() {
+        githubRepo.setPromptText("Zoren1012/MiniCube");
+        githubRepo.setPrefWidth(360);
         msClientId.setPromptText("00000000-0000-0000-0000-000000000000");
         msClientId.setPrefWidth(360);
         return Ui.card(I18n.tr("settings.microsoft"),
@@ -196,6 +200,12 @@ public class SettingsView {
                 Ui.settingRow(I18n.tr("settings.cloud.url"), null, cloudSyncUrl),
                 Ui.settingRow(I18n.tr("settings.cloud.token"), null, cloudSyncToken),
                 actions);
+    }
+
+    private VBox updateSourceCard() {
+        return Ui.card(I18n.tr("updates.title"),
+                Ui.settingRow(I18n.tr("settings.github"), I18n.tr("settings.github.hint"),
+                        githubRepo));
     }
 
     private VBox maintenanceCard() {
@@ -305,6 +315,10 @@ public class SettingsView {
 
     public Button openGameDirButton() {
         return openGameDirButton;
+    }
+
+    public TextField githubRepo() {
+        return githubRepo;
     }
 
     public TextField msClientId() {

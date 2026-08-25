@@ -115,7 +115,7 @@ basculer de l'un à l'autre.
 
 ---
 
-## Les huit onglets
+## Les neuf onglets
 
 ### Accueil
 
@@ -180,6 +180,31 @@ supprimé sans confirmation explicite.
 
 Si votre projet publie un manifeste, les mods déclarés obligatoires sont téléchargés et
 vérifiés avant chaque partie, et ne peuvent pas être désactivés.
+
+### Mise à jour
+
+![L'onglet Mise à jour](docs/images/updates.png)
+
+MiniCube surveille les **publications de votre dépôt GitHub**. Renseignez le dépôt au
+format `proprietaire/nom` dans les Paramètres, et l'onglet fait le reste : il lit la
+dernière publication, choisit le fichier adapté à votre installation, affiche les
+nouveautés, télécharge et installe.
+
+Deux comportements selon la manière dont MiniCube a été installé, indiquée sous le
+numéro de version :
+
+| Installation | Fichier récupéré | Effet |
+|---|---|---|
+| Complète (installeur) | `MiniCube-Setup-x.y.z.exe` | L'installeur remplace l'installation |
+| Portable (jar) | `MiniCube-x.y.z.jar` | Redémarrage sur le nouveau fichier |
+
+**Une publication sans empreinte est refusée.** Ce fichier va être exécuté : MiniCube
+exige un fichier `.sha256` publié à côté, et vérifie le téléchargement avant de le
+lancer. Le workflow fourni génère ces empreintes automatiquement — sans elles, le
+launcher refuserait ses propres mises à jour.
+
+Si vous préférez héberger vos mises à jour ailleurs que sur GitHub, le champ
+*adresse de mise à jour* accepte un descripteur JSON, décrit au §5 d'[INSTALL.md](INSTALL.md).
 
 ### Paramètres
 
@@ -303,6 +328,26 @@ autonome est produit, et le script le signale.
 
 Le runtime embarqué est réduit à dix modules du JDK, ce qui divise sa taille par trois.
 
+
+### Annoncer une version sur Discord
+
+```bash
+.\discord-annonce.ps1 -Webhook "https://discord.com/api/webhooks/..." -Apercu
+```
+
+Publie dans un salon une fiche d'installation : téléchargement, installation, premier
+démarrage, et où regarder en cas de problème. La version et le lien sont déduits du code,
+il n'y a rien à mettre à jour à la main d'une version à l'autre.
+
+`-Apercu` montre le message sans l'envoyer ; sans ce commutateur, une confirmation est
+demandée avant publication.
+
+> **Le webhook est un secret.** Quiconque le possède peut publier dans votre salon. Il se
+> passe en paramètre et n'est jamais écrit dans un fichier du projet : ne le collez nulle
+> part dans le dépôt, il finirait publié sur GitHub.
+
+Le texte de la fiche se modifie dans `discord/fiche-installation.json`, sans toucher au
+script.
 ---
 
 ## Sous le capot

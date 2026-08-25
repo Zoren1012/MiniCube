@@ -1,0 +1,58 @@
+{
+  "_comment": [
+    "Fiche d'installation publiée sur Discord par discord-annonce.ps1.",
+    "Modifiez librement les textes : le script ne fait que remplacer les valeurs",
+    "entre doubles accolades avant l'envoi.",
+    "",
+    "  {{VERSION}}  version lue dans Constants.APP_VERSION",
+    "  {{DEPOT}}    dépôt GitHub, au format propriétaire/nom",
+    "  {{LIEN}}     page de téléchargement",
+    "  {{IMAGE}}    capture affichée dans le message",
+    "",
+    "Les clés commençant par un tiret bas sont retirées avant l'envoi.",
+    "Référence du format : https://discord.com/developers/docs/resources/webhook"
+  ],
+
+  "username": "MiniCube",
+  "embeds": [
+    {
+      "title": "MiniCube {{VERSION}} — Installation",
+      "url": "{{LIEN}}",
+      "color": 8150271,
+      "description": "Un launcher Minecraft moderne : lancement des versions moddées, gestion des mods et des shaders, connexion directe aux serveurs.\n\n**Aucun prérequis.** Java est inclus dans l'installeur, il n'y a rien d'autre à installer.",
+      "image": {
+        "url": "{{IMAGE}}"
+      },
+      "fields": [
+        {
+          "name": "1️⃣  Télécharger",
+          "value": "Récupérez **MiniCube-Setup-{{VERSION}}.exe** sur la [page de téléchargement]({{LIEN}}).",
+          "inline": false
+        },
+        {
+          "name": "2️⃣  Installer",
+          "value": "Double-cliquez sur le fichier. L'installation se fait dans votre dossier utilisateur : **aucune fenêtre d'administrateur** à valider.\n\nSi Windows affiche un avertissement SmartScreen, cliquez sur *Informations complémentaires* puis *Exécuter quand même* — l'application n'est pas signée par un certificat payant.",
+          "inline": false
+        },
+        {
+          "name": "3️⃣  Premier démarrage",
+          "value": "• Choisissez votre dossier `.minecraft` (celui proposé est le bon dans la quasi-totalité des cas)\n• Connectez votre compte, en bas à gauche\n• Choisissez une version dans la barre du bas, ou installez-en une avec le bouton **+**\n• Cliquez sur **JOUER**",
+          "inline": false
+        },
+        {
+          "name": "🔄  Mises à jour",
+          "value": "L'onglet **Mise à jour** vérifie les nouvelles versions et les installe pour vous. Rien à retélécharger à la main.",
+          "inline": false
+        },
+        {
+          "name": "❓  Un problème ?",
+          "value": "L'onglet **Journal** montre tout ce que fait le launcher et le jeu, en direct. Copiez-le ici, il contient la réponse dans la plupart des cas — les jetons de connexion y sont automatiquement masqués.",
+          "inline": false
+        }
+      ],
+      "footer": {
+        "text": "MiniCube {{VERSION}} • {{DEPOT}}"
+      }
+    }
+  ]
+}

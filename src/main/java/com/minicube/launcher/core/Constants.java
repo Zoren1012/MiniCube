@@ -16,7 +16,7 @@ public final class Constants {
     /* ------------------------------------------------------------------ */
 
     public static final String APP_NAME = "MiniCube";
-    public static final String APP_VERSION = "1.2.2";
+    public static final String APP_VERSION = "1.3.2";
     /** Nom du dossier de travail cree dans le repertoire utilisateur. */
     public static final String APP_DIR_NAME = ".minicube";
     public static final String USER_AGENT = APP_NAME + "/" + APP_VERSION;
@@ -73,6 +73,8 @@ public final class Constants {
     public static final String DEFAULT_SERVERS_URL = "";
     public static final String DEFAULT_MODS_MANIFEST_URL = "";
     public static final String DEFAULT_UPDATE_URL = "";
+    /** Depot GitHub surveille par defaut pour les mises a jour du launcher. */
+    public static final String DEFAULT_GITHUB_REPO = "Zoren1012/MiniCube";
     public static final String DEFAULT_CLOUD_SYNC_URL = "";
 
     /* ------------------------------------------------------------------ */

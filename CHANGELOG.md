@@ -13,6 +13,81 @@ emplacements changent ensemble ; `package.ps1` lit le premier et le transmet aux
 
 ---
 
+## 1.3.2 — 25 août 2026
+
+### Publier une version sans se tromper
+
+- **`version.bat` prépare une version d'un seul geste.** Le numéro vit dans
+  `Constants.APP_VERSION` et dans `pom.xml`, et doit correspondre à l'étiquette Git. Le
+  script met les trois d'accord, compile pour vérifier, puis crée le commit et
+  l'étiquette. Il ne pousse rien : la commande d'envoi est affichée à la fin.
+
+  Il refuse une version au format invalide, une version qui recule, une étiquette déjà
+  existante, ou l'absence d'entrée correspondante dans `CHANGELOG.md` — ce texte est
+  celui que verront vos joueurs dans l'onglet Mise à jour.
+
+- **Le workflow refuse une étiquette qui ne correspond pas au code.** Le projet est
+  compilé d'après `APP_VERSION` mais publié sous le nom de l'étiquette : en cas de
+  divergence, le launcher aurait proposé indéfiniment une mise à jour installant la
+  version déjà présente. Vos joueurs auraient tourné en rond sans comprendre. La
+  publication échoue désormais avec un message explicite.
+
+---
+
+## 1.3.1 — 25 août 2026
+
+- **Fiche d'installation Discord.** `discord-annonce.ps1` publie dans un salon une fiche
+  expliquant le téléchargement, l'installation, le premier démarrage et où regarder en
+  cas de problème. La version et le lien de téléchargement sont déduits du code.
+
+  - **Le webhook est passé en paramètre, jamais écrit dans un fichier.** C'est un
+    secret : quiconque le possède peut publier dans le salon. Le dépôt étant destiné à
+    être public, un webhook en dur y serait exposé.
+  - **Le texte vit dans `discord/fiche-installation.json`**, modifiable sans toucher au
+    script. Ce fichier séparé évite aussi un piège d'encodage : PowerShell 5.1 lit un
+    `.ps1` sans marque d'ordre des octets en ANSI, et massacrerait les accents.
+  - **Les limites de Discord sont vérifiées avant l'envoi.** Discord répond 400 sans
+    jamais dire quel champ dépasse ; le script le dit, lui.
+  - Aperçu avec `-Apercu`, confirmation demandée avant publication, messages d'erreur
+    explicites pour les cas 401, 404, 429 et 400.
+
+---
+
+## 1.3.0 — 25 août 2026
+
+### Onglet Mise à jour
+
+- **MiniCube se met à jour depuis vos publications GitHub.** Un nouvel onglet affiche la
+  version installée, recherche une version plus récente, montre les nouveautés publiées
+  et installe. Le dépôt se règle au format `proprietaire/nom` dans les Paramètres.
+
+- **Le fichier récupéré s'adapte à l'installation.** Une installation complète télécharge
+  l'installeur et le lance ; une version portable télécharge le jar et redémarre dessus.
+  La distinction repose sur `jpackage.app-path`, renseigné par les exécutables produits
+  par jpackage. Prendre l'un pour l'autre laisserait l'utilisateur avec un fichier
+  inutilisable.
+
+- **Une publication sans empreinte est refusée.** Le fichier va être exécuté : MiniCube
+  exige un `.sha256` publié à côté et vérifie le téléchargement avant de le lancer.
+  Vérifié sur une vraie publication tierce, correctement rejetée faute d'empreinte.
+
+- **Le workflow publie les empreintes.** Chaque fichier est accompagné de son `.sha256` ;
+  sans cela, le launcher refuserait ses propres mises à jour.
+
+- **Plus de fenêtre surgissante au démarrage.** L'ancienne version proposait le
+  téléchargement dans une boîte de dialogue au lancement, ce qui coupe quelqu'un qui veut
+  simplement jouer. Une notification renvoie désormais vers l'onglet, où l'action est
+  délibérée.
+
+- Le service accepte SHA-256 comme SHA-1 pour les descripteurs auto-hébergés.
+
+### Corrections
+
+- **`Get-ChildItem -Include` sans `-Recurse` ne renvoie rien.** Le workflow aurait publié
+  une release vide tout en signalant un succès. Corrigé en utilisant un chemin à joker.
+
+---
+
 ## 1.2.2 — 25 août 2026
 
 - **Publication automatique sur GitHub.** `.github/workflows/release.yml` fabrique
