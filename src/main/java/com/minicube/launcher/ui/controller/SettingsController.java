@@ -316,13 +316,20 @@ public class SettingsController {
         view.checkUpdatesButton().setDisable(true);
         Fx.async(() -> context.updates().check(), update -> {
             view.checkUpdatesButton().setDisable(false);
-            if (update.isEmpty()) {
-                context.notifications().info(I18n.tr("settings.title"),
-                        I18n.tr("settings.upToDate"));
+            if (update.isAvailable()) {
+                context.notifications().success(I18n.tr("settings.title"),
+                        I18n.tr("settings.updateAvailable", update.update().version()));
                 return;
             }
-            context.notifications().success(I18n.tr("settings.title"),
-                    I18n.tr("settings.updateAvailable", update.get().version()));
+            // Un echec de verification n'est pas une bonne nouvelle : le dire.
+            switch (update.status()) {
+                case UP_TO_DATE -> context.notifications().info(I18n.tr("settings.title"),
+                        I18n.tr("settings.upToDate"));
+                case NOT_CONFIGURED -> context.notifications().info(
+                        I18n.tr("settings.title"), I18n.tr("updates.notConfigured.detail"));
+                default -> context.notifications().warning(I18n.tr("settings.title"),
+                        update.detail());
+            }
         }, error -> {
             view.checkUpdatesButton().setDisable(false);
             context.notifications().error(I18n.tr("settings.title"), error.getMessage());

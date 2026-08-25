@@ -19,7 +19,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
-import java.util.Optional;
 import java.util.function.Consumer;
 
 /**
@@ -73,6 +72,45 @@ public class UpdateService {
         }
     }
 
+    /**
+     * Issue d'une verification.
+     *
+     * <p>Distinguer ces cas n'est pas cosmetique : annoncer "vous etes a jour" alors que
+     * la verification a echoue, ou qu'aucune version n'a jamais ete publiee, revient a
+     * mentir a l'utilisateur. Il croirait avoir la derniere version alors que personne
+     * n'a pu le lui confirmer.</p>
+     */
+    public enum Status {
+        /** Une version plus recente existe. */
+        AVAILABLE,
+        /** La version installee est bien la derniere publiee. */
+        UP_TO_DATE,
+        /** Le depot existe mais ne contient aucune publication. */
+        NO_RELEASE,
+        /** Le depot ou l'adresse est introuvable. */
+        NOT_FOUND,
+        /** Aucune source de mise a jour n'est renseignee. */
+        NOT_CONFIGURED,
+        /** La publication existe mais a ete refusee, faute d'empreinte par exemple. */
+        REJECTED,
+        /** La verification n'a pas pu aboutir : reseau, quota, reponse illisible. */
+        ERROR
+    }
+
+    /**
+     * Resultat d'une verification.
+     *
+     * @param status etat constate
+     * @param update mise a jour disponible, uniquement pour {@link Status#AVAILABLE}
+     * @param detail precision affichable, vide s'il n'y a rien a ajouter
+     */
+    public record CheckResult(Status status, UpdateInfo update, String detail) {
+
+        public boolean isAvailable() {
+            return status == Status.AVAILABLE && update != null;
+        }
+    }
+
     private final ConfigService config;
 
     public UpdateService(ConfigService config) {
@@ -99,18 +137,21 @@ public class UpdateService {
      *
      * @return la mise a jour disponible, ou un optional vide si tout est a jour
      */
-    public Optional<UpdateInfo> check() {
+    public CheckResult check() {
         String repository = config.settings().getGithubRepo();
         if (!repository.isBlank()) {
             return checkGitHub(repository);
+        }
+        if (config.settings().getUpdateUrl().isBlank()) {
+            return new CheckResult(Status.NOT_CONFIGURED, null, "");
         }
         return checkDescriptor();
     }
 
     /** Variante respectant le reglage de mise a jour automatique, utilisee au demarrage. */
-    public Optional<UpdateInfo> checkAtStartup() {
+    public CheckResult checkAtStartup() {
         if (!config.settings().isAutoUpdateLauncher()) {
-            return Optional.empty();
+            return new CheckResult(Status.NOT_CONFIGURED, null, "");
         }
         return check();
     }
@@ -124,44 +165,51 @@ public class UpdateService {
      *
      * @param repository depot au format {@code proprietaire/nom}
      */
-    private Optional<UpdateInfo> checkGitHub(String repository) {
+    private CheckResult checkGitHub(String repository) {
+        String depot = repository.trim();
         try {
             Map<String, String> headers = new HashMap<>();
             headers.put("Accept", "application/vnd.github+json");
             headers.put("X-GitHub-Api-Version", "2022-11-28");
 
             JsonObject release = Http.getJson(
-                    GITHUB_API + repository.trim() + "/releases/latest", headers);
+                    GITHUB_API + depot + "/releases/latest", headers);
 
-            if (Json.bool(release, "draft", false)) {
-                return Optional.empty();
-            }
-            // Une version de developpement n'est proposee que si l'utilisateur en a
-            // deja une : sinon elle surprendrait quelqu'un qui suit les versions stables.
-            if (Json.bool(release, "prerelease", false)) {
-                Log.debug("Derniere publication marquee comme preliminaire, ignoree");
-                return Optional.empty();
+            if (Json.bool(release, "draft", false)
+                    || Json.bool(release, "prerelease", false)) {
+                // Une version preliminaire ou un brouillon ne concerne pas quelqu'un
+                // qui suit les versions stables.
+                return new CheckResult(Status.UP_TO_DATE, null,
+                        "La derniere publication est un brouillon ou une version "
+                        + "preliminaire, elle n'est pas proposee.");
             }
 
             String version = normalizeVersion(Json.string(release, "tag_name", ""));
-            if (version.isBlank() || compareVersions(version, Constants.APP_VERSION) <= 0) {
+            if (version.isBlank()) {
+                return new CheckResult(Status.ERROR, null,
+                        "La publication ne porte pas d'etiquette de version exploitable.");
+            }
+            if (compareVersions(version, Constants.APP_VERSION) <= 0) {
                 Log.debug("Le launcher est a jour (" + Constants.APP_VERSION + ")");
-                return Optional.empty();
+                return new CheckResult(Status.UP_TO_DATE, null, "");
             }
 
             List<JsonObject> assets = assetsOf(release);
             JsonObject asset = pickAsset(assets);
             if (asset == null) {
-                Log.warn("Publication " + version + " sans fichier telechargeable adapte");
-                return Optional.empty();
+                return new CheckResult(Status.REJECTED, null,
+                        "La publication " + version + " ne contient aucun fichier adapte "
+                        + "a votre installation.");
             }
             String assetName = Json.string(asset, "name", "");
             String hash = readCompanionHash(assets, assetName);
             if (hash.isBlank()) {
-                Log.warn("Publication " + version + " refusee : aucun fichier "
-                        + assetName + ".sha256 ne l'accompagne, l'integrite du "
-                        + "telechargement ne peut pas etre verifiee.");
-                return Optional.empty();
+                Log.warn("Publication " + version + " refusee : aucun " + assetName
+                        + ".sha256 ne l'accompagne");
+                return new CheckResult(Status.REJECTED, null,
+                        "La publication " + version + " est refusee : aucun fichier "
+                        + assetName + ".sha256 ne l'accompagne. Ce fichier sera execute, "
+                        + "son integrite doit pouvoir etre verifiee.");
             }
 
             UpdateInfo info = new UpdateInfo(
@@ -176,12 +224,45 @@ public class UpdateService {
                     false,
                     assetName.toLowerCase(Locale.ROOT).endsWith(".exe"));
             Log.info("Mise a jour disponible sur GitHub : " + version);
-            return Optional.of(info);
+            return new CheckResult(Status.AVAILABLE, info, "");
+
+        } catch (Http.HttpStatusException e) {
+            // Un 404 sur /releases/latest ne dit pas si le depot est absent ou
+            // simplement depourvu de publication. Une seconde requete tranche, et
+            // seulement dans ce cas : le message vaut la peine d'etre exact.
+            if (e.status() == 404) {
+                return diagnose404(depot);
+            }
+            if (e.status() == 403) {
+                return new CheckResult(Status.ERROR, null,
+                        "GitHub a refuse la requete : quota de consultation atteint. "
+                        + "Reessayez dans une heure.");
+            }
+            Log.warn("Verification GitHub impossible : " + e.getMessage());
+            return new CheckResult(Status.ERROR, null,
+                    "GitHub a repondu HTTP " + e.status() + ".");
         } catch (Exception e) {
-            Log.warn("Verification des publications GitHub impossible : " + e.getMessage());
-            return Optional.empty();
+            Log.warn("Verification GitHub impossible : " + e.getMessage());
+            return new CheckResult(Status.ERROR, null,
+                    "La verification n'a pas abouti : " + e.getMessage());
         }
     }
+
+    /** Determine si un 404 vient du depot lui-meme ou de l'absence de publication. */
+    private CheckResult diagnose404(String depot) {
+        try {
+            Map<String, String> headers = new HashMap<>();
+            headers.put("Accept", "application/vnd.github+json");
+            Http.getJson(GITHUB_API + depot, headers);
+            return new CheckResult(Status.NO_RELEASE, null,
+                    "Le depot " + depot + " ne contient encore aucune publication.");
+        } catch (Exception e) {
+            return new CheckResult(Status.NOT_FOUND, null,
+                    "Le depot " + depot + " est introuvable. Verifiez son nom dans les "
+                    + "parametres, au format proprietaire/nom.");
+        }
+    }
+
 
     private List<JsonObject> assetsOf(JsonObject release) {
         List<JsonObject> assets = new java.util.ArrayList<>();
@@ -264,23 +345,29 @@ public class UpdateService {
     /* ------------------------------------------------------------------ */
 
     /** Lit un descripteur heberge par vos soins, pour ne pas dependre de GitHub. */
-    private Optional<UpdateInfo> checkDescriptor() {
+    private CheckResult checkDescriptor() {
         String url = config.settings().getUpdateUrl();
-        if (url.isBlank()) {
-            return Optional.empty();
-        }
         try {
             JsonObject payload = Http.getJson(url);
             String remoteVersion = Json.string(payload, "version", "");
-            if (remoteVersion.isBlank()
-                    || compareVersions(remoteVersion, Constants.APP_VERSION) <= 0) {
+            if (remoteVersion.isBlank()) {
+                return new CheckResult(Status.ERROR, null,
+                        "Le descripteur ne contient pas de numero de version.");
+            }
+            if (compareVersions(remoteVersion, Constants.APP_VERSION) <= 0) {
                 Log.debug("Le launcher est a jour (" + Constants.APP_VERSION + ")");
-                return Optional.empty();
+                return new CheckResult(Status.UP_TO_DATE, null, "");
             }
             // Les deux algorithmes sont acceptes ; SHA-256 est prefere s'il est fourni.
             String sha256 = Json.string(payload, "sha256", "");
             String sha1 = Json.string(payload, "sha1", "");
             String assetUrl = Json.string(payload, "url", "");
+
+            if (sha256.isBlank() && sha1.isBlank()) {
+                return new CheckResult(Status.REJECTED, null,
+                        "La version " + remoteVersion + " est refusee : le descripteur ne "
+                        + "fournit aucune empreinte permettant d'en verifier l'integrite.");
+            }
 
             UpdateInfo info = new UpdateInfo(
                     remoteVersion,
@@ -294,10 +381,11 @@ public class UpdateService {
                     Json.bool(payload, "mandatory", false),
                     assetUrl.toLowerCase(Locale.ROOT).endsWith(".exe"));
             Log.info("Mise a jour disponible : " + remoteVersion);
-            return Optional.of(info);
+            return new CheckResult(Status.AVAILABLE, info, "");
         } catch (Exception e) {
             Log.warn("Verification des mises a jour impossible : " + e.getMessage());
-            return Optional.empty();
+            return new CheckResult(Status.ERROR, null,
+                    "La verification n'a pas abouti : " + e.getMessage());
         }
     }
 

@@ -12,7 +12,6 @@ import javafx.scene.Node;
 import javafx.stage.Window;
 
 import java.nio.file.Path;
-import java.util.Optional;
 
 /**
  * Controleur de l'onglet Mise a jour.
@@ -85,21 +84,47 @@ public class UpdatesController {
         });
     }
 
-    private void applyResult(Optional<UpdateService.UpdateInfo> result) {
-        if (result.isEmpty()) {
-            pending = null;
-            view.setStatus(I18n.tr("updates.upToDate"),
-                    I18n.tr("updates.upToDate.detail", Constants.APP_VERSION),
+    /**
+     * Traduit le resultat en message.
+     *
+     * <p>Chaque etat a son propre libelle. Confondre "vous etes a jour" avec "je n'ai
+     * pas pu verifier" laisserait croire a l'utilisateur qu'il possede la derniere
+     * version alors que personne n'a pu le lui confirmer.</p>
+     */
+    private void applyResult(UpdateService.CheckResult result) {
+        pending = null;
+
+        switch (result.status()) {
+            case AVAILABLE -> {
+                pending = result.update();
+                view.setStatus(I18n.tr("updates.available", pending.version()),
+                        I18n.tr("updates.available.detail", pending.assetName(),
+                                formatDate(pending.publishedAt())),
+                        null);
+                view.setChangelog(pending.changelog());
+                view.setUpdateAvailable(true);
+            }
+            case UP_TO_DATE -> view.setStatus(I18n.tr("updates.upToDate"),
+                    result.detail().isBlank()
+                            ? I18n.tr("updates.upToDate.detail", Constants.APP_VERSION)
+                            : result.detail(),
                     "status-online");
-            return;
+
+            case NO_RELEASE -> view.setStatus(I18n.tr("updates.noRelease"),
+                    result.detail(), null);
+
+            case NOT_FOUND -> view.setStatus(I18n.tr("updates.notFound"),
+                    result.detail(), "status-offline");
+
+            case NOT_CONFIGURED -> view.setStatus(I18n.tr("updates.notConfigured"),
+                    I18n.tr("updates.notConfigured.detail"), null);
+
+            case REJECTED -> view.setStatus(I18n.tr("updates.rejected"),
+                    result.detail(), "status-offline");
+
+            default -> view.setStatus(I18n.tr("updates.failed"), result.detail(),
+                    "status-offline");
         }
-        pending = result.get();
-        view.setStatus(I18n.tr("updates.available", pending.version()),
-                I18n.tr("updates.available.detail", pending.assetName(),
-                        formatDate(pending.publishedAt())),
-                null);
-        view.setChangelog(pending.changelog());
-        view.setUpdateAvailable(true);
     }
 
     /** La date de GitHub arrive au format ISO ; seul le jour interesse ici. */

@@ -13,6 +13,34 @@ emplacements changent ensemble ; `package.ps1` lit le premier et le transmet aux
 
 ---
 
+## 1.3.3 — 25 août 2026
+
+### L'onglet Mise à jour ne ment plus
+
+L'onglet affichait **« MiniCube est à jour »** dans tous les cas où aucune mise à jour
+n'était retournée — y compris quand la vérification avait échoué, quand le dépôt était
+introuvable, ou quand une publication avait été refusée faute d'empreinte. L'utilisateur
+croyait donc posséder la dernière version alors que personne n'avait pu le lui confirmer.
+
+La vérification renvoie désormais un état parmi sept, chacun avec son message :
+
+| État | Ce qui s'affiche |
+|---|---|
+| `AVAILABLE` | La version disponible, avec ses nouveautés |
+| `UP_TO_DATE` | Vous avez bien la dernière version publiée |
+| `NO_RELEASE` | Le dépôt ne contient encore aucune publication |
+| `NOT_FOUND` | Le dépôt est introuvable, vérifiez son nom |
+| `NOT_CONFIGURED` | Aucune source n'est renseignée |
+| `REJECTED` | La publication existe mais a été refusée, et pourquoi |
+| `ERROR` | La vérification n'a pas abouti, avec la cause |
+
+Un `404` donne lieu à une seconde requête, uniquement dans ce cas, pour distinguer un
+dépôt absent d'un dépôt sans publication. Le message vaut cette requête supplémentaire.
+
+Le quota GitHub atteint (`403`) est également identifié et expliqué.
+
+---
+
 ## 1.3.2 — 25 août 2026
 
 ### Publier une version sans se tromper

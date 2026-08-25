@@ -422,11 +422,11 @@ public class ShellController {
      */
     private void checkForLauncherUpdate() {
         Fx.async(() -> context.updates().checkAtStartup(), update -> {
-            if (update.isEmpty()) {
+            if (!update.isAvailable()) {
                 return;
             }
             context.notifications().info(I18n.tr("updates.title"),
-                    I18n.tr("updates.notification", update.get().version()));
+                    I18n.tr("updates.notification", update.update().version()));
         }, error -> Log.debug("Verification de mise a jour ignoree : " + error.getMessage()));
     }
 
