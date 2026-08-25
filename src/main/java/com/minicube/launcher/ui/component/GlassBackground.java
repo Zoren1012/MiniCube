@@ -19,10 +19,12 @@ import java.util.List;
 /**
  * Fond vivant sur lequel repose tout l'effet de verre.
  *
- * <p>Des halos colores derivent lentement les uns sur les autres. Les panneaux de
- * l'interface etant translucides, ce sont ces couleurs qui transparaissent au travers
- * et donnent au verre sa profondeur : sans un fond qui bouge, une surface translucide
- * ressemble a un simple gris.</p>
+ * <p>Trois halos, tous dans la meme famille de violets et de bleus, derivent lentement
+ * les uns sur les autres. Une seule famille de teintes : des couleurs opposees se
+ * salissent mutuellement la ou elles se recouvrent, et le contenu pose dessus perd sa
+ * lisibilite. Les panneaux etant translucides, ce sont ces couleurs qui transparaissent
+ * au travers et donnent au verre sa profondeur : sans un fond qui bouge, une surface
+ * translucide ressemble a un simple gris.</p>
  *
  * <p>Chaque halo est un cercle rempli d'un degrade radial qui s'eteint vers la
  * transparence. Ce choix evite un flou gaussien plein ecran, bien plus couteux, tout en
@@ -36,18 +38,14 @@ public class GlassBackground extends Pane {
     }
 
     private static final List<Blob> DARK_BLOBS = List.of(
-            new Blob(Color.web("#7C5CFF"), 0.52, 0.16, 0.18, 90, 70, 17),
-            new Blob(Color.web("#2E8BFF"), 0.46, 0.82, 0.12, -110, 90, 21),
-            new Blob(Color.web("#16C7B4"), 0.40, 0.68, 0.86, -80, -70, 25),
-            new Blob(Color.web("#FF4FA3"), 0.34, 0.10, 0.92, 120, -60, 19),
-            new Blob(Color.web("#5E3BFF"), 0.30, 0.48, 0.48, 70, -90, 29));
+            new Blob(Color.web("#6D4AFF"), 0.78, 0.06, 0.10, 70, 50, 23),
+            new Blob(Color.web("#2E6BFF"), 0.70, 0.94, 0.20, -80, 60, 29),
+            new Blob(Color.web("#4A2FD0"), 0.62, 0.55, 1.02, -60, -40, 35));
 
     private static final List<Blob> LIGHT_BLOBS = List.of(
-            new Blob(Color.web("#8E76FF"), 0.52, 0.16, 0.18, 90, 70, 17),
-            new Blob(Color.web("#5BA8FF"), 0.46, 0.82, 0.12, -110, 90, 21),
-            new Blob(Color.web("#4BD8CA"), 0.40, 0.68, 0.86, -80, -70, 25),
-            new Blob(Color.web("#FF83BE"), 0.34, 0.10, 0.92, 120, -60, 19),
-            new Blob(Color.web("#9C88FF"), 0.30, 0.48, 0.48, 70, -90, 29));
+            new Blob(Color.web("#9C86FF"), 0.78, 0.06, 0.10, 70, 50, 23),
+            new Blob(Color.web("#7FB0FF"), 0.70, 0.94, 0.20, -80, 60, 29),
+            new Blob(Color.web("#8E7BFF"), 0.62, 0.55, 1.02, -60, -40, 35));
 
     private final Pane halos = new Pane();
     private final List<Timeline> animations = new ArrayList<>();
@@ -92,7 +90,7 @@ public class GlassBackground extends Pane {
         double reference = Math.max(width, height);
         // Le theme clair recoit des halos plus discrets : sur fond pale, la meme
         // intensite donnerait des taches de couleur au lieu d'une lumiere diffuse.
-        double peak = dark ? 0.55 : 0.34;
+        double peak = dark ? 0.46 : 0.26;
 
         for (Blob blob : (dark ? DARK_BLOBS : LIGHT_BLOBS)) {
             double radius = reference * blob.radiusRatio();

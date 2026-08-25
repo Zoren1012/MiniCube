@@ -59,10 +59,19 @@ public class HomeView {
         root = Ui.page(I18n.tr("home.title"), null, hero, serverLine(), stats, newsCard);
     }
 
-    /** Ligne rappelant le serveur principal surveille. */
+    /**
+     * Ligne rappelant le serveur principal surveille.
+     *
+     * <p>Presentee en pastille plutot qu'en texte nu : posee entre la banniere et les
+     * vignettes, une simple ligne flottait sans rien a quoi se rattacher.</p>
+     */
     private HBox serverLine() {
-        serverNameLabel.getStyleClass().add("setting-hint");
-        HBox line = new HBox(8, Icons.of(Icons.SERVER, 15), serverNameLabel);
+        serverNameLabel.getStyleClass().add("chip-label");
+        HBox chip = new HBox(8, Icons.of(Icons.SERVER, 14), serverNameLabel);
+        chip.getStyleClass().add("chip");
+        chip.setAlignment(Pos.CENTER_LEFT);
+
+        HBox line = new HBox(chip);
         line.setAlignment(Pos.CENTER_LEFT);
         return line;
     }
@@ -71,15 +80,16 @@ public class HomeView {
     private VBox statCard(String title, Label valueLabel, String icon) {
         valueLabel.getStyleClass().add("stat-value");
 
-        Label name = new Label(title);
+        // Petites capitales : la legende nomme la valeur sans lui disputer l'oeil.
+        // JavaFX ignore -fx-letter-spacing, la mise en capitales se fait donc ici.
+        Label name = new Label(title.toUpperCase(java.util.Locale.ROOT));
         name.getStyleClass().add("stat-label");
 
-        HBox header = new HBox(8, Icons.of(icon, 16), name);
+        HBox header = new HBox(8, Icons.of(icon, 15), name);
         header.setAlignment(Pos.CENTER_LEFT);
 
-        VBox card = new VBox(6, header, valueLabel);
+        VBox card = new VBox(10, header, valueLabel);
         card.getStyleClass().addAll("card", "stat-card");
-        card.setPadding(new Insets(16, 20, 16, 20));
         HBox.setHgrow(card, Priority.ALWAYS);
         card.setMaxWidth(Double.MAX_VALUE);
         return card;

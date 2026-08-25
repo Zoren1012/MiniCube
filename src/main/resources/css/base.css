@@ -46,7 +46,7 @@
 /* ------------------------------------------------------------------ */
 
 .sidebar {
-    -fx-background-color: -color-glass-panel;
+    -fx-background-color: -color-veil-side, -color-glass-panel;
     -fx-border-color: transparent -color-stroke transparent transparent;
     -fx-border-width: 0 1 0 0;
 }
@@ -55,7 +55,6 @@
     -fx-font-size: 19px;
     -fx-font-weight: bold;
     -fx-text-fill: -color-text;
-    -fx-letter-spacing: 1;
 }
 
 .brand-version {
@@ -67,15 +66,19 @@
     -fx-background-color: transparent;
 }
 
-/* Pastille glissante qui suit l'onglet actif. */
+/*
+ * Le repere qui glisse derriere l'onglet actif. Teinte d'accent plutot que blanche :
+ * l'onglet courant doit se lire d'un coup d'oeil, pas se deviner.
+ */
 .nav-indicator {
-    -fx-background-color: -color-glass-strong;
-    -fx-background-radius: 13;
+    -fx-background-color: -color-accent-veil, -color-sheen;
+    -fx-background-radius: 13, 13;
+    -fx-background-insets: 0, 0;
     -fx-border-color: linear-gradient(to bottom,
-                      rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.05));
+                      rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.04));
     -fx-border-radius: 13;
     -fx-border-width: 1;
-    -fx-effect: dropshadow(gaussian, -color-accent-glow, 22, 0.10, 0, 4);
+    -fx-effect: dropshadow(gaussian, -color-accent-glow, 26, 0.22, 0, 4);
 }
 
 .nav-button {
@@ -138,9 +141,17 @@
 /* Zone de contenu                                                     */
 /* ------------------------------------------------------------------ */
 
-.center-pane,
-.content-area {
+.center-pane {
     -fx-background-color: transparent;
+}
+
+/*
+ * Le contenu repose sur un voile sombre plutot que directement sur les halos. Ceux-ci
+ * restent visibles sur les bords et au travers des cartes, mais cessent de passer en
+ * pleine intensite derriere les textes.
+ */
+.content-area {
+    -fx-background-color: -color-veil;
 }
 
 .content-scroll {
@@ -159,13 +170,13 @@
 }
 
 .page-title {
-    -fx-font-size: 26px;
+    -fx-font-size: 32px;
     -fx-font-weight: bold;
     -fx-text-fill: -color-text;
 }
 
 .page-subtitle {
-    -fx-font-size: 13px;
+    -fx-font-size: 13.5px;
     -fx-text-fill: -color-text-dim;
 }
 
@@ -173,24 +184,30 @@
 /* Verre : cartes et reglages                                          */
 /* ------------------------------------------------------------------ */
 
+/*
+ * Une carte superpose deux fonds : le voile de verre, puis un reflet tres court qui
+ * eclaircit le haut. C'est ce second calque qui donne l'impression d'une surface qui
+ * capte la lumiere, plutot que d'un simple rectangle gris.
+ */
 .card {
-    -fx-background-color: -color-glass;
-    -fx-background-radius: 20;
-    -fx-border-color: linear-gradient(to bottom,
-                      rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.04));
+    -fx-background-color: -color-glass, -color-sheen;
+    -fx-background-radius: 20, 20;
+    -fx-background-insets: 0, 0;
+    -fx-border-color: -color-edge;
     -fx-border-radius: 20;
     -fx-border-width: 1;
-    -fx-padding: 22 24 22 24;
-    -fx-effect: dropshadow(gaussian, -color-shadow, 34, 0.05, 0, 14);
+    -fx-padding: 24 26 24 26;
+    -fx-effect: dropshadow(gaussian, -color-shadow, 38, 0.12, 0, 12);
 }
 
 .card-title {
-    -fx-font-size: 15.5px;
+    -fx-font-size: 16.5px;
     -fx-font-weight: bold;
+    -fx-text-fill: -color-text;
 }
 
 .setting-row {
-    -fx-padding: 5 0 5 0;
+    -fx-padding: 7 0 7 0;
 }
 
 .setting-label {
@@ -205,6 +222,30 @@
 
 .divider {
     -fx-background-color: -color-stroke;
+}
+
+/* Pastille : une information courte qui doit se rattacher a quelque chose. */
+.chip {
+    -fx-background-color: -color-glass-soft;
+    -fx-background-radius: 11;
+    -fx-border-color: -color-stroke;
+    -fx-border-radius: 11;
+    -fx-border-width: 1;
+    -fx-padding: 6 13 6 13;
+}
+
+.chip-label {
+    -fx-font-size: 11.5px;
+    -fx-text-fill: -color-text-dim;
+}
+
+/*
+ * Filet entre deux reglages. Plus discret qu'un separateur ordinaire : il doit donner
+ * le rythme sans decouper la carte en tranches. Sa couleur vient du theme : un blanc
+ * ecrit en dur serait invisible sur le theme clair.
+ */
+.row-divider {
+    -fx-background-color: -color-hairline;
 }
 
 .slider-value {
@@ -302,9 +343,13 @@
 /* Barre de lancement                                                  */
 /* ------------------------------------------------------------------ */
 
+/*
+ * La barre du bas porte l'action principale : elle doit se detacher du contenu qui
+ * defile derriere, d'ou un voile plus dense qu'ailleurs.
+ */
 .launch-bar {
-    -fx-background-color: -color-glass-panel;
-    -fx-border-color: -color-stroke transparent transparent transparent;
+    -fx-background-color: -color-veil, -color-glass-panel;
+    -fx-border-color: -color-stroke-bright transparent transparent transparent;
     -fx-border-width: 1 0 0 0;
 }
 
@@ -359,40 +404,51 @@
 /* Accueil                                                             */
 /* ------------------------------------------------------------------ */
 
+/*
+ * La banniere d'accueil est le premier element que l'on voit : elle porte une teinte
+ * d'accent franche, la ou les cartes ordinaires restent neutres.
+ */
 .hero {
     -fx-background-color: linear-gradient(to bottom right,
-                          -color-accent-veil, -color-glass);
-    -fx-background-radius: 24;
+                          rgba(124, 92, 255, 0.34) 0%,
+                          rgba(63, 155, 255, 0.18) 55%,
+                          rgba(255, 255, 255, 0.05) 100%), -color-sheen;
+    -fx-background-radius: 24, 24;
+    -fx-background-insets: 0, 0;
     -fx-border-color: linear-gradient(to bottom,
-                      rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.04));
+                      rgba(255, 255, 255, 0.38), rgba(255, 255, 255, 0.06));
     -fx-border-radius: 24;
     -fx-border-width: 1;
-    -fx-effect: dropshadow(gaussian, -color-shadow, 40, 0.05, 0, 16);
+    -fx-padding: 30 34 30 34;
+    -fx-effect: dropshadow(gaussian, -color-shadow, 44, 0.14, 0, 16);
 }
 
 .hero-title {
-    -fx-font-size: 30px;
+    -fx-font-size: 34px;
     -fx-font-weight: bold;
 }
 
 .hero-subtitle {
-    -fx-font-size: 13.5px;
+    -fx-font-size: 14px;
     -fx-text-fill: -color-text-dim;
 }
 
 .stat-card {
-    -fx-padding: 18 22 18 22;
-    -fx-background-radius: 18;
+    -fx-padding: 20 24 20 24;
+    -fx-background-radius: 18, 18;
+    -fx-background-insets: 0, 0;
     -fx-border-radius: 18;
 }
 
 .stat-value {
-    -fx-font-size: 22px;
+    -fx-font-size: 28px;
     -fx-font-weight: bold;
 }
 
+/* Legende en petites capitales espacees : elle nomme la valeur sans lui disputer l'oeil. */
 .stat-label {
-    -fx-font-size: 11px;
+    -fx-font-size: 10.5px;
+    -fx-font-weight: bold;
     -fx-text-fill: -color-text-faint;
 }
 
@@ -672,7 +728,6 @@
     -fx-font-family: "Cascadia Mono", "Consolas", monospace;
     -fx-font-size: 32px;
     -fx-font-weight: bold;
-    -fx-letter-spacing: 7;
     -fx-text-fill: -color-accent-bright;
     -fx-padding: 10 0 6 0;
 }
@@ -776,21 +831,62 @@
     -fx-text-fill: -color-text;
 }
 
+/*
+ * Les cases a cocher sont dessinees en interrupteurs : sur une page qui en aligne huit,
+ * un rail qui s'allume se lit d'un coup d'oeil, la ou un petit carre demande de
+ * chercher la coche. La boite sert de rail, la marque de bouton, et la marque est
+ * deplacee de part et d'autre selon l'etat.
+ */
 .check-box .box {
     -fx-background-color: -color-glass-strong;
-    -fx-border-color: -color-stroke-bright;
-    -fx-border-radius: 7;
-    -fx-background-radius: 7;
-    -fx-padding: 4;
+    -fx-border-color: -color-stroke;
+    -fx-border-radius: 13;
+    -fx-background-radius: 13;
+    -fx-border-width: 1;
+    -fx-padding: 0;
+    -fx-pref-width: 46;
+    -fx-min-width: 46;
+    -fx-max-width: 46;
+    -fx-pref-height: 26;
+    -fx-min-height: 26;
+    -fx-max-height: 26;
+    -fx-alignment: center;
+}
+
+/* Un disque a la place de la coche : -fx-shape remplace le trace par defaut. */
+.check-box .box .mark {
+    -fx-shape: "M 10 0 A 10 10 0 1 0 10 20 A 10 10 0 1 0 10 0 Z";
+    -fx-scale-shape: true;
+    -fx-background-color: -color-text-dim;
+    -fx-background-insets: 0;
+    -fx-min-width: 18;
+    -fx-min-height: 18;
+    -fx-pref-width: 18;
+    -fx-pref-height: 18;
+    -fx-max-width: 18;
+    -fx-max-height: 18;
+    -fx-padding: 0;
+    -fx-translate-x: -10;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.45), 6, 0.10, 0, 1);
 }
 
 .check-box:selected .box {
-    -fx-background-color: linear-gradient(to bottom right, -color-accent, -color-accent-2);
+    -fx-background-color: linear-gradient(to right, -color-accent, -color-accent-2);
     -fx-border-color: transparent;
+    -fx-effect: dropshadow(gaussian, -color-accent-glow, 14, 0.16, 0, 2);
 }
 
-.check-box:selected .mark {
+.check-box:selected .box .mark {
     -fx-background-color: white;
+    -fx-translate-x: 10;
+}
+
+.check-box:hover .box {
+    -fx-border-color: -color-stroke-bright;
+}
+
+.check-box:disabled {
+    -fx-opacity: 0.45;
 }
 
 .radio-button {

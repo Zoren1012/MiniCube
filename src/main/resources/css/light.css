@@ -20,9 +20,23 @@
     -color-glass-bright: rgba(255, 255, 255, 0.96);
     -color-glass-panel: rgba(255, 255, 255, 0.58);
 
+    /* Sur fond clair, le voile eclaircit au lieu d'assombrir. */
+    -color-veil: rgba(255, 255, 255, 0.42);
+    -color-veil-side: rgba(255, 255, 255, 0.26);
+
+    -color-hairline: rgba(20, 26, 55, 0.09);
     -color-stroke: rgba(20, 26, 55, 0.10);
     -color-stroke-bright: rgba(20, 26, 55, 0.20);
     -color-shadow: rgba(60, 72, 115, 0.20);
+
+    -color-sheen: linear-gradient(to bottom,
+                  rgba(255, 255, 255, 0.55) 0%,
+                  rgba(255, 255, 255, 0.20) 38%,
+                  rgba(255, 255, 255, 0.0) 100%);
+    -color-edge: linear-gradient(to bottom,
+                 rgba(20, 26, 55, 0.16) 0%,
+                 rgba(20, 26, 55, 0.09) 42%,
+                 rgba(20, 26, 55, 0.06) 100%);
 
     -color-accent: #6247E0;
     -color-accent-2: #2C87E8;

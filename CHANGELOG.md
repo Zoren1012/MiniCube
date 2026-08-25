@@ -13,6 +13,41 @@ emplacements changent ensemble ; `package.ps1` lit le premier et le transmet aux
 
 ---
 
+## 1.10.0 — 26 août 2026
+
+### Refonte visuelle
+
+- **Le fond ne salit plus le contenu.** Il portait cinq halos de couleurs opposées —
+  violet, bleu, turquoise, rose — qui se recouvraient en donnant des teintes boueuses, et
+  traversaient les cartes en pleine intensité. Il n'en reste que **trois, tous dans la
+  même famille de violets et de bleus**, et un voile sombre est posé sous le contenu :
+  les halos restent visibles sur les bords, mais cessent de passer derrière les textes.
+- **Les cartes se détachent enfin.** Elles superposent désormais le voile de verre et un
+  reflet très court qui éclaircit leur bord supérieur — ce qui fait lire une surface qui
+  capte la lumière plutôt qu'un rectangle gris. Bordure, ombre et espacements revus.
+- **Les cases à cocher sont devenues des interrupteurs.** Sur une page qui en aligne huit,
+  un rail qui s'allume se lit d'un coup d'œil, là où un petit carré demandait de chercher
+  la coche.
+- **Un filet sépare deux réglages consécutifs.** Sans lui, une carte de huit lignes
+  formait un pavé uniforme où l'œil ne savait plus quelle explication se rapportait à quel
+  interrupteur.
+- **Hiérarchie typographique reprise** : titres de page nettement plus grands, valeurs de
+  statistiques doublées de taille, légendes en petites capitales.
+- **L'onglet actif se voit.** Le repère qui glisse derrière lui est passé du blanc à la
+  teinte d'accent, avec sa lueur.
+- La barre du bas se détache du contenu qui défile derrière, la bannière d'accueil porte
+  une vraie teinte d'accent, et le rappel du serveur principal est présenté en pastille au
+  lieu de flotter en texte nu.
+
+### Corrections
+
+- **`-fx-letter-spacing` n'existe pas en JavaFX** et était silencieusement ignoré. Les
+  légendes qui en dépendaient sont passées en capitales, ce qui fonctionne réellement.
+- Le filet de séparation tire sa couleur du thème : écrit en blanc, il aurait été
+  invisible sur le thème clair.
+
+---
+
 ## 1.9.0 — 26 août 2026
 
 ### Installation des chargeurs de mods

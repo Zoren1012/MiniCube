@@ -58,17 +58,44 @@ public final class Ui {
         return pane;
     }
 
-    /** Carte : bloc encadre regroupant des reglages ou des informations. */
+    /**
+     * Carte : bloc encadre regroupant des reglages ou des informations.
+     *
+     * <p>Un filet est glisse entre deux lignes de reglage consecutives. Sans lui, une
+     * carte qui en aligne huit forme un pave uniforme ou l'oeil ne sait plus quelle
+     * explication se rapporte a quel interrupteur.</p>
+     */
     public static VBox card(String title, Node... content) {
-        VBox card = new VBox(14);
+        VBox card = new VBox(12);
         card.getStyleClass().add("card");
         if (title != null && !title.isBlank()) {
             Label label = new Label(title);
             label.getStyleClass().add("card-title");
             card.getChildren().add(label);
         }
-        card.getChildren().addAll(content);
+        Node previous = null;
+        for (Node node : content) {
+            if (isSettingRow(previous) && isSettingRow(node)) {
+                card.getChildren().add(rowDivider());
+            }
+            card.getChildren().add(node);
+            previous = node;
+        }
         return card;
+    }
+
+    private static boolean isSettingRow(Node node) {
+        return node != null && node.getStyleClass().contains("setting-row");
+    }
+
+    /** Filet horizontal separant deux reglages. */
+    private static Region rowDivider() {
+        Region divider = new Region();
+        divider.getStyleClass().add("row-divider");
+        divider.setMinHeight(1);
+        divider.setPrefHeight(1);
+        divider.setMaxHeight(1);
+        return divider;
     }
 
     /** Ligne de reglage : libelle, explication et controle aligne a droite. */

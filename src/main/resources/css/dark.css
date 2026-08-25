@@ -20,9 +20,31 @@
     -color-glass-bright: rgba(255, 255, 255, 0.16);
     -color-glass-panel: rgba(255, 255, 255, 0.038);
 
+    /*
+     * Voile pose sous le contenu. Les halos restent visibles sur les bords de la
+     * fenetre, mais sont attenues la ou se lisent les textes : une carte translucide
+     * posee directement sur un halo vif devient illisible.
+     */
+    -color-veil: rgba(7, 8, 13, 0.46);
+    -color-veil-side: rgba(7, 8, 13, 0.26);
+
+    -color-hairline: rgba(255, 255, 255, 0.055);
     -color-stroke: rgba(255, 255, 255, 0.12);
     -color-stroke-bright: rgba(255, 255, 255, 0.26);
     -color-shadow: rgba(0, 0, 0, 0.55);
+
+    /*
+     * Reflet du verre : une carte reelle capte davantage de lumiere sur son bord
+     * superieur. Ce degrade tres court, applique en surcouche, suffit a le suggerer.
+     */
+    -color-sheen: linear-gradient(to bottom,
+                  rgba(255, 255, 255, 0.075) 0%,
+                  rgba(255, 255, 255, 0.018) 38%,
+                  rgba(255, 255, 255, 0.0) 100%);
+    -color-edge: linear-gradient(to bottom,
+                 rgba(255, 255, 255, 0.30) 0%,
+                 rgba(255, 255, 255, 0.10) 42%,
+                 rgba(255, 255, 255, 0.045) 100%);
 
     -color-accent: #7C5CFF;
     -color-accent-2: #3F9BFF;
