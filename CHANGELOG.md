@@ -13,6 +13,26 @@ emplacements changent ensemble ; `package.ps1` lit le premier et le transmet aux
 
 ---
 
+## 1.8.0 — 25 août 2026
+
+### Retrait de l'accueil vocal
+
+- **L'accueil vocal est supprimé**, ainsi que la voix neuronale qui l'accompagnait. Le
+  launcher ne parle plus au démarrage. Décision assumée : entendre son pseudo prononcé à
+  chaque lancement lasse vite, et cela ne valait ni les quatre-vingts mégaoctets de moteur
+  neuronal, ni la dépendance à un binaire tiers à distribuer à toute une communauté.
+- Sont retirés du code : `VoiceService`, `NeuralVoiceService`, la carte *Voix neuronale*
+  et la case *Accueil vocal au démarrage* des paramètres, ainsi que les traductions
+  associées.
+- **Rien à faire de votre côté.** Les réglages `voiceGreetingEnabled`, `neuralVoiceEnabled`
+  et `neuralVoiceId` que contient peut-être votre `config.json` sont simplement ignorés, et
+  disparaîtront du fichier au prochain enregistrement. Si vous aviez installé la voix
+  neuronale, le dossier `.minicube/voice-neural/` peut être effacé : il ne sert plus.
+- Les versions **1.6.0** et **1.7.0** restent étiquetées dans Git : la fonction est
+  récupérable telle quelle si l'envie revenait.
+
+---
+
 ## 1.7.0 — 25 août 2026
 
 ### Voix neuronale

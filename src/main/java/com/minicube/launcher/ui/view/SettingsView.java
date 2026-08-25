@@ -13,7 +13,6 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
-import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
@@ -55,7 +54,6 @@ public class SettingsView {
     private final CheckBox autoUpdate = new CheckBox();
     private final CheckBox verifyFiles = new CheckBox();
     private final CheckBox autoInstallMods = new CheckBox();
-    private final CheckBox voiceGreeting = new CheckBox();
 
     private final TextField gameDirectory = new TextField();
     private final Button changeGameDirButton = Ui.secondaryButton(I18n.tr("settings.game.change"),
@@ -68,17 +66,6 @@ public class SettingsView {
     private final Label profileSummary = Ui.hint("");
     private final Button openProfileButton =
             Ui.primaryButton(I18n.tr("profile.open"), Icons.PERSON);
-
-    private final CheckBox neuralVoiceEnabled = new CheckBox();
-    private final ComboBox<String> neuralVoiceId = new ComboBox<>();
-    private final Button installVoiceButton =
-            Ui.primaryButton(I18n.tr("voice.install"), Icons.DOWNLOAD);
-    private final Button previewVoiceButton =
-            Ui.secondaryButton(I18n.tr("voice.preview"), Icons.PLAY);
-    private final Button removeVoiceButton =
-            Ui.dangerButton(I18n.tr("voice.remove"), Icons.TRASH);
-    private final Label neuralVoiceStatus = Ui.hint("");
-    private final ProgressBar neuralVoiceProgress = new ProgressBar(0);
 
     private final CheckBox cloudSyncEnabled = new CheckBox();
     private final TextField cloudSyncUrl = new TextField();
@@ -100,8 +87,7 @@ public class SettingsView {
     public SettingsView() {
         root = Ui.page(I18n.tr("settings.title"), I18n.tr("settings.subtitle"),
                 memoryCard(), javaCard(), appearanceCard(), behaviourCard(),
-                installationCard(), neuralVoiceCard(), accountCard(), profileCard(),
-                updateSourceCard(),
+                installationCard(), accountCard(), profileCard(), updateSourceCard(),
                 cloudCard(),
                 maintenanceCard(),
                 actionsRow());
@@ -176,8 +162,6 @@ public class SettingsView {
                         I18n.tr("settings.verifyBeforeLaunch.hint"), verifyFiles),
                 Ui.settingRow(I18n.tr("settings.autoInstallMods"),
                         I18n.tr("settings.autoInstallMods.hint"), autoInstallMods),
-                Ui.settingRow(I18n.tr("settings.voiceGreeting"),
-                        I18n.tr("settings.voiceGreeting.hint"), voiceGreeting),
                 Ui.settingRow(I18n.tr("settings.autoUpdate"), I18n.tr("settings.autoUpdate.hint"),
                         autoUpdate),
                 Ui.settingRow(I18n.tr("settings.debug"), I18n.tr("settings.debug.hint"),
@@ -220,28 +204,6 @@ public class SettingsView {
                 Ui.settingRow(I18n.tr("settings.cloud.url"), null, cloudSyncUrl),
                 Ui.settingRow(I18n.tr("settings.cloud.token"), null, cloudSyncToken),
                 actions);
-    }
-
-    /**
-     * Voix neuronale : choix de la voix, installation et essai.
-     *
-     * <p>Le moteur pesant plusieurs dizaines de megaoctets, il n'est jamais telecharge
-     * sans demande explicite : la carte annonce le poids avant de proposer le bouton.</p>
-     */
-    private VBox neuralVoiceCard() {
-        neuralVoiceProgress.setMaxWidth(Double.MAX_VALUE);
-        neuralVoiceProgress.setVisible(false);
-        neuralVoiceProgress.setManaged(false);
-
-        HBox actions = new HBox(12, installVoiceButton, previewVoiceButton, removeVoiceButton);
-        actions.setAlignment(Pos.CENTER_LEFT);
-
-        return Ui.card(I18n.tr("voice.neural.title"),
-                Ui.hint(I18n.tr("voice.neural.hint")),
-                Ui.settingRow(I18n.tr("voice.neural.enable"),
-                        I18n.tr("voice.neural.enable.hint"), neuralVoiceEnabled),
-                Ui.settingRow(I18n.tr("voice.neural.voice"), null, neuralVoiceId),
-                neuralVoiceStatus, neuralVoiceProgress, actions);
     }
 
     /** Acces au compte MiniCube, servi par le serveur local du launcher. */
@@ -355,37 +317,6 @@ public class SettingsView {
         return autoInstallMods;
     }
 
-    public CheckBox voiceGreeting() {
-        return voiceGreeting;
-    }
-
-    public CheckBox neuralVoiceEnabled() {
-        return neuralVoiceEnabled;
-    }
-
-    public ComboBox<String> neuralVoiceId() {
-        return neuralVoiceId;
-    }
-
-    public Button installVoiceButton() {
-        return installVoiceButton;
-    }
-
-    public Button previewVoiceButton() {
-        return previewVoiceButton;
-    }
-
-    public Button removeVoiceButton() {
-        return removeVoiceButton;
-    }
-
-    public Label neuralVoiceStatus() {
-        return neuralVoiceStatus;
-    }
-
-    public ProgressBar neuralVoiceProgress() {
-        return neuralVoiceProgress;
-    }
 
     public TextField gameDirectory() {
         return gameDirectory;

@@ -131,19 +131,6 @@ public class MiniCubeLauncher extends Application {
             context.accounts().refreshActiveQuietly();
             return Boolean.TRUE;
         }, ignored -> { }, error -> Log.debug("Reconnexion automatique ignoree"));
-
-        greetPlayer();
-    }
-
-    /**
-     * Prononce le mot de bienvenue.
-     *
-     * <p>Le pseudo du compte MiniCube prime : c'est celui que le joueur s'est choisi.
-     * A defaut, celui du compte de jeu actif ; sans aucun des deux, l'accueil reste
-     * generique. La synthese se fait sur un fil separe et n'attend jamais l'affichage.</p>
-     */
-    private void greetPlayer() {
-        context.voice().greet(context.playerDisplayName());
     }
 
     /**

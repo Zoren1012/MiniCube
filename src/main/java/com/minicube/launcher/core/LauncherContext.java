@@ -9,7 +9,6 @@ import com.minicube.launcher.service.JavaRuntimeService;
 import com.minicube.launcher.service.MicrosoftAuthService;
 import com.minicube.launcher.service.MinecraftInstallService;
 import com.minicube.launcher.service.ModService;
-import com.minicube.launcher.service.NeuralVoiceService;
 import com.minicube.launcher.service.NewsService;
 import com.minicube.launcher.service.NotificationService;
 import com.minicube.launcher.service.ProfileService;
@@ -20,7 +19,6 @@ import com.minicube.launcher.service.ServerPingService;
 import com.minicube.launcher.service.ShaderService;
 import com.minicube.launcher.service.SkinService;
 import com.minicube.launcher.service.UpdateService;
-import com.minicube.launcher.service.VoiceService;
 import com.minicube.launcher.util.Log;
 
 import java.nio.file.Path;
@@ -53,8 +51,6 @@ public class LauncherContext {
     private final SkinService skins;
     private final ProfileService profiles;
     private final ProfileWebServer profileServer;
-    private final VoiceService voice;
-    private final NeuralVoiceService neuralVoice;
 
     private LauncherPaths paths;
     private JavaRuntimeService javaRuntime;
@@ -78,8 +74,6 @@ public class LauncherContext {
         this.skins = new SkinService(auth);
         this.profiles = new ProfileService();
         this.profileServer = new ProfileWebServer(profiles);
-        this.neuralVoice = new NeuralVoiceService();
-        this.voice = new VoiceService(config.settings(), LauncherPaths.cacheDir(), neuralVoice);
 
         rebindGameDirectory();
     }
@@ -163,31 +157,6 @@ public class LauncherContext {
     /** Serveur local servant la page de compte. */
     public ProfileWebServer profileServer() {
         return profileServer;
-    }
-
-    /** Accueil vocal du demarrage. */
-    public VoiceService voice() {
-        return voice;
-    }
-
-    /** Moteur de synthese neuronale local. */
-    public NeuralVoiceService neuralVoice() {
-        return neuralVoice;
-    }
-
-    /**
-     * Nom sous lequel saluer le joueur.
-     *
-     * <p>Le pseudo du compte MiniCube prime : c est celui que le joueur s est choisi.
-     * A defaut, celui du compte de jeu actif ; sans aucun des deux, la chaine est vide
-     * et l accueil reste generique.</p>
-     */
-    public String playerDisplayName() {
-        if (profiles.profile().exists()) {
-            return profiles.profile().getUsername();
-        }
-        return accounts.active().map(com.minicube.launcher.model.Account::getUsername)
-                .orElse("");
     }
 
     public LauncherPaths paths() {

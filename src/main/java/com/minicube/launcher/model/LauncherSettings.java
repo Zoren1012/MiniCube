@@ -53,12 +53,6 @@ public class LauncherSettings {
     private boolean verifyFilesBeforeLaunch = true;
     /** Installe automatiquement les mods declares obligatoires par le manifeste. */
     private boolean autoInstallRequiredMods = true;
-    /** Prononce un mot de bienvenue au demarrage, avec le pseudo du joueur. */
-    private boolean voiceGreetingEnabled = true;
-    /** Utilise la voix neuronale locale plutot que celle du systeme. */
-    private boolean neuralVoiceEnabled = false;
-    /** Identifiant de la voix neuronale retenue. */
-    private String neuralVoiceId = "fr_FR-siwis-medium";
 
     /* --- Shaders ------------------------------------------------------- */
 
@@ -266,30 +260,6 @@ public class LauncherSettings {
 
     public void setAutoInstallRequiredMods(boolean autoInstallRequiredMods) {
         this.autoInstallRequiredMods = autoInstallRequiredMods;
-    }
-
-    public boolean isVoiceGreetingEnabled() {
-        return voiceGreetingEnabled;
-    }
-
-    public void setVoiceGreetingEnabled(boolean voiceGreetingEnabled) {
-        this.voiceGreetingEnabled = voiceGreetingEnabled;
-    }
-
-    public boolean isNeuralVoiceEnabled() {
-        return neuralVoiceEnabled;
-    }
-
-    public void setNeuralVoiceEnabled(boolean neuralVoiceEnabled) {
-        this.neuralVoiceEnabled = neuralVoiceEnabled;
-    }
-
-    public String getNeuralVoiceId() {
-        return neuralVoiceId;
-    }
-
-    public void setNeuralVoiceId(String neuralVoiceId) {
-        this.neuralVoiceId = neuralVoiceId;
     }
 
     public boolean isShadersEnabled() {
