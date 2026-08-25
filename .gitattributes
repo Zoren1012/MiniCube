@@ -1,0 +1,22 @@
+# Normalisation des fins de ligne.
+#
+# Sans ces regles, Git convertit les fins de ligne selon la machine : un script .sh
+# recupere sous Windows puis pousse repartirait avec des CRLF, et bash refuserait de
+# l'executer sous Linux avec un message aussi obscur que "bad interpreter".
+
+* text=auto eol=lf
+
+# Scripts Windows : cmd.exe tolere mal les fins de ligne Unix sur les etiquettes et
+# les blocs, ils gardent donc des CRLF.
+*.bat text eol=crlf
+*.cmd text eol=crlf
+*.ps1 text eol=crlf
+
+# Scripts Unix : toujours en LF, meme edites sous Windows.
+*.sh text eol=lf
+
+# Fichiers binaires : aucune conversion, aucun diff textuel.
+*.png binary
+*.ico binary
+*.jar binary
+*.exe binary

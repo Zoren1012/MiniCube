@@ -1,0 +1,16 @@
+{
+  "_comment": "Manifeste des mods du projet. Les entrees 'required' sont installees et verifiees avant chaque lancement lorsque l'option correspondante est activee. Laissez la liste vide pour un launcher vanilla. Renseignez 'modsManifestUrl' pour la servir a distance.",
+  "_champs": {
+    "id": "identifiant stable, sert a reconnaitre le mod deja installe",
+    "name": "nom affiche dans l'onglet Mods",
+    "version": "version distante, comparee a celle lue dans le jar",
+    "fileName": "nom exact du fichier depose dans .minecraft/mods",
+    "url": "adresse de telechargement directe",
+    "sha1": "empreinte attendue ; laisser vide pour ne verifier que la presence",
+    "size": "taille en octets, indicative",
+    "required": "true = installe automatiquement et non desactivable",
+    "mcVersion": "version de jeu ciblee ; vide = toutes",
+    "loader": "fabric, forge, quilt, neoforge ; vide = indifferent"
+  },
+  "mods": []
+}

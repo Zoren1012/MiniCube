@@ -1,0 +1,44 @@
+/*
+ * MiniCube - theme sombre.
+ *
+ * Le fond est presque noir : c'est lui qui laisse les halos colores de
+ * GlassBackground s'exprimer sans les delaver. Les surfaces de verre sont de simples
+ * voiles blancs a tres faible opacite ; leur teinte vient donc de ce qu'il y a dessous,
+ * et change selon l'endroit de la fenetre.
+ */
+
+.root {
+    -color-bg: #07080D;
+
+    -color-text: #F0F2F8;
+    -color-text-dim: #A9B1C6;
+    -color-text-faint: #7E869C;
+
+    -color-glass: rgba(255, 255, 255, 0.055);
+    -color-glass-soft: rgba(255, 255, 255, 0.032);
+    -color-glass-strong: rgba(255, 255, 255, 0.10);
+    -color-glass-bright: rgba(255, 255, 255, 0.16);
+    -color-glass-panel: rgba(255, 255, 255, 0.038);
+
+    -color-stroke: rgba(255, 255, 255, 0.12);
+    -color-stroke-bright: rgba(255, 255, 255, 0.26);
+    -color-shadow: rgba(0, 0, 0, 0.55);
+
+    -color-accent: #7C5CFF;
+    -color-accent-2: #3F9BFF;
+    -color-accent-bright: #A896FF;
+    -color-accent-hover: #8E73FF;
+    -color-accent-pressed: #6A4CE8;
+    -color-accent-veil: rgba(124, 92, 255, 0.20);
+    -color-accent-glow: rgba(124, 92, 255, 0.50);
+
+    -color-success: #46E0A8;
+    -color-warn: #FFC24D;
+    -color-warn-soft: rgba(255, 194, 77, 0.16);
+    -color-danger: #FF6B63;
+    -color-danger-soft: rgba(255, 107, 99, 0.16);
+
+    -color-console-bg: rgba(0, 0, 0, 0.42);
+    -color-toast: rgba(24, 26, 38, 0.93);
+    -color-popup: rgba(22, 24, 34, 0.97);
+}

@@ -1,0 +1,29 @@
+{
+  "_comment": "Actualites affichees sur l'onglet Accueil. Renseignez 'newsUrl' dans la configuration pour les servir depuis un site web, avec la meme structure.",
+  "news": [
+    {
+      "title": "Bienvenue sur MiniCube",
+      "content": "Votre installation Minecraft a ete detectee. Choisissez une version dans la barre du bas, connectez votre compte, puis cliquez sur JOUER. Les onglets Mods et Shaders permettent de personnaliser votre partie sans quitter le launcher.",
+      "date": "Aujourd'hui",
+      "category": "Bienvenue",
+      "imageUrl": "",
+      "link": ""
+    },
+    {
+      "title": "Mods requis installes automatiquement",
+      "content": "Lorsque l'option est activee dans les parametres, les mods declares obligatoires par le manifeste du projet sont telecharges et verifies avant chaque partie. Vous ne pouvez plus arriver sur le serveur avec une version incompatible.",
+      "date": "Mise a jour",
+      "category": "Fonctionnalite",
+      "imageUrl": "",
+      "link": ""
+    },
+    {
+      "title": "Personnalisez cette page",
+      "content": "Ce texte provient du fichier config/news.json embarque dans le launcher. Modifiez-le, ou pointez le champ newsUrl des parametres vers votre propre API pour publier des annonces sans redistribuer l'application.",
+      "date": "Documentation",
+      "category": "Info",
+      "imageUrl": "",
+      "link": ""
+    }
+  ]
+}

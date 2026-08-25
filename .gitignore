@@ -1,0 +1,33 @@
+# Build sans Maven
+build/
+lib/
+MiniCube.jar
+
+# Livrables d'empaquetage
+dist/
+
+# Build Maven
+target/
+*.class
+
+# Environnements de developpement
+.idea/
+*.iml
+*.ipr
+*.iws
+.vscode/
+.settings/
+.classpath
+.project
+nbproject/
+
+# Systeme
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# Donnees locales du launcher (ne doivent jamais etre versionnees :
+# elles contiennent des jetons de session)
+config.json
+accounts.json
+logs/

@@ -1,0 +1,88 @@
+{
+  "_comment": [
+    "Exemple de configuration du launcher.",
+    "Emplacement reel du fichier : ~/.minicube/config.json",
+    "  - Windows : C:/Users/<vous>/.minicube/config.json",
+    "  - macOS et Linux : ~/.minicube/config.json",
+    "Le fichier est cree automatiquement au premier demarrage : copiez cet exemple",
+    "uniquement si vous voulez pre-configurer une installation (deploiement en salle,",
+    "distribution a une communaute, etc.). Tout champ absent reprend sa valeur par defaut.",
+    "Les cles commencant par un tiret bas sont ignorees par le launcher."
+  ],
+
+  "_section_installation": "Chemins et etat du premier demarrage",
+  "gameDirectory": "C:/Users/vous/AppData/Roaming/.minecraft",
+  "firstRunCompleted": false,
+  "lastVersionId": "1.20.4",
+  "activeAccountUuid": "",
+
+  "_section_java": "Memoire et runtime Java",
+  "_ramMb": "Memoire allouee au jeu, en Mo. Au-dela de 8192, le gain est nul.",
+  "ramMb": 4096,
+  "_javaPath": "Executable Java a forcer. Vide = detection automatique selon la version.",
+  "javaPath": "",
+  "extraJvmArgs": "",
+
+  "_section_interface": "Apparence et confort",
+  "theme": "dark",
+  "language": "fr",
+  "backgroundImage": "",
+  "keepLauncherOpen": true,
+  "notificationsEnabled": true,
+
+  "_section_comportement": "Comportement au lancement",
+  "debugMode": false,
+  "autoUpdateLauncher": true,
+  "_verifyFilesBeforeLaunch": "Recalcule l empreinte de chaque fichier : plus sur, plus lent.",
+  "verifyFilesBeforeLaunch": true,
+  "autoInstallRequiredMods": true,
+
+  "_section_shaders": "Shaders",
+  "shadersEnabled": false,
+  "activeShaderPack": "",
+
+  "_section_microsoft": "Authentification Microsoft",
+  "_msClientId": [
+    "Identifiant d application Azure AD, indispensable pour la connexion Microsoft.",
+    "Creation : portal.azure.com > App registrations > New registration.",
+    "Type de compte : 'Personal Microsoft accounts only'.",
+    "Dans Authentication, activez 'Allow public client flows'.",
+    "Aucun secret client n est necessaire : le launcher utilise le flux device code."
+  ],
+  "msClientId": "00000000-0000-0000-0000-000000000000",
+
+  "_section_projet": "Contenus distants, tous optionnels (vide = fichiers embarques)",
+  "newsUrl": "",
+  "serversUrl": "",
+  "modsManifestUrl": "",
+  "updateUrl": "",
+
+  "_section_cloud": "Sauvegarde des preferences sur un service distant",
+  "cloudSyncEnabled": false,
+  "cloudSyncUrl": "",
+  "cloudSyncToken": "",
+
+  "_section_graphismes": "Reglages ecrits dans .minecraft/options.txt avant chaque partie",
+  "graphics": {
+    "renderDistance": 12,
+    "simulationDistance": 10,
+    "maxFps": 120,
+    "vsync": false,
+    "fullscreen": false,
+    "_graphicsMode": "0 = rapide, 1 = detaille, 2 = fabuleux",
+    "graphicsMode": 1,
+    "_particles": "0 = toutes, 1 = reduites, 2 = minimales",
+    "particles": 0,
+    "entityShadows": true,
+    "smoothLighting": true,
+    "_guiScale": "0 = automatique",
+    "guiScale": 0,
+    "fov": 70,
+    "brightness": 0.5,
+    "windowWidth": 1280,
+    "windowHeight": 720,
+    "customResolution": false,
+    "_preset": "PERFORMANCE, BALANCED, QUALITY ou CUSTOM",
+    "preset": "BALANCED"
+  }
+}

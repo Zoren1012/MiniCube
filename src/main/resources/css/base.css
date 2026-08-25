@@ -1,0 +1,876 @@
+/*
+ * MiniCube - structure commune.
+ *
+ * Langage visuel : du verre translucide pose sur un fond colore vivant. Les surfaces
+ * ne sont jamais opaques ; elles laissent transparaitre les halos de GlassBackground,
+ * ce qui donne la profondeur. Chaque panneau porte une arete claire sur son bord
+ * superieur, comme la lumiere accrochee par un bord de verre.
+ *
+ * Aucune couleur n'est ecrite en dur ici : dark.css et light.css definissent la palette.
+ */
+
+/* ------------------------------------------------------------------ */
+/* Base                                                                */
+/* ------------------------------------------------------------------ */
+
+.root {
+    -fx-font-family: "Segoe UI Variable Display", "Segoe UI", "Inter", "SF Pro Display",
+                     "Helvetica Neue", sans-serif;
+    -fx-font-size: 13px;
+    -fx-text-fill: -color-text;
+    -fx-background-color: -color-bg;
+}
+
+.root-stack {
+    -fx-background-color: -color-bg;
+}
+
+.glass-background {
+    -fx-background-color: transparent;
+}
+
+.shell {
+    -fx-background-color: transparent;
+}
+
+.label {
+    -fx-text-fill: -color-text;
+}
+
+.icon {
+    -fx-fill: -color-text-dim;
+}
+
+/* ------------------------------------------------------------------ */
+/* Barre laterale                                                      */
+/* ------------------------------------------------------------------ */
+
+.sidebar {
+    -fx-background-color: -color-glass-panel;
+    -fx-border-color: transparent -color-stroke transparent transparent;
+    -fx-border-width: 0 1 0 0;
+}
+
+.brand {
+    -fx-font-size: 19px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -color-text;
+    -fx-letter-spacing: 1;
+}
+
+.brand-version {
+    -fx-font-size: 10.5px;
+    -fx-text-fill: -color-text-faint;
+}
+
+.cube-logo {
+    -fx-background-color: transparent;
+}
+
+/* Pastille glissante qui suit l'onglet actif. */
+.nav-indicator {
+    -fx-background-color: -color-glass-strong;
+    -fx-background-radius: 13;
+    -fx-border-color: linear-gradient(to bottom,
+                      rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.05));
+    -fx-border-radius: 13;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, -color-accent-glow, 22, 0.10, 0, 4);
+}
+
+.nav-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 13;
+    -fx-text-fill: -color-text-dim;
+    -fx-padding: 11 14 11 14;
+    -fx-graphic-text-gap: 13;
+    -fx-cursor: hand;
+    -fx-font-size: 13.5px;
+}
+
+.nav-button:hover {
+    -fx-background-color: -color-glass-soft;
+    -fx-text-fill: -color-text;
+}
+
+.nav-button:selected {
+    -fx-background-color: transparent;
+    -fx-text-fill: -color-text;
+    -fx-font-weight: bold;
+}
+
+.nav-button:selected .icon {
+    -fx-fill: -color-accent-bright;
+}
+
+.nav-button:hover .icon {
+    -fx-fill: -color-text;
+}
+
+.account-card {
+    -fx-background-color: -color-glass;
+    -fx-background-radius: 16;
+    -fx-border-color: linear-gradient(to bottom,
+                      rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.04));
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+}
+
+.account-name {
+    -fx-font-weight: bold;
+    -fx-font-size: 13px;
+}
+
+.account-type {
+    -fx-font-size: 11px;
+    -fx-text-fill: -color-text-faint;
+}
+
+.player-head {
+    -fx-background-color: -color-glass-strong;
+    -fx-background-radius: 11;
+    -fx-border-color: rgba(255, 255, 255, 0.20);
+    -fx-border-radius: 11;
+    -fx-border-width: 1;
+}
+
+/* ------------------------------------------------------------------ */
+/* Zone de contenu                                                     */
+/* ------------------------------------------------------------------ */
+
+.center-pane,
+.content-area {
+    -fx-background-color: transparent;
+}
+
+.content-scroll {
+    -fx-background-color: transparent;
+    -fx-background: transparent;
+    -fx-padding: 0;
+}
+
+.content-scroll > .viewport {
+    -fx-background-color: transparent;
+}
+
+.page {
+    -fx-padding: 28 32 28 32;
+    -fx-background-color: transparent;
+}
+
+.page-title {
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -color-text;
+}
+
+.page-subtitle {
+    -fx-font-size: 13px;
+    -fx-text-fill: -color-text-dim;
+}
+
+/* ------------------------------------------------------------------ */
+/* Verre : cartes et reglages                                          */
+/* ------------------------------------------------------------------ */
+
+.card {
+    -fx-background-color: -color-glass;
+    -fx-background-radius: 20;
+    -fx-border-color: linear-gradient(to bottom,
+                      rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.04));
+    -fx-border-radius: 20;
+    -fx-border-width: 1;
+    -fx-padding: 22 24 22 24;
+    -fx-effect: dropshadow(gaussian, -color-shadow, 34, 0.05, 0, 14);
+}
+
+.card-title {
+    -fx-font-size: 15.5px;
+    -fx-font-weight: bold;
+}
+
+.setting-row {
+    -fx-padding: 5 0 5 0;
+}
+
+.setting-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.setting-hint {
+    -fx-font-size: 11.5px;
+    -fx-text-fill: -color-text-dim;
+}
+
+.divider {
+    -fx-background-color: -color-stroke;
+}
+
+.slider-value {
+    -fx-font-size: 12.5px;
+    -fx-font-weight: bold;
+    -fx-text-fill: -color-accent-bright;
+}
+
+/* ------------------------------------------------------------------ */
+/* Boutons                                                             */
+/* ------------------------------------------------------------------ */
+
+.button-base {
+    -fx-background-radius: 13;
+    -fx-border-radius: 13;
+    -fx-cursor: hand;
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-graphic-text-gap: 9;
+}
+
+.button-primary {
+    -fx-background-color: linear-gradient(to bottom right, -color-accent, -color-accent-2);
+    -fx-text-fill: white;
+    -fx-border-color: rgba(255, 255, 255, 0.24);
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, -color-accent-glow, 20, 0.10, 0, 5);
+}
+
+.button-primary:hover {
+    -fx-background-color: linear-gradient(to bottom right, -color-accent-hover, -color-accent-2);
+}
+
+.button-primary:pressed {
+    -fx-background-color: -color-accent-pressed;
+}
+
+.button-primary .icon {
+    -fx-fill: white;
+}
+
+.button-primary:disabled {
+    -fx-opacity: 0.42;
+}
+
+.button-secondary {
+    -fx-background-color: -color-glass-strong;
+    -fx-text-fill: -color-text;
+    -fx-border-color: linear-gradient(to bottom,
+                      rgba(255, 255, 255, 0.26), rgba(255, 255, 255, 0.05));
+    -fx-border-width: 1;
+}
+
+.button-secondary:hover {
+    -fx-background-color: -color-glass-bright;
+    -fx-border-color: -color-accent-bright;
+}
+
+.button-danger {
+    -fx-background-color: -color-danger-soft;
+    -fx-text-fill: -color-danger;
+    -fx-border-color: -color-danger;
+    -fx-border-width: 1;
+}
+
+.button-danger:hover {
+    -fx-background-color: -color-danger;
+    -fx-text-fill: white;
+}
+
+.button-danger:hover .icon {
+    -fx-fill: white;
+}
+
+.button-danger .icon {
+    -fx-fill: -color-danger;
+}
+
+.button-icon {
+    -fx-background-color: transparent;
+    -fx-background-radius: 11;
+    -fx-padding: 9;
+    -fx-cursor: hand;
+}
+
+.button-icon:hover {
+    -fx-background-color: -color-glass-strong;
+}
+
+.button-icon:hover .icon {
+    -fx-fill: -color-accent-bright;
+}
+
+/* ------------------------------------------------------------------ */
+/* Barre de lancement                                                  */
+/* ------------------------------------------------------------------ */
+
+.launch-bar {
+    -fx-background-color: -color-glass-panel;
+    -fx-border-color: -color-stroke transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+}
+
+.play-button {
+    -fx-background-color: linear-gradient(to right, -color-accent, -color-accent-2);
+    -fx-text-fill: white;
+    -fx-font-size: 15.5px;
+    -fx-font-weight: bold;
+    -fx-background-radius: 15;
+    -fx-border-radius: 15;
+    -fx-border-color: rgba(255, 255, 255, 0.28);
+    -fx-border-width: 1;
+    -fx-graphic-text-gap: 11;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, -color-accent-glow, 26, 0.22, 0, 6);
+}
+
+.play-button:hover {
+    -fx-background-color: linear-gradient(to right, -color-accent-hover, -color-accent-2);
+    -fx-effect: dropshadow(gaussian, -color-accent-glow, 34, 0.34, 0, 8);
+}
+
+.play-button:disabled {
+    -fx-opacity: 0.5;
+}
+
+.play-button .icon {
+    -fx-fill: white;
+}
+
+.launch-status {
+    -fx-font-size: 12px;
+    -fx-text-fill: -color-text-dim;
+}
+
+.launch-progress {
+    -fx-accent: -color-accent-bright;
+}
+
+.launch-progress > .track {
+    -fx-background-color: -color-glass-strong;
+    -fx-background-radius: 0;
+}
+
+.launch-progress > .bar {
+    -fx-background-color: linear-gradient(to right, -color-accent, -color-accent-2);
+    -fx-background-radius: 0;
+    -fx-padding: 3;
+}
+
+/* ------------------------------------------------------------------ */
+/* Accueil                                                             */
+/* ------------------------------------------------------------------ */
+
+.hero {
+    -fx-background-color: linear-gradient(to bottom right,
+                          -color-accent-veil, -color-glass);
+    -fx-background-radius: 24;
+    -fx-border-color: linear-gradient(to bottom,
+                      rgba(255, 255, 255, 0.32), rgba(255, 255, 255, 0.04));
+    -fx-border-radius: 24;
+    -fx-border-width: 1;
+    -fx-effect: dropshadow(gaussian, -color-shadow, 40, 0.05, 0, 16);
+}
+
+.hero-title {
+    -fx-font-size: 30px;
+    -fx-font-weight: bold;
+}
+
+.hero-subtitle {
+    -fx-font-size: 13.5px;
+    -fx-text-fill: -color-text-dim;
+}
+
+.stat-card {
+    -fx-padding: 18 22 18 22;
+    -fx-background-radius: 18;
+    -fx-border-radius: 18;
+}
+
+.stat-value {
+    -fx-font-size: 22px;
+    -fx-font-weight: bold;
+}
+
+.stat-label {
+    -fx-font-size: 11px;
+    -fx-text-fill: -color-text-faint;
+}
+
+.status-online {
+    -fx-text-fill: -color-success;
+}
+
+.status-offline {
+    -fx-text-fill: -color-danger;
+}
+
+.news-card {
+    -fx-background-color: -color-glass-soft;
+    -fx-background-radius: 16;
+    -fx-border-color: -color-stroke;
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+}
+
+.news-card:hover {
+    -fx-background-color: -color-glass-strong;
+    -fx-border-color: -color-accent-bright;
+}
+
+.news-title {
+    -fx-font-size: 15.5px;
+    -fx-font-weight: bold;
+}
+
+.news-content {
+    -fx-font-size: 12.5px;
+    -fx-text-fill: -color-text-dim;
+}
+
+.news-date {
+    -fx-font-size: 11px;
+    -fx-text-fill: -color-text-faint;
+}
+
+/* ------------------------------------------------------------------ */
+/* Etiquettes                                                          */
+/* ------------------------------------------------------------------ */
+
+.badge {
+    -fx-background-radius: 8;
+    -fx-padding: 4 10 4 10;
+    -fx-font-size: 10.5px;
+    -fx-font-weight: bold;
+}
+
+.badge-accent {
+    -fx-background-color: -color-accent-veil;
+    -fx-text-fill: -color-accent-bright;
+}
+
+.badge-neutral {
+    -fx-background-color: -color-glass-strong;
+    -fx-text-fill: -color-text-dim;
+}
+
+.badge-soft {
+    -fx-background-color: transparent;
+    -fx-border-color: -color-stroke;
+    -fx-border-radius: 8;
+    -fx-border-width: 1;
+    -fx-text-fill: -color-text-dim;
+}
+
+.badge-warn {
+    -fx-background-color: -color-warn-soft;
+    -fx-text-fill: -color-warn;
+}
+
+/* ------------------------------------------------------------------ */
+/* Serveurs, shaders et mods                                           */
+/* ------------------------------------------------------------------ */
+
+.server-card,
+.shader-card,
+.mod-row {
+    -fx-background-color: -color-glass-soft;
+    -fx-border-color: -color-stroke;
+    -fx-border-width: 1;
+}
+
+.server-card {
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+}
+
+.server-card:hover {
+    -fx-background-color: -color-glass-strong;
+    -fx-border-color: -color-accent-bright;
+}
+
+.server-name {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+.server-metric {
+    -fx-font-size: 15px;
+    -fx-font-weight: bold;
+}
+
+.ping-good {
+    -fx-text-fill: -color-success;
+}
+
+.ping-medium {
+    -fx-text-fill: -color-warn;
+}
+
+.ping-bad {
+    -fx-text-fill: -color-danger;
+}
+
+.ping-unknown {
+    -fx-text-fill: -color-text-faint;
+}
+
+.shader-card {
+    -fx-background-radius: 20;
+    -fx-border-radius: 20;
+}
+
+.shader-card:hover {
+    -fx-background-color: -color-glass-strong;
+    -fx-border-color: -color-accent-bright;
+}
+
+.shader-card-active {
+    -fx-border-color: -color-accent-bright;
+    -fx-border-width: 2;
+    -fx-effect: dropshadow(gaussian, -color-accent-glow, 24, 0.12, 0, 6);
+}
+
+.shader-preview {
+    -fx-background-color: -color-glass-strong;
+    -fx-background-radius: 13;
+}
+
+.shader-name {
+    -fx-font-size: 13.5px;
+    -fx-font-weight: bold;
+}
+
+.mod-row {
+    -fx-background-radius: 14;
+    -fx-border-radius: 14;
+}
+
+.mod-row:hover {
+    -fx-background-color: -color-glass-strong;
+    -fx-border-color: -color-accent-bright;
+}
+
+.mod-row-disabled {
+    -fx-opacity: 0.5;
+}
+
+.mod-name {
+    -fx-font-size: 13.5px;
+    -fx-font-weight: bold;
+}
+
+/* ------------------------------------------------------------------ */
+/* Skin                                                                */
+/* ------------------------------------------------------------------ */
+
+.skin-viewer {
+    -fx-background-color: linear-gradient(to bottom,
+                          -color-glass-strong, -color-glass-soft);
+    -fx-background-radius: 18;
+    -fx-border-color: -color-stroke;
+    -fx-border-radius: 18;
+    -fx-border-width: 1;
+    -fx-cursor: open-hand;
+}
+
+/* ------------------------------------------------------------------ */
+/* Notifications                                                       */
+/* ------------------------------------------------------------------ */
+
+/*
+ * La couche de notifications recouvre toute la fenetre. Elle ne doit recevoir
+ * AUCUN fond, pas meme "transparent" : une region dotee d'un fond est captee par
+ * la souris sur toute sa surface, meme invisible, et bloquerait alors tous les
+ * clics de l'interface situee dessous. Seules les cartes .toast, qui ont un fond,
+ * restent cliquables.
+ */
+
+.toast {
+    -fx-background-color: -color-toast;
+    -fx-background-radius: 16;
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+    -fx-border-color: linear-gradient(to bottom,
+                      rgba(255, 255, 255, 0.30), rgba(255, 255, 255, 0.06));
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.55), 28, 0.14, 0, 10);
+}
+
+.toast-title {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+}
+
+.toast-message {
+    -fx-font-size: 12px;
+    -fx-text-fill: -color-text-dim;
+}
+
+.toast-info .icon {
+    -fx-fill: -color-accent-bright;
+}
+
+.toast-success {
+    -fx-border-color: -color-success;
+}
+
+.toast-success .icon {
+    -fx-fill: -color-success;
+}
+
+.toast-warning {
+    -fx-border-color: -color-warn;
+}
+
+.toast-warning .icon {
+    -fx-fill: -color-warn;
+}
+
+.toast-error {
+    -fx-border-color: -color-danger;
+}
+
+.toast-error .icon {
+    -fx-fill: -color-danger;
+}
+
+/* ------------------------------------------------------------------ */
+/* Etats vides et console                                              */
+/* ------------------------------------------------------------------ */
+
+.empty-state {
+    -fx-background-color: transparent;
+}
+
+.empty-icon {
+    -fx-fill: -color-text-faint;
+    -fx-opacity: 0.55;
+}
+
+.empty-label {
+    -fx-font-size: 13px;
+    -fx-text-fill: -color-text-dim;
+}
+
+.console {
+    -fx-font-family: "Cascadia Mono", "Consolas", "JetBrains Mono", "Menlo", monospace;
+    -fx-font-size: 11.5px;
+    -fx-control-inner-background: -color-console-bg;
+    -fx-background-color: -color-console-bg;
+    -fx-background-radius: 14;
+    -fx-text-fill: -color-text;
+    -fx-highlight-fill: -color-accent-veil;
+    -fx-min-height: 420;
+}
+
+.console .content {
+    -fx-background-color: -color-console-bg;
+    -fx-background-radius: 14;
+}
+
+.device-code {
+    -fx-font-family: "Cascadia Mono", "Consolas", monospace;
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-letter-spacing: 7;
+    -fx-text-fill: -color-accent-bright;
+    -fx-padding: 10 0 6 0;
+}
+
+.dialog-root {
+    -fx-background-color: -color-bg;
+}
+
+/* ------------------------------------------------------------------ */
+/* Controles standards                                                 */
+/* ------------------------------------------------------------------ */
+
+.text-field, .password-field {
+    -fx-background-color: -color-glass-strong;
+    -fx-background-radius: 12;
+    -fx-border-color: -color-stroke;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-text-fill: -color-text;
+    -fx-prompt-text-fill: -color-text-faint;
+    -fx-padding: 9 13 9 13;
+}
+
+.text-field:focused, .password-field:focused {
+    -fx-border-color: -color-accent-bright;
+    -fx-background-color: -color-glass-bright;
+}
+
+.combo-box, .choice-box {
+    -fx-background-color: -color-glass-strong;
+    -fx-background-radius: 12;
+    -fx-border-color: -color-stroke;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-padding: 3 7 3 7;
+    -fx-cursor: hand;
+}
+
+.combo-box:hover, .choice-box:hover {
+    -fx-border-color: -color-accent-bright;
+    -fx-background-color: -color-glass-bright;
+}
+
+.combo-box .list-cell, .choice-box .label {
+    -fx-text-fill: -color-text;
+    -fx-background-color: transparent;
+}
+
+.combo-box-popup .list-view,
+.choice-box .context-menu {
+    -fx-background-color: -color-popup;
+    -fx-border-color: -color-stroke;
+    -fx-border-radius: 14;
+    -fx-background-radius: 14;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.5), 26, 0.12, 0, 8);
+}
+
+.combo-box-popup .list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-padding: 8 14 8 14;
+}
+
+.combo-box-popup .list-cell:filled:hover,
+.choice-box .menu-item:focused {
+    -fx-background-color: -color-accent-veil;
+    -fx-text-fill: -color-accent-bright;
+}
+
+.check-box {
+    -fx-cursor: hand;
+    -fx-text-fill: -color-text;
+}
+
+.check-box .box {
+    -fx-background-color: -color-glass-strong;
+    -fx-border-color: -color-stroke-bright;
+    -fx-border-radius: 7;
+    -fx-background-radius: 7;
+    -fx-padding: 4;
+}
+
+.check-box:selected .box {
+    -fx-background-color: linear-gradient(to bottom right, -color-accent, -color-accent-2);
+    -fx-border-color: transparent;
+}
+
+.check-box:selected .mark {
+    -fx-background-color: white;
+}
+
+.radio-button {
+    -fx-cursor: hand;
+    -fx-text-fill: -color-text;
+}
+
+.radio-button .radio {
+    -fx-background-color: -color-glass-strong;
+    -fx-border-color: -color-stroke-bright;
+}
+
+.radio-button:selected .radio {
+    -fx-border-color: -color-accent-bright;
+}
+
+.radio-button:selected .dot {
+    -fx-background-color: -color-accent-bright;
+}
+
+.slider {
+    -fx-cursor: hand;
+}
+
+.slider .track {
+    -fx-background-color: -color-glass-strong;
+    -fx-background-radius: 5;
+    -fx-pref-height: 6;
+}
+
+.slider .thumb {
+    -fx-background-color: linear-gradient(to bottom, white, -color-accent-bright);
+    -fx-background-radius: 14;
+    -fx-pref-width: 17;
+    -fx-pref-height: 17;
+    -fx-effect: dropshadow(gaussian, -color-accent-glow, 12, 0.14, 0, 2);
+}
+
+.spinner {
+    -fx-background-color: -color-glass-strong;
+    -fx-background-radius: 12;
+    -fx-border-color: -color-stroke;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+}
+
+.spinner .text-field {
+    -fx-border-width: 0;
+    -fx-background-color: transparent;
+}
+
+.spinner .increment-arrow-button,
+.spinner .decrement-arrow-button {
+    -fx-background-color: transparent;
+}
+
+.spinner .increment-arrow,
+.spinner .decrement-arrow {
+    -fx-background-color: -color-text-dim;
+}
+
+.scroll-bar {
+    -fx-background-color: transparent;
+}
+
+.scroll-bar .thumb {
+    -fx-background-color: -color-glass-bright;
+    -fx-background-radius: 7;
+}
+
+.scroll-bar .thumb:hover {
+    -fx-background-color: -color-text-faint;
+}
+
+.scroll-bar .increment-button,
+.scroll-bar .decrement-button,
+.scroll-bar .increment-arrow,
+.scroll-bar .decrement-arrow {
+    -fx-background-color: transparent;
+    -fx-shape: " ";
+    -fx-padding: 0;
+}
+
+.tooltip {
+    -fx-background-color: -color-popup;
+    -fx-text-fill: -color-text;
+    -fx-background-radius: 11;
+    -fx-border-color: -color-stroke;
+    -fx-border-radius: 11;
+    -fx-font-size: 12px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.45), 18, 0.1, 0, 5);
+}
+
+.dialog-pane {
+    -fx-background-color: -color-bg;
+}
+
+.dialog-pane .label {
+    -fx-text-fill: -color-text;
+}
+
+.dialog-pane .button {
+    -fx-background-color: -color-glass-strong;
+    -fx-text-fill: -color-text;
+    -fx-background-radius: 11;
+    -fx-cursor: hand;
+    -fx-padding: 8 18 8 18;
+}
+
+.dialog-pane .button:default {
+    -fx-background-color: linear-gradient(to bottom right, -color-accent, -color-accent-2);
+    -fx-text-fill: white;
+}

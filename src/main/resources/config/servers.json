@@ -1,0 +1,35 @@
+{
+  "_comment": "Liste de serveurs livree avec le launcher. Pour la piloter a distance sans redistribuer le jar, renseignez 'serversUrl' dans la configuration : le document distant doit avoir exactement la meme forme.",
+  "servers": [
+    {
+      "name": "Serveur principal",
+      "address": "play.mon-serveur.fr",
+      "port": 25565,
+      "description": "Serveur officiel du projet",
+      "requiredVersion": "1.20.4",
+      "versionId": "",
+      "iconUrl": "",
+      "official": true
+    },
+    {
+      "name": "Serveur creatif",
+      "address": "creative.mon-serveur.fr",
+      "port": 25565,
+      "description": "Constructions libres, sans mods",
+      "requiredVersion": "1.20.4",
+      "versionId": "",
+      "iconUrl": "",
+      "official": false
+    },
+    {
+      "name": "Hypixel",
+      "address": "mc.hypixel.net",
+      "port": 25565,
+      "description": "Exemple de serveur public, utile pour verifier le ping",
+      "requiredVersion": "",
+      "versionId": "",
+      "iconUrl": "",
+      "official": false
+    }
+  ]
+}

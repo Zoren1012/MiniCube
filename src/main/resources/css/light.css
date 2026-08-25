@@ -1,0 +1,44 @@
+/*
+ * MiniCube - theme clair.
+ *
+ * Meme principe qu'en sombre, mais inverse : les voiles sont blancs et bien plus
+ * opaques, car sur un fond pale un verre trop transparent deviendrait illisible.
+ * Les contours passent du blanc au gris fonce, seul moyen de detacher une carte
+ * claire posee sur un fond clair.
+ */
+
+.root {
+    -color-bg: #ECEFF7;
+
+    -color-text: #15182A;
+    -color-text-dim: #4D5568;
+    -color-text-faint: #78809A;
+
+    -color-glass: rgba(255, 255, 255, 0.62);
+    -color-glass-soft: rgba(255, 255, 255, 0.45);
+    -color-glass-strong: rgba(255, 255, 255, 0.80);
+    -color-glass-bright: rgba(255, 255, 255, 0.96);
+    -color-glass-panel: rgba(255, 255, 255, 0.58);
+
+    -color-stroke: rgba(20, 26, 55, 0.10);
+    -color-stroke-bright: rgba(20, 26, 55, 0.20);
+    -color-shadow: rgba(60, 72, 115, 0.20);
+
+    -color-accent: #6247E0;
+    -color-accent-2: #2C87E8;
+    -color-accent-bright: #5B3FD6;
+    -color-accent-hover: #7259F0;
+    -color-accent-pressed: #533CC4;
+    -color-accent-veil: rgba(98, 71, 224, 0.14);
+    -color-accent-glow: rgba(98, 71, 224, 0.28);
+
+    -color-success: #0E9E6B;
+    -color-warn: #B8760D;
+    -color-warn-soft: rgba(184, 118, 13, 0.14);
+    -color-danger: #D0342B;
+    -color-danger-soft: rgba(208, 52, 43, 0.12);
+
+    -color-console-bg: rgba(255, 255, 255, 0.78);
+    -color-toast: rgba(255, 255, 255, 0.96);
+    -color-popup: rgba(255, 255, 255, 0.98);
+}
