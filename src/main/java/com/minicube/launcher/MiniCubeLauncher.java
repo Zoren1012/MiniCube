@@ -6,15 +6,20 @@ import com.minicube.launcher.core.LauncherPaths;
 import com.minicube.launcher.ui.ThemeManager;
 import com.minicube.launcher.ui.component.DefaultSkin;
 import com.minicube.launcher.ui.component.PlayerHead;
+import com.minicube.launcher.ui.component.SplashScreen;
 import com.minicube.launcher.ui.controller.ShellController;
 import com.minicube.launcher.ui.dialog.SetupWizard;
 import com.minicube.launcher.util.Fx;
 import com.minicube.launcher.util.I18n;
 import com.minicube.launcher.util.Log;
 import javafx.application.Application;
+import javafx.animation.KeyFrame;
+import javafx.animation.KeyValue;
+import javafx.animation.Timeline;
 import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.stage.Stage;
+import javafx.util.Duration;
 
 /**
  * Application JavaFX du launcher.
@@ -31,6 +36,7 @@ public class MiniCubeLauncher extends Application {
     private LauncherContext context;
     private ShellController shell;
     private Stage primaryStage;
+    private SplashScreen splash;
     private Scene scene;
 
     @Override
@@ -43,9 +49,31 @@ public class MiniCubeLauncher extends Application {
                 + "), Java " + System.getProperty("java.version"));
         installExceptionHandler();
 
+        // L'ecran de demarrage apparait avant tout travail : il montre les etapes au
+        // lieu de laisser une fenetre vide pendant que le launcher s'initialise.
+        splash = new SplashScreen();
+        splash.show();
+        splash.setStatus(I18n.tr("splash.starting"));
+
+        // L'initialisation est repoussee d'un battement pour que l'ecran ait le temps
+        // d'etre peint : sans cela, il resterait blanc jusqu'a la fin des traitements.
+        Platform.runLater(() -> initialise(stage));
+    }
+
+    /**
+     * Deroule l'initialisation, en tenant l'ecran de demarrage informe.
+     *
+     * <p>Les etapes s'enchainent sur le thread JavaFX, chacune laissant l'interface se
+     * rafraichir avant la suivante. Elles sont courtes : la lecture de la configuration
+     * et l'inventaire des dossiers, rien qui touche au reseau.</p>
+     */
+    private void initialise(Stage stage) {
+        splash.setStatus(I18n.tr("splash.config"));
         context = new LauncherContext();
         Log.setDebugEnabled(context.config().settings().isDebugMode());
         I18n.setLanguage(context.config().settings().getLanguage());
+
+        splash.setStatus(I18n.tr("splash.folders"));
         context.prepareDirectories();
 
         stage.setTitle(Constants.APP_NAME);
@@ -55,16 +83,48 @@ public class MiniCubeLauncher extends Application {
         stage.setOnCloseRequest(event -> Log.info("Fermeture du launcher"));
 
         if (!context.config().settings().isFirstRunCompleted()) {
-            SetupWizard wizard = new SetupWizard(context, null);
-            if (!wizard.showAndWait()) {
-                Log.info("Assistant annule : arret du launcher");
-                Platform.exit();
-                return;
-            }
+            // L'assistant est modal : l'ecran de demarrage doit s'effacer avant, sinon
+            // il resterait au premier plan par-dessus lui.
+            splash.close(() -> runSetupThenShow(stage));
+            return;
         }
 
+        splash.setStatus(I18n.tr("splash.interface"));
         buildUserInterface();
+        splash.close(() -> revealMainWindow(stage));
+    }
+
+    /** Premier demarrage : assistant, puis fenetre principale. */
+    private void runSetupThenShow(Stage stage) {
+        SetupWizard wizard = new SetupWizard(context, null);
+        if (!wizard.showAndWait()) {
+            Log.info("Assistant annule : arret du launcher");
+            Platform.exit();
+            return;
+        }
+        buildUserInterface();
+        revealMainWindow(stage);
+    }
+
+    /**
+     * Fait apparaitre la fenetre principale en fondu.
+     *
+     * <p>Elle est montree a opacite nulle puis revelee : afficher d'un coup une fenetre
+     * de mille pixels apres un ecran de demarrage en fondu produirait une rupture.</p>
+     */
+    private void revealMainWindow(Stage stage) {
+        stage.setOpacity(0);
         stage.show();
+
+        Timeline reveal = new Timeline(
+                new KeyFrame(Duration.ZERO, new KeyValue(stage.opacityProperty(), 0)),
+                new KeyFrame(Duration.millis(320),
+                        new KeyValue(stage.opacityProperty(), 1, Fx.SMOOTH)));
+        reveal.play();
+
+        if (shell != null) {
+            Fx.enterPage(shell.root());
+        }
 
         // Renouvellement silencieux de la session : ne doit pas retarder l'affichage.
         Fx.async(() -> {

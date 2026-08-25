@@ -13,6 +13,33 @@ emplacements changent ensemble ; `package.ps1` lit le premier et le transmet aux
 
 ---
 
+## 1.4.0 — 25 août 2026
+
+### Animation de démarrage
+
+- **Écran d'accueil animé au lancement.** Le cube apparaît en grandissant avec un léger
+  dépassement, le nom et la version montent en fondu, et une bille parcourt une barre
+  pendant l'initialisation.
+
+- **Il affiche les étapes réelles**, pas une jauge décorative : lecture de la
+  configuration, vérification des dossiers, préparation de l'interface. Si l'une d'elles
+  traîne, on sait laquelle. Une barre indéterminée plutôt qu'un pourcentage, parce que
+  ces étapes n'ont pas de durée prévisible et qu'une jauge qui saute de 20 à 90 %
+  n'informe personne.
+
+- **La fenêtre principale apparaît en fondu**, dans la continuité de l'écran d'accueil.
+  Afficher d'un coup une fenêtre de mille pixels après une disparition en fondu
+  produisait une rupture.
+
+- **La seule attente ajoutée évite un clignotement.** L'initialisation étant plus rapide
+  que l'animation d'entrée, l'écran reste visible le temps qu'elle se termine — environ
+  une seconde. Au-delà, il s'efface dès que l'interface est prête.
+
+- Au premier démarrage, l'écran s'efface **avant** l'assistant : il est affiché au
+  premier plan et serait resté par-dessus la fenêtre modale.
+
+---
+
 ## 1.3.4 — 25 août 2026
 
 - **Le README documente enfin la publication d'une version.** `version.bat`, ses

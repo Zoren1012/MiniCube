@@ -85,6 +85,14 @@ reste fourni pour ceux qui préfèrent Maven.
 
 ## Premier démarrage
 
+<img src="docs/images/splash.png" alt="Écran de démarrage" align="right" width="260">
+
+Au lancement, MiniCube affiche les étapes réelles de son initialisation — lecture de la
+configuration, vérification des dossiers, préparation de l'interface. Si l'une d'elles
+prend du temps, vous savez laquelle.
+
+Puis :
+
 1. **Choisissez votre dossier `.minecraft`.** MiniCube propose l'emplacement standard et
    le valide. Sur Windows, c'est `%APPDATA%\.minecraft`.
 2. **Connectez un compte** depuis la barre latérale, en bas à gauche.
@@ -438,6 +446,10 @@ Quelques points qui vont au-delà d'une simple façade :
   disposition officielle des textures ; l'agrandissement est fait au plus proche voisin
   pour garder l'aspect pixelisé. Les skins 64×32, les surcouches et le modèle slim sont
   gérés.
+- **Un démarrage qui ne fait pas patienter pour rien.** L'écran d'accueil montre les
+  étapes réelles ; il ne reste affiché que le temps de son animation d'entrée, environ
+  une seconde, et la fenêtre principale apparaît en fondu dans la continuité. La seule
+  attente ajoutée est celle qui évite un clignotement.
 - **Aucune ressource binaire embarquée.** Le personnage par défaut est dessiné par le
   code, les icônes sont des tracés vectoriels.
 
