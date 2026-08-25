@@ -13,6 +13,73 @@ emplacements changent ensemble ; `package.ps1` lit le premier et le transmet aux
 
 ---
 
+## 1.11.0 — 26 août 2026
+
+### Performances : ce que les mesures ont montré
+
+Avant d'optimiser, j'ai mesuré. Le launcher atteignait **déjà** les cibles demandées :
+136 images/s, démarrage en 1,3 s, 37 Mo de mémoire, 0,2 % de processeur au repos, et des
+onglets qui s'ouvrent en 0 à 25 ms. Deux constats méritent d'être connus :
+
+- **La cadence suit l'écran.** Le rendu passe par Direct3D avec synchronisation
+  verticale : sur un écran 144 Hz, MiniCube affiche 144 images par seconde. **Forcer
+  `javafx.animation.pulse=120` a été essayé et écarté** : sur cette machine, cela
+  dégradait le temps par image (7,94 ms contre 6,80) et *plafonnerait* un écran 144 Hz.
+- **Détecter la fréquence de l'écran coûte 424 ms**, soit un tiers du temps de démarrage.
+  Écarté également.
+
+### Ce qui a réellement été gagné
+
+- **Le fond animé s'arrête quand la fenêtre est réduite.** Le cas n'est pas théorique :
+  par défaut le launcher reste ouvert pendant la partie, et trois dégradés continuaient
+  d'être recalculés à la cadence de l'écran avec le processeur graphique dont le jeu a
+  besoin. Vérifié : 346 images animées fenêtre visible, **0 une fois réduite**.
+- **Les compteurs système ne sont plus lus sur le fil de l'interface.** Sur Windows, le
+  premier appel à `getProcessCpuLoad()` coûte **571 ms**, et chacun des suivants une
+  vingtaine de millisecondes — de quoi perdre une image par seconde. Le relevé se fait
+  désormais à l'écart, l'interface ne lit qu'une valeur déjà calculée. L'ouverture de
+  l'onglet Performances est passée de **600 ms à 16 ms**, et le processeur au repos de
+  9,3 % à 0,4 %.
+- Les mesures s'arrêtent dès qu'on quitte l'onglet : rien ne tourne pour une page que
+  personne ne regarde.
+
+### Tableau de bord des performances
+
+- Nouvel onglet **Performances** : cadence du launcher, processeur, mémoire du launcher,
+  mémoire système, version de Java et **temps de chargement de Minecraft**.
+- Ce dernier chiffre n'est pas le temps de lancement du processus, qui ne dirait rien :
+  c'est le délai entre l'appui sur *Jouer* et le moment où le jeu signale qu'il a atteint
+  son menu principal, dans sa propre sortie. C'est ce que le joueur ressent.
+- L'onglet affiche aussi **l'état de vos serveurs**, interrogés à son ouverture.
+
+### Optimisation automatique
+
+- Un bouton analyse la machine et la configuration, et **propose la correction avec le
+  constat** — un diagnostic qui nomme un problème sans dire comment le résoudre ne sert
+  à rien. Chaque proposition s'applique d'un clic, ou toutes d'un coup.
+- Sont examinés : la mémoire allouée (trop, ou trop peu), le Java exigé par la version
+  sélectionnée, la distance de rendu au regard de la mémoire, l'espace disque, les
+  shaders activés sans Iris ni OptiFine pour les lire, et **la carte graphique**.
+- Ce dernier point vaut le détour : sur un portable équipé des deux, Windows lance
+  souvent Java sur la puce intégrée. Le jeu rame sans raison apparente et personne ne
+  pense à vérifier. MiniCube le détecte et dit quoi faire.
+
+### Profils de jeu
+
+- **Chaque profil a sa version, son dossier de jeu — donc ses mods, ses shaders, ses
+  mondes — sa mémoire et ses réglages graphiques.** Un pack moddé lourd et une partie
+  vanilla légère cohabitent sans se marcher dessus.
+- Sélecteur de profil dans la barre du bas, gestion complète derrière l'engrenage :
+  création à partir d'un modèle (Vanilla, Fabric, Forge, Moddé, Personnalisé), renommage,
+  suppression.
+- À la création, le profil reçoit **son propre dossier** ou partage le `.minecraft`
+  principal. Le profil créé au premier démarrage partage l'existant : personne ne doit
+  perdre ses mondes parce que les profils sont apparus.
+- **Supprimer un profil n'efface jamais ses fichiers.** Le profil disparaît de la liste,
+  les mondes restent sur le disque, et le message le dit explicitement.
+
+---
+
 ## 1.10.0 — 26 août 2026
 
 ### Refonte visuelle

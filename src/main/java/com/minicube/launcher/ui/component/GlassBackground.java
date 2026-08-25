@@ -1,5 +1,6 @@
 package com.minicube.launcher.ui.component;
 
+import com.minicube.launcher.util.Log;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
 import javafx.animation.KeyValue;
@@ -11,6 +12,7 @@ import javafx.scene.paint.CycleMethod;
 import javafx.scene.paint.RadialGradient;
 import javafx.scene.paint.Stop;
 import javafx.scene.shape.Circle;
+import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
@@ -50,6 +52,8 @@ public class GlassBackground extends Pane {
     private final Pane halos = new Pane();
     private final List<Timeline> animations = new ArrayList<>();
     private boolean dark = true;
+    /** Faux quand la fenetre est reduite : inutile d'animer ce que personne ne voit. */
+    private boolean visibleToUser = true;
 
     public GlassBackground() {
         // Le fond ne doit jamais intercepter un clic destine a l'interface.
@@ -63,6 +67,57 @@ public class GlassBackground extends Pane {
 
         widthProperty().addListener((observable, old, value) -> rebuild());
         heightProperty().addListener((observable, old, value) -> rebuild());
+        watchWindow();
+    }
+
+    /**
+     * Suspend l'animation lorsque la fenetre est reduite ou fermee.
+     *
+     * <p>Le cas n'est pas theorique : par defaut le launcher reste ouvert pendant la
+     * partie. Sans cela, trois degrades continueraient d'etre recalcules a la cadence de
+     * l'ecran, avec le processeur graphique dont le jeu a besoin.</p>
+     */
+    private void watchWindow() {
+        sceneProperty().addListener((observable, oldScene, scene) -> {
+            if (scene == null) {
+                setVisibleToUser(false);
+                return;
+            }
+            scene.windowProperty().addListener((watched, oldWindow, window) -> {
+                if (window instanceof Stage stage) {
+                    bindTo(stage);
+                }
+            });
+            if (scene.getWindow() instanceof Stage stage) {
+                bindTo(stage);
+            }
+        });
+    }
+
+    private void bindTo(Stage stage) {
+        stage.iconifiedProperty().addListener(
+                (observable, before, iconified) -> refreshVisibility(stage));
+        stage.showingProperty().addListener(
+                (observable, before, showing) -> refreshVisibility(stage));
+        refreshVisibility(stage);
+    }
+
+    private void refreshVisibility(Stage stage) {
+        setVisibleToUser(stage.isShowing() && !stage.isIconified());
+    }
+
+    private void setVisibleToUser(boolean visible) {
+        if (this.visibleToUser == visible) {
+            return;
+        }
+        this.visibleToUser = visible;
+        if (visible) {
+            animations.forEach(Timeline::play);
+            Log.debug("Fond anime repris");
+        } else {
+            animations.forEach(Timeline::pause);
+            Log.debug("Fond anime suspendu : fenetre non visible");
+        }
     }
 
     /**
@@ -119,7 +174,10 @@ public class GlassBackground extends Pane {
                                 Interpolator.EASE_BOTH)));
         timeline.setAutoReverse(true);
         timeline.setCycleCount(Timeline.INDEFINITE);
-        timeline.play();
+        // Un halo recree alors que la fenetre est reduite ne doit pas repartir.
+        if (visibleToUser) {
+            timeline.play();
+        }
         return timeline;
     }
 

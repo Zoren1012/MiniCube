@@ -32,6 +32,9 @@ Concrètement, il sait :
   de Mojang ;
 - **installer Fabric, Quilt, NeoForge ou Forge** en un clic, sans aller chercher leur
   installeur ;
+- **tenir plusieurs profils** ayant chacun sa version, ses mods, ses shaders et ses
+  r00e9glages ;
+- **analyser votre machine** et corriger ce qui la brident, d'un clic ;
 - **connecter un compte Microsoft** ou fonctionner en mode hors-ligne ;
 - **imposer une liste de mods** à vos joueurs, vérifiée avant chaque partie ;
 - **rejoindre un serveur en un clic**, avec sa latence et sa fréquentation affichées ;
@@ -222,7 +225,64 @@ confiance de Maven et de Gradle : il protège d'un téléchargement abîmé, non
 officiel qui serait lui-même compromis. Aucune autre voie n'existe pour ces deux
 chargeurs, et c'est exactement ce que vous feriez à la main.
 
-## Les neuf onglets
+---
+
+## Profils de jeu
+
+Un profil rassemble tout ce qui distingue une façon de jouer : **sa version, son dossier
+de jeu — donc ses mods, ses shaders et ses mondes — sa mémoire et ses réglages
+graphiques**. Un pack moddé lourd et une partie vanilla légère cohabitent ainsi sans se
+marcher dessus.
+
+Le sélecteur est dans la barre du bas, la gestion derrière l'engrenage qui le suit :
+création à partir d'un modèle (Vanilla, Fabric, Forge, Moddé, Personnalisé), renommage,
+suppression.
+
+À la création, vous choisissez si le profil reçoit **son propre dossier** — mods et
+mondes isolés — ou s'il partage votre `.minecraft` habituel. Le profil créé au premier
+démarrage partage l'existant : rien de ce que vous avez déjà n'est déplacé.
+
+> **Supprimer un profil n'efface jamais ses fichiers.** Le profil disparaît de la liste ;
+> les mondes, les mods et les sauvegardes restent sur le disque.
+
+---
+
+## Performances
+
+L'onglet **Performances** montre en direct la cadence du launcher, le processeur, la
+mémoire, la version de Java et le **temps de chargement de Minecraft** — pas le temps de
+lancement du processus, qui ne dirait rien, mais le délai entre votre clic sur *Jouer* et
+le moment où le jeu atteint son menu principal. Il affiche aussi l'état de vos serveurs.
+
+### L'analyse de votre machine
+
+Le bouton **Analyser ma configuration** examine la mémoire allouée, le Java exigé par la
+version choisie, la distance de rendu, l'espace disque, les shaders et la carte
+graphique. Chaque constat vient **avec sa correction**, applicable d'un clic.
+
+Le point le plus utile est souvent la carte graphique : sur un portable qui en a deux,
+Windows lance fréquemment Java sur la puce intégrée. Le jeu rame sans raison apparente et
+personne ne pense à vérifier.
+
+### Ce qui a été mesuré
+
+| | |
+|---|---|
+| Démarrage | ~1,3 s |
+| Cadence | 132 images/s (suit la fréquence de l'écran) |
+| Mémoire du launcher | ~33 Mo |
+| Processeur au repos | 0,4 % |
+| Ouverture d'un onglet | 0 à 25 ms |
+
+La cadence suit l'écran : le rendu passe par Direct3D avec synchronisation verticale, donc
+un écran 144 Hz donne 144 images par seconde. Forcer une valeur fixe a été essayé puis
+écarté — cela dégradait le temps par image et plafonnerait un écran rapide.
+
+Deux économies concrètes : **le fond animé s'arrête quand la fenêtre est réduite**, ce qui
+rend le processeur graphique au jeu pendant que vous jouez ; et les compteurs système sont
+relevés sur un fil séparé, jamais sur celui de l'interface.
+
+## Les dix onglets
 
 ### Accueil
 
@@ -289,6 +349,11 @@ Si votre projet publie un manifeste, les mods déclarés obligatoires sont tél�
 vérifiés avant chaque partie, et ne peuvent pas être désactivés.
 
 Pour poser le chargeur lui-même, voyez [Installer une version](#installer-une-version-vanilla-ou-moddée).
+
+### Performances
+
+Mesures en direct, analyse de votre machine et état de vos serveurs. Voyez
+[Performances](#performances).
 
 ### Mise à jour
 
@@ -417,6 +482,8 @@ propres données vivent ailleurs :
 ├── config.json           Vos préférences
 ├── accounts.json         Comptes et jetons — à ne jamais partager
 ├── profile.json          Votre compte MiniCube : pseudo, rôle, statistiques
+├── profiles.json         Vos profils de jeu
+├── instances/            Dossiers des profils isolés
 ├── custom-servers.json   Vos serveurs ajoutés à la main
 ├── logs/                 Journaux, une archive par session
 ├── cache/                Avatars, textures, empreintes connues

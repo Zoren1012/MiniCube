@@ -37,6 +37,10 @@ import java.util.function.IntConsumer;
  */
 public class GameLaunchService {
 
+    /** Observateurs de la sortie du jeu, pour les mesures et les diagnostics. */
+    private final java.util.List<Consumer<String>> outputListeners =
+            new java.util.concurrent.CopyOnWriteArrayList<>();
+
     /**
      * Parametres d'un lancement.
      *
@@ -66,6 +70,16 @@ public class GameLaunchService {
     }
 
     /** Vrai si une partie est en cours. */
+    /**
+     * Ajoute un observateur de la sortie du jeu.
+     *
+     * <p>Utilise pour reperer le moment ou Minecraft atteint son menu principal. Les
+     * observateurs sont appeles depuis le fil de lecture, jamais depuis l'interface.</p>
+     */
+    public void addOutputListener(Consumer<String> listener) {
+        outputListeners.add(listener);
+    }
+
     public boolean isRunning() {
         return currentProcess != null && currentProcess.isAlive();
     }
@@ -131,6 +145,9 @@ public class GameLaunchService {
                 String line;
                 while ((line = in.readLine()) != null) {
                     Log.game(line);
+                    for (Consumer<String> listener : outputListeners) {
+                        listener.accept(line);
+                    }
                 }
             } catch (IOException e) {
                 Log.debug("Fin de la lecture de la sortie du jeu : " + e.getMessage());

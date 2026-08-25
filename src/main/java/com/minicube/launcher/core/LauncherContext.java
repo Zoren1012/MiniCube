@@ -4,6 +4,7 @@ import com.minicube.launcher.service.AccountService;
 import com.minicube.launcher.service.CloudSyncService;
 import com.minicube.launcher.service.ConfigService;
 import com.minicube.launcher.service.GameFileService;
+import com.minicube.launcher.service.GameProfileService;
 import com.minicube.launcher.service.GameLaunchService;
 import com.minicube.launcher.service.JavaRuntimeService;
 import com.minicube.launcher.service.MicrosoftAuthService;
@@ -14,7 +15,9 @@ import com.minicube.launcher.service.NewsService;
 import com.minicube.launcher.service.NotificationService;
 import com.minicube.launcher.service.ProfileService;
 import com.minicube.launcher.service.ProfileWebServer;
+import com.minicube.launcher.service.OptimizationService;
 import com.minicube.launcher.service.OptionsService;
+import com.minicube.launcher.service.PerformanceService;
 import com.minicube.launcher.service.ServerListService;
 import com.minicube.launcher.service.ServerPingService;
 import com.minicube.launcher.service.ShaderService;
@@ -58,6 +61,9 @@ public class LauncherContext {
     private OptionsService options;
     private GameFileService gameFiles;
     private LoaderService loaders;
+    private OptimizationService optimization;
+    private final GameProfileService gameProfiles;
+    private final PerformanceService performance = new PerformanceService();
     private ShaderService shaders;
     private ModService mods;
     private GameLaunchService gameLauncher;
@@ -75,6 +81,7 @@ public class LauncherContext {
         this.cloudSync = new CloudSyncService(config);
         this.skins = new SkinService(auth);
         this.profiles = new ProfileService();
+        this.gameProfiles = new GameProfileService(config);
         this.profileServer = new ProfileWebServer(profiles);
 
         rebindGameDirectory();
@@ -97,7 +104,10 @@ public class LauncherContext {
         this.shaders = new ShaderService(paths, config, options);
         this.mods = new ModService(paths, config);
         this.loaders = new LoaderService(paths, gameFiles, javaRuntime, config);
+        this.optimization = new OptimizationService(config, javaRuntime, paths);
         this.gameLauncher = new GameLaunchService(paths, config, gameFiles, javaRuntime, options);
+        // Le tableau de bord mesure le chargement du jeu a partir de sa propre sortie.
+        this.gameLauncher.addOutputListener(performance::inspectGameOutput);
 
         Log.info("Dossier de jeu actif : " + gameDir);
     }
@@ -172,6 +182,21 @@ public class LauncherContext {
 
     public OptionsService options() {
         return options;
+    }
+
+    /** Profils de jeu : version, dossier, mods et reglages propres a chacun. */
+    public GameProfileService gameProfiles() {
+        return gameProfiles;
+    }
+
+    /** Analyse de la machine et propositions de reglages. */
+    public OptimizationService optimization() {
+        return optimization;
+    }
+
+    /** Mesures de fonctionnement du launcher et du jeu. */
+    public PerformanceService performance() {
+        return performance;
     }
 
     /** Installation des chargeurs de mods. */

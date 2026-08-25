@@ -47,6 +47,7 @@ public class ShellView {
         GRAPHICS("nav.graphics", Icons.MONITOR),
         SHADERS("nav.shaders", Icons.SPARKLE),
         MODS("nav.mods", Icons.PUZZLE),
+        PERFORMANCE("nav.performance", Icons.GAUGE),
         UPDATES("nav.updates", Icons.DOWNLOAD),
         SETTINGS("nav.settings", Icons.SETTINGS),
         LOGS("nav.logs", Icons.JOURNAL);
@@ -87,6 +88,10 @@ public class ShellView {
     private final ComboBox<InstalledVersion> versionSelector = new ComboBox<>();
     private final Button playButton = new Button(I18n.tr("action.play"));
     private final Button installButton = Ui.iconButton(Icons.PLUS, I18n.tr("install.title"));
+    private final ComboBox<com.minicube.launcher.model.GameProfile> profileSelector =
+            new ComboBox<>();
+    private final Button manageProfilesButton =
+            Ui.iconButton(Icons.SETTINGS, I18n.tr("profiles.manage"));
     private final Button folderButton = Ui.iconButton(Icons.FOLDER, I18n.tr("action.openFolder"));
     private final ProgressBar progressBar = new ProgressBar(0);
     private final Label statusLabel = new Label("");
@@ -238,7 +243,12 @@ public class ShellView {
 
         statusLabel.getStyleClass().add("launch-status");
 
-        HBox controls = new HBox(14, versionSelector, installButton, folderButton, Ui.growSpacer(),
+        profileSelector.setPrefWidth(190);
+        profileSelector.getStyleClass().add("version-selector");
+        profileSelector.setPromptText(I18n.tr("profiles.select"));
+
+        HBox controls = new HBox(14, profileSelector, manageProfilesButton,
+                versionSelector, installButton, folderButton, Ui.growSpacer(),
                 statusLabel, playButton);
         controls.setAlignment(Pos.CENTER_LEFT);
         controls.setPadding(new Insets(16, 24, 16, 24));
@@ -328,6 +338,14 @@ public class ShellView {
 
     public Button installButton() {
         return installButton;
+    }
+
+    public ComboBox<com.minicube.launcher.model.GameProfile> profileSelector() {
+        return profileSelector;
+    }
+
+    public Button manageProfilesButton() {
+        return manageProfilesButton;
     }
 
     public ProgressBar progressBar() {

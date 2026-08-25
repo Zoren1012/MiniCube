@@ -2,6 +2,7 @@ package com.minicube.launcher.ui.controller;
 
 import com.minicube.launcher.core.LauncherContext;
 import com.minicube.launcher.model.Account;
+import com.minicube.launcher.model.GameProfile;
 import com.minicube.launcher.model.InstalledVersion;
 import com.minicube.launcher.model.Notification;
 import com.minicube.launcher.model.Progress;
@@ -12,6 +13,7 @@ import com.minicube.launcher.ui.ThemeManager;
 import com.minicube.launcher.ui.Ui;
 import com.minicube.launcher.ui.component.PlayerHead;
 import com.minicube.launcher.ui.dialog.LoginDialog;
+import com.minicube.launcher.ui.dialog.ProfileManagerDialog;
 import com.minicube.launcher.ui.dialog.VersionInstallDialog;
 import com.minicube.launcher.ui.view.ShellView;
 import com.minicube.launcher.util.Fx;
@@ -52,6 +54,7 @@ public class ShellController {
     private ModsController mods;
     private SettingsController settings;
     private UpdatesController updates;
+    private PerformanceController performance;
     private LogsController logs;
 
     private boolean launching;
@@ -64,6 +67,7 @@ public class ShellController {
         wireNavigation();
         wireLaunchBar();
         wireAccount();
+        wireProfiles();
 
         context.notifications().addListener(this::onNotification);
         context.accounts().addChangeListener(account -> updateAccountCard());
@@ -88,6 +92,9 @@ public class ShellController {
         }
         if (logs != null) {
             logs.dispose();
+        }
+        if (performance != null) {
+            performance.dispose();
         }
     }
 
@@ -137,6 +144,10 @@ public class ShellController {
                 mods = new ModsController(context, stage, this::selectedVersionId);
                 return Ui.scroll(mods.root());
             }
+            case PERFORMANCE -> {
+                performance = new PerformanceController(context, this::selectedVersionId);
+                return Ui.scroll(performance.root());
+            }
             case UPDATES -> {
                 updates = new UpdatesController(context, stage);
                 return Ui.scroll(updates.root());
@@ -170,6 +181,69 @@ public class ShellController {
 
     private void wireAccount() {
         view.accountButton().setOnAction(event -> openLoginDialog());
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Profils                                                             */
+    /* ------------------------------------------------------------------ */
+
+    /** Garde-fou : eviter de reagir au remplissage de la liste comme a un choix. */
+    private boolean switchingProfile;
+
+    private void wireProfiles() {
+        view.profileSelector().valueProperty().addListener((observable, before, profile) -> {
+            if (!switchingProfile && profile != null) {
+                activateProfile(profile);
+            }
+        });
+        view.manageProfilesButton().setOnAction(event -> openProfileManager());
+        context.gameProfiles().addChangeListener(this::refreshProfiles);
+        refreshProfiles();
+    }
+
+    /** Remplit la liste des profils sans declencher de bascule. */
+    private void refreshProfiles() {
+        switchingProfile = true;
+        try {
+            view.profileSelector().getItems().setAll(context.gameProfiles().all());
+            context.gameProfiles().active()
+                    .ifPresent(profile -> view.profileSelector().setValue(profile));
+        } finally {
+            switchingProfile = false;
+        }
+    }
+
+    /**
+     * Bascule sur un profil.
+     *
+     * <p>Un profil qui change de dossier de jeu impose de reconstruire les onglets qui en
+     * dependent : leurs listes de mods et de shaders portent sur l'ancien dossier.</p>
+     */
+    private void activateProfile(GameProfile profile) {
+        boolean directoryChanged = context.gameProfiles().activate(profile.getId());
+        if (directoryChanged) {
+            context.rebindGameDirectory();
+            context.prepareDirectories();
+            pages.remove(ShellView.Tab.MODS);
+            pages.remove(ShellView.Tab.SHADERS);
+            pages.remove(ShellView.Tab.GRAPHICS);
+            mods = null;
+            shaders = null;
+            graphics = null;
+        }
+        refreshVersions(profile.getVersionId());
+        context.notifications().info(I18n.tr("profiles.title"),
+                I18n.tr("profiles.switched", profile.getName()));
+    }
+
+    private void openProfileManager() {
+        // Ce qui est regle maintenant appartient au profil courant : on le range avant
+        // d'ouvrir la fenetre, sinon une suppression ou une bascule le perdrait.
+        context.gameProfiles().captureCurrent();
+        ProfileManagerDialog dialog = new ProfileManagerDialog(context, stage);
+        if (dialog.showAndWait()) {
+            refreshProfiles();
+        }
     }
 
     /** Ouvre la fenetre de connexion et met a jour l'affichage au retour. */
@@ -332,6 +406,9 @@ public class ShellController {
         }
 
         setLaunching(true);
+        // Depart du chronometre affiche par l onglet Performances : ce que mesure le
+        // joueur commence a son clic, pas au demarrage du processus.
+        context.performance().markLaunchRequested();
         String versionId = version.id();
         boolean installMods = context.config().settings().isAutoInstallRequiredMods();
 
@@ -369,6 +446,7 @@ public class ShellController {
     private void onGameStarted() {
         gameStartedAt = System.currentTimeMillis();
         context.profiles().recordLaunch(selectedVersionId());
+        context.gameProfiles().recordLaunch();
         view.statusLabel().setText(I18n.tr("launch.running"));
         view.setProgressVisible(false);
         view.playButton().setDisable(false);

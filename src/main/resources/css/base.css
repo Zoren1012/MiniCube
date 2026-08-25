@@ -224,6 +224,36 @@
     -fx-background-color: -color-stroke;
 }
 
+.metric-value {
+    -fx-font-size: 23px;
+}
+
+/*
+ * Pastille de gravite du diagnostic. Un point colore se lit plus vite qu'un mot, et
+ * permet de parcourir une liste de constats sans la relire entierement.
+ */
+.severity-dot {
+    -fx-min-width: 10;
+    -fx-min-height: 10;
+    -fx-pref-width: 10;
+    -fx-pref-height: 10;
+    -fx-max-width: 10;
+    -fx-max-height: 10;
+    -fx-background-radius: 5;
+}
+
+.severity-good {
+    -fx-background-color: -color-success;
+}
+
+.severity-advice {
+    -fx-background-color: -color-warn;
+}
+
+.severity-problem {
+    -fx-background-color: -color-danger;
+}
+
 /* Pastille : une information courte qui doit se rattacher a quelque chose. */
 .chip {
     -fx-background-color: -color-glass-soft;

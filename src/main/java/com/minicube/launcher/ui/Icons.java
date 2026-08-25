@@ -104,6 +104,18 @@ public final class Icons {
             "M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 "
             + "2v14c0 1.1.9 2 2 2h8v-2H4V5z";
 
+    /** Courbe de mesure, pour le tableau de bord des performances. */
+    public static final String GAUGE =
+            "M3.5 18.5l6-6 4 4L22 6.92 20.59 5.5l-7.09 8-4-4L2 17l1.5 1.5z";
+
+    /** Baguette : reglage automatique propose par le launcher. */
+    public static final String WAND =
+            "M7.5 5.6L10 7L8.6 4.5L10 2L7.5 3.4L5 2l1.4 2.5L5 7l2.5-1.4zm12 9.8L17 14l1.4 2.5"
+            + "L17 19l2.5-1.4L22 19l-1.4-2.5L22 14l-2.5 1.4zM22 2l-2.5 1.4L17 2l1.4 2.5L17 7"
+            + "l2.5-1.4L22 7l-1.4-2.5L22 2zm-7.63 5.29a.996.996 0 0 0-1.41 0L1.29 18.96c-.39"
+            + ".39-.39 1.02 0 1.41l2.34 2.34c.39.39 1.02.39 1.41 0L16.7 11.05c.39-.39.39-1.02"
+            + " 0-1.41l-2.33-2.35zm-1.03 5.49l-2.12-2.12 2.44-2.44 2.12 2.12-2.44 2.44z";
+
     /**
      * Construit un noeud affichable a partir d'un trace.
      *
