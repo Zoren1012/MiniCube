@@ -74,6 +74,15 @@ public final class Json {
         return element.getAsJsonObject();
     }
 
+    /** Analyse une chaine en tableau JSON. */
+    public static JsonArray parseArray(String json) {
+        JsonElement element = JsonParser.parseString(json);
+        if (element == null || !element.isJsonArray()) {
+            throw new IllegalArgumentException("Reponse JSON inattendue : " + abbreviate(json));
+        }
+        return element.getAsJsonArray();
+    }
+
     /**
      * Ecrit un objet en JSON de maniere atomique : ecriture dans un fichier temporaire
      * puis remplacement, afin de ne jamais laisser une configuration tronquee.

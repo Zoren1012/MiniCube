@@ -741,6 +741,36 @@
     -fx-text-fill: -color-accent-bright;
 }
 
+/*
+ * Listes autonomes, comme le catalogue de versions de la fenetre d'installation.
+ * Sans ces regles, JavaFX les peint en blanc : une tache claire au milieu d'un
+ * dialogue sombre. Les listes des menus deroulants sont traitees plus haut.
+ */
+.list-view {
+    -fx-background-color: -color-glass-soft;
+    -fx-border-color: -color-stroke;
+    -fx-border-radius: 14;
+    -fx-background-radius: 14;
+    -fx-background-insets: 0;
+    -fx-padding: 4;
+}
+
+.list-view .list-cell {
+    -fx-background-color: transparent;
+    -fx-text-fill: -color-text;
+    -fx-padding: 9 14 9 14;
+    -fx-background-radius: 10;
+}
+
+.list-view .list-cell:filled:hover {
+    -fx-background-color: -color-glass-bright;
+}
+
+.list-view .list-cell:filled:selected {
+    -fx-background-color: -color-accent-veil;
+    -fx-text-fill: -color-accent-bright;
+}
+
 .check-box {
     -fx-cursor: hand;
     -fx-text-fill: -color-text;

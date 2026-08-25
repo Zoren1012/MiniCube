@@ -13,6 +13,50 @@ emplacements changent ensemble ; `package.ps1` lit le premier et le transmet aux
 
 ---
 
+## 1.9.0 — 26 août 2026
+
+### Installation des chargeurs de mods
+
+- **MiniCube installe désormais Fabric, Quilt, NeoForge et Forge.** Jusqu'ici il savait
+  *reconnaître* une version moddée, mais pas la poser : il fallait aller chercher
+  l'installeur officiel soi-même. C'était l'étape où l'on perd les joueurs ; elle
+  disparaît.
+- La fenêtre d'installation propose un **choix de chargeur**. Le catalogue affiché suit
+  ce choix — chaque chargeur ne couvre qu'une partie des versions du jeu, et montrer les
+  autres ne mènerait qu'à des échecs. La version du chargeur la plus récente est
+  proposée d'office.
+- La version vanilla dont dépend le chargeur est **installée automatiquement** si elle
+  manque, et la version fraîchement posée est **sélectionnée au retour** : plus qu'à
+  cliquer sur Jouer.
+
+### Deux méthodes, selon le chargeur
+
+- **Fabric et Quilt** publient leur descriptif de version en JSON. L'installation se
+  réduit à l'écrire : aucun programme n'est téléchargé ni exécuté. Comptez une seconde.
+- **Forge et NeoForge** n'offrent rien de tel — leur installeur est un programme qu'il
+  faut lancer. MiniCube le télécharge depuis leur dépôt Maven officiel en HTTPS,
+  **contrôle son empreinte SHA-1 publiée à côté de lui**, puis l'exécute en mode
+  silencieux et l'efface. C'est le modèle de confiance de Maven et Gradle : il protège
+  d'un fichier corrompu, non d'un dépôt officiel qui serait lui-même compromis. La
+  différence avec une empreinte figée dans le code est réelle, mais aucune autre voie
+  n'existe pour ces deux chargeurs.
+
+### Corrections
+
+- **NeoForge : correspondance de versions corrigée.** Minecraft ayant abandonné le `1.`
+  initial, NeoForge est passé de trois à quatre nombres. MiniCube lisait encore l'ancienne
+  règle et aurait proposé des versions fantômes du type « 1.26.2 ». Les deux conventions
+  sont désormais comprises, et le résultat est **recoupé avec le catalogue Mojang** : une
+  version que Mojang ne publie pas n'est plus proposée, même si la règle changeait encore.
+- **Fabric répondait par une erreur 400** pour une version de jeu qu'il ne connaît pas,
+  au lieu d'une liste vide. Le launcher affichait cette erreur brute ; il dit maintenant
+  simplement qu'aucune version n'existe.
+- **Les listes n'étaient pas habillées par le thème.** Le catalogue de versions s'affichait
+  en blanc au milieu d'un dialogue sombre — un défaut présent depuis l'origine, et devenu
+  visible avec cette fenêtre.
+
+---
+
 ## 1.8.0 — 25 août 2026
 
 ### Retrait de l'accueil vocal

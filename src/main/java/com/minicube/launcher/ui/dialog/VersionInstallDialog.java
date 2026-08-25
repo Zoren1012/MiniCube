@@ -3,6 +3,7 @@ package com.minicube.launcher.ui.dialog;
 import com.minicube.launcher.core.Constants;
 import com.minicube.launcher.core.LauncherContext;
 import com.minicube.launcher.service.GameFileService;
+import com.minicube.launcher.service.LoaderService.Loader;
 import com.minicube.launcher.ui.Icons;
 import com.minicube.launcher.ui.ThemeManager;
 import com.minicube.launcher.ui.Ui;
@@ -13,10 +14,13 @@ import javafx.geometry.Pos;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
+import javafx.scene.control.ChoiceBox;
+import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.ListCell;
 import javafx.scene.control.ListView;
 import javafx.scene.control.ProgressBar;
+import javafx.scene.control.ProgressIndicator;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
@@ -24,34 +28,50 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.stage.Window;
+import javafx.util.StringConverter;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
+import java.util.Map;
 
 /**
- * Installation d'une version officielle depuis le catalogue Mojang.
+ * Installation d'une version de Minecraft, vanilla ou moddee.
  *
  * <p>Sans cette fenetre, le launcher ne savait que lancer des versions deja installees
- * par un autre outil : sur une machine neuve, il n'y avait rien a lancer. Le
- * telechargement lui-meme existait deja dans {@code GameFileService}, il ne lui
- * manquait qu'une porte d'entree.</p>
+ * par un autre outil. Elle sait desormais poser aussi <b>Fabric, Quilt, NeoForge et
+ * Forge</b> : le joueur choisit son chargeur, sa version, et n'a plus a aller chercher
+ * l'installeur officiel ailleurs.</p>
+ *
+ * <p>Le catalogue affiche depend du chargeur retenu : chacun ne couvre qu'une partie des
+ * versions du jeu, et montrer les autres ne menerait qu'a des echecs.</p>
  */
 public class VersionInstallDialog {
 
     private final LauncherContext context;
     private final Stage stage = new Stage();
 
-    private final ListView<GameFileService.AvailableVersion> list = new ListView<>();
+    private final ChoiceBox<Loader> loaderChoice = new ChoiceBox<>();
+    private final ListView<String> list = new ListView<>();
     private final TextField search = new TextField();
     private final CheckBox showSnapshots = new CheckBox(I18n.tr("install.snapshots"));
+    private final ComboBox<String> loaderVersion = new ComboBox<>();
+    private final Label loaderVersionLabel = new Label(I18n.tr("install.loaderVersion"));
     private final Button installButton = Ui.primaryButton(I18n.tr("install.action"),
             Icons.DOWNLOAD);
     private final ProgressBar progress = new ProgressBar(0);
     private final Label status = Ui.hint(I18n.tr("install.loading"));
+    /** Titre de la fenetre : il suit le chargeur retenu. */
+    private final Label title = new Label(I18n.tr("install.heading"));
 
-    private List<GameFileService.AvailableVersion> catalogue = new ArrayList<>();
+    /** Versions du chargeur courant, dans l'ordre d'affichage. */
+    private List<String> gameVersions = new ArrayList<>();
+    /** Type et date des versions officielles, pour enrichir l'affichage en vanilla. */
+    private final Map<String, GameFileService.AvailableVersion> official = new HashMap<>();
     private boolean installed;
+    /** Identifiant reellement installe, pour le selectionner au retour. */
+    private String installedId = "";
 
     public VersionInstallDialog(LauncherContext context, Window owner) {
         this.context = context;
@@ -60,7 +80,7 @@ public class VersionInstallDialog {
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.setTitle(Constants.APP_NAME + " - " + I18n.tr("install.title"));
 
-        Scene scene = new Scene(buildContent(), 560, 620);
+        Scene scene = new Scene(buildContent(), 620, 660);
         ThemeManager.apply(scene, context.config().settings().getTheme());
         stage.setScene(scene);
 
@@ -77,18 +97,47 @@ public class VersionInstallDialog {
         return installed;
     }
 
+    /** Version posee par la derniere installation reussie. */
+    public String installedVersionId() {
+        return installedId;
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Construction                                                        */
+    /* ------------------------------------------------------------------ */
+
     private VBox buildContent() {
-        Label title = new Label(I18n.tr("install.heading"));
         title.getStyleClass().add("page-title");
+
+        loaderChoice.getItems().setAll(Loader.values());
+        loaderChoice.setValue(Loader.VANILLA);
+        loaderChoice.setConverter(new StringConverter<>() {
+            @Override
+            public String toString(Loader loader) {
+                return loader == null ? "" : loader.label();
+            }
+
+            @Override
+            public Loader fromString(String label) {
+                return Loader.VANILLA;
+            }
+        });
+        loaderChoice.valueProperty().addListener(
+                (observable, before, after) -> loadCatalogue());
 
         search.setPromptText(I18n.tr("install.search"));
         search.textProperty().addListener((observable, old, value) -> applyFilter());
-        showSnapshots.selectedProperty().addListener((observable, old, value) -> applyFilter());
+        showSnapshots.selectedProperty().addListener(
+                (observable, old, value) -> loadCatalogue());
 
         list.setCellFactory(view -> versionCell());
         list.getSelectionModel().selectedItemProperty().addListener(
-                (observable, old, value) -> installButton.setDisable(value == null));
+                (observable, old, value) -> onGameVersionSelected(value));
         VBox.setVgrow(list, Priority.ALWAYS);
+
+        loaderVersion.setPrefWidth(220);
+        loaderVersion.valueProperty().addListener(
+                (observable, old, value) -> updateInstallButton());
 
         installButton.setDisable(true);
         installButton.setOnAction(event -> install());
@@ -103,38 +152,80 @@ public class VersionInstallDialog {
         HBox actions = new HBox(12, close, Ui.growSpacer(), installButton);
         actions.setAlignment(Pos.CENTER_RIGHT);
 
+        HBox loaderRow = new HBox(12, new Label(I18n.tr("install.loader")), loaderChoice,
+                Ui.growSpacer(), loaderVersionLabel, loaderVersion);
+        loaderRow.setAlignment(Pos.CENTER_LEFT);
+
         HBox filters = new HBox(14, search, showSnapshots);
         filters.setAlignment(Pos.CENTER_LEFT);
         HBox.setHgrow(search, Priority.ALWAYS);
 
+        showLoaderVersion(false);
+
         VBox content = new VBox(16, title, Ui.hint(I18n.tr("install.subtitle")),
-                filters, list, status, progress, actions);
+                loaderRow, filters, list, status, progress, actions);
         content.getStyleClass().addAll("page", "dialog-root");
         content.setPadding(new Insets(24));
         return content;
     }
 
-    /** Cellule montrant l'identifiant, le type et la date de publication. */
-    private ListCell<GameFileService.AvailableVersion> versionCell() {
+    /** Cellule montrant l'identifiant et, en vanilla, le type et la date. */
+    private ListCell<String> versionCell() {
         return new ListCell<>() {
             @Override
-            protected void updateItem(GameFileService.AvailableVersion item, boolean empty) {
-                super.updateItem(item, empty);
-                if (empty || item == null) {
+            protected void updateItem(String version, boolean empty) {
+                super.updateItem(version, empty);
+                if (empty || version == null) {
                     setText(null);
                     return;
                 }
-                String date = item.releaseTime().length() >= 10
-                        ? item.releaseTime().substring(0, 10) : "";
-                setText(item.id() + "    " + item.type() + "    " + date);
+                GameFileService.AvailableVersion details = official.get(version);
+                if (details == null) {
+                    setText(version);
+                    return;
+                }
+                String date = details.releaseTime().length() >= 10
+                        ? details.releaseTime().substring(0, 10) : "";
+                setText(version + "    " + details.type() + "    " + date);
             }
         };
     }
 
-    /** Recupere le catalogue officiel en tache de fond. */
+    private void showLoaderVersion(boolean visible) {
+        loaderVersion.setVisible(visible);
+        loaderVersion.setManaged(visible);
+        loaderVersionLabel.setVisible(visible);
+        loaderVersionLabel.setManaged(visible);
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Catalogues                                                          */
+    /* ------------------------------------------------------------------ */
+
+    /** Recharge la liste des versions pour le chargeur retenu. */
     private void loadCatalogue() {
-        Fx.async(() -> context.gameFiles().fetchAvailableVersions(), versions -> {
-            catalogue = versions;
+        Loader loader = loaderChoice.getValue();
+        boolean vanilla = loader == Loader.VANILLA;
+        title.setText(vanilla
+                ? I18n.tr("install.heading")
+                : I18n.tr("install.heading.loader", loader.label()));
+        showLoaderVersion(!vanilla);
+        loaderVersion.getItems().clear();
+        list.getItems().clear();
+        status.setText(I18n.tr("install.loading"));
+        installButton.setDisable(true);
+
+        Fx.async(() -> {
+            if (vanilla) {
+                List<GameFileService.AvailableVersion> versions =
+                        context.gameFiles().fetchAvailableVersions();
+                official.clear();
+                versions.forEach(version -> official.put(version.id(), version));
+                return versions.stream().map(GameFileService.AvailableVersion::id).toList();
+            }
+            return context.loaders().gameVersions(loader, !showSnapshots.isSelected());
+        }, versions -> {
+            gameVersions = versions;
             status.setText(I18n.tr("install.available", versions.size()));
             applyFilter();
         }, error -> status.setText(error.getMessage()));
@@ -145,43 +236,90 @@ public class VersionInstallDialog {
         String needle = search.getText() == null
                 ? "" : search.getText().trim().toLowerCase(Locale.ROOT);
         boolean snapshots = showSnapshots.isSelected();
+        boolean vanilla = loaderChoice.getValue() == Loader.VANILLA;
 
-        List<GameFileService.AvailableVersion> visible = catalogue.stream()
-                .filter(version -> snapshots || "release".equals(version.type()))
+        List<String> visible = gameVersions.stream()
+                // Hors vanilla, le catalogue du chargeur est deja filtre a la source.
+                .filter(version -> !vanilla || snapshots
+                        || official.get(version) == null
+                        || "release".equals(official.get(version).type()))
                 .filter(version -> needle.isEmpty()
-                        || version.id().toLowerCase(Locale.ROOT).contains(needle))
+                        || version.toLowerCase(Locale.ROOT).contains(needle))
                 .limit(300)
                 .toList();
         list.getItems().setAll(visible);
     }
 
-    /** Telecharge la version selectionnee et tout ce dont elle depend. */
-    private void install() {
-        GameFileService.AvailableVersion target = list.getSelectionModel().getSelectedItem();
-        if (target == null) {
+    /** Charge les versions du chargeur disponibles pour la version de jeu retenue. */
+    private void onGameVersionSelected(String gameVersion) {
+        Loader loader = loaderChoice.getValue();
+        if (loader == Loader.VANILLA || gameVersion == null) {
+            updateInstallButton();
             return;
         }
+        loaderVersion.getItems().clear();
+        installButton.setDisable(true);
+        status.setText(I18n.tr("install.loaderSearch", loader.label()));
+
+        Fx.async(() -> context.loaders().loaderVersions(loader, gameVersion), versions -> {
+            loaderVersion.getItems().setAll(versions);
+            if (!versions.isEmpty()) {
+                // La plus recente en tete : c'est celle que l'on veut neuf fois sur dix.
+                loaderVersion.setValue(versions.get(0));
+                status.setText(I18n.tr("install.loaderFound", versions.size(),
+                        loader.label()));
+            } else {
+                status.setText(I18n.tr("install.loaderNone", loader.label(), gameVersion));
+            }
+            updateInstallButton();
+        }, error -> {
+            status.setText(error.getMessage());
+            updateInstallButton();
+        });
+    }
+
+    private void updateInstallButton() {
+        boolean vanilla = loaderChoice.getValue() == Loader.VANILLA;
+        boolean hasGame = list.getSelectionModel().getSelectedItem() != null;
+        installButton.setDisable(!hasGame
+                || (!vanilla && loaderVersion.getValue() == null));
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Installation                                                        */
+    /* ------------------------------------------------------------------ */
+
+    /** Telecharge la version selectionnee, son chargeur et tout ce dont ils dependent. */
+    private void install() {
+        String gameVersion = list.getSelectionModel().getSelectedItem();
+        Loader loader = loaderChoice.getValue();
+        if (gameVersion == null) {
+            return;
+        }
+        String chosenLoader = loaderVersion.getValue();
         installButton.setDisable(true);
         list.setDisable(true);
+        loaderChoice.setDisable(true);
+        loaderVersion.setDisable(true);
         progress.setVisible(true);
         progress.setManaged(true);
 
-        Fx.async(() -> {
-            context.gameFiles().installVersion(target.id(), value -> Fx.ui(() -> {
-                progress.setProgress(value.isIndeterminate()
-                        ? javafx.scene.control.ProgressIndicator.INDETERMINATE_PROGRESS
-                        : value.value());
-                status.setText(value.message()
-                        + (value.detail().isBlank() ? "" : "  -  " + value.detail()));
-            }));
-            return Boolean.TRUE;
-        }, done -> {
+        Fx.async(() -> context.loaders().install(loader, gameVersion, chosenLoader,
+                value -> Fx.ui(() -> {
+                    progress.setProgress(value.isIndeterminate()
+                            ? ProgressIndicator.INDETERMINATE_PROGRESS : value.value());
+                    status.setText(value.message()
+                            + (value.detail().isBlank() ? "" : "  -  " + value.detail()));
+                })), versionId -> {
             installed = true;
+            installedId = versionId;
             context.notifications().success(I18n.tr("install.title"),
-                    I18n.tr("install.done", target.id()));
+                    I18n.tr("install.done", versionId));
             stage.close();
         }, error -> {
             list.setDisable(false);
+            loaderChoice.setDisable(false);
+            loaderVersion.setDisable(false);
             installButton.setDisable(false);
             progress.setVisible(false);
             progress.setManaged(false);

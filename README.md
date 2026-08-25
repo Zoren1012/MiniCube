@@ -30,6 +30,8 @@ Concrètement, il sait :
   et OptiFine ;
 - **télécharger une version** depuis le catalogue officiel, sans passer par le launcher
   de Mojang ;
+- **installer Fabric, Quilt, NeoForge ou Forge** en un clic, sans aller chercher leur
+  installeur ;
 - **connecter un compte Microsoft** ou fonctionner en mode hors-ligne ;
 - **imposer une liste de mods** à vos joueurs, vérifiée avant chaque partie ;
 - **rejoindre un serveur en un clic**, avec sa latence et sa fréquentation affichées ;
@@ -189,6 +191,37 @@ pourrait devenir une vraie autorisation, et le compte être reconnu d'une machin
 
 ---
 
+## Installer une version, vanilla ou moddée
+
+Le bouton **+** de la barre du bas ouvre le catalogue. Choisissez un **chargeur de mods**
+— Vanilla, Fabric, Quilt, NeoForge ou Forge — puis la version de Minecraft. MiniCube
+propose d'office la version la plus récente du chargeur.
+
+Vous n'avez rien d'autre à télécharger : la version vanilla dont dépend le chargeur est
+installée toute seule si elle manque, et la version fraîchement posée est sélectionnée au
+retour. Il ne reste qu'à cliquer sur **Jouer**.
+
+Le catalogue affiché suit le chargeur choisi. Chacun ne couvre qu'une partie des versions
+du jeu ; montrer les autres ne mènerait qu'à des échecs.
+
+### Ce qui se passe vraiment
+
+| | Fabric, Quilt | Forge, NeoForge |
+|---|---|---|
+| Méthode | un descriptif JSON est écrit | leur installeur officiel est exécuté |
+| Programme téléchargé | **aucun** | l'installeur, vérifié avant d'être lancé |
+| Durée | environ une seconde | une à deux minutes |
+
+Fabric et Quilt publient leur descriptif de version : MiniCube l'écrit, et les
+bibliothèques sont récupérées par le mécanisme habituel. **Rien n'est exécuté.**
+
+Forge et NeoForge n'offrent pas cela — leur installeur est un programme. MiniCube le
+télécharge depuis leur dépôt Maven officiel en HTTPS, **contrôle son empreinte SHA-1
+publiée à côté de lui**, l'exécute en mode silencieux, puis l'efface. C'est le modèle de
+confiance de Maven et de Gradle : il protège d'un téléchargement abîmé, non d'un dépôt
+officiel qui serait lui-même compromis. Aucune autre voie n'existe pour ces deux
+chargeurs, et c'est exactement ce que vous feriez à la main.
+
 ## Les neuf onglets
 
 ### Accueil
@@ -254,6 +287,8 @@ supprimé sans confirmation explicite.
 
 Si votre projet publie un manifeste, les mods déclarés obligatoires sont téléchargés et
 vérifiés avant chaque partie, et ne peuvent pas être désactivés.
+
+Pour poser le chargeur lui-même, voyez [Installer une version](#installer-une-version-vanilla-ou-moddée).
 
 ### Mise à jour
 
@@ -542,9 +577,10 @@ du HTML, du CSS et du JavaScript ordinaires, sans dépendance ni outil de constr
 
 ## Limites connues
 
-- **Le launcher n'installe pas Forge ni Fabric.** Il détecte et lance les versions déjà
-  installées par leurs installateurs officiels. Les versions vanilla, elles, peuvent être
-  téléchargées depuis MiniCube.
+- **Les installeurs Forge et NeoForge sont exécutés tels que leur dépôt officiel les
+  publie.** MiniCube vérifie leur empreinte SHA-1 avant de les lancer, mais celle-ci vient
+  du même dépôt : elle protège d'un fichier corrompu, pas d'un dépôt compromis. Fabric et
+  Quilt, eux, n'exécutent rien du tout.
 - **Un compte hors-ligne ne peut pas avoir de skin visible** par les autres joueurs.
   C'est une limite de Minecraft, pas de MiniCube.
 - **Le jeton de session transite par la ligne de commande du jeu.** Sous Linux et macOS,

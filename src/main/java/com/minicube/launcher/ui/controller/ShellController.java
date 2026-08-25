@@ -250,10 +250,23 @@ public class ShellController {
 
     /** Recharge la liste des versions installees. */
     public final void refreshVersions() {
+        refreshVersions("");
+    }
+
+    /**
+     * Recharge la liste des versions installees.
+     *
+     * @param preferred version a selectionner de preference : celle qui vient d etre
+     *                  installee, pour que le joueur puisse jouer sans la chercher
+     */
+    public final void refreshVersions(String preferred) {
         Fx.async(() -> context.install().listVersions(context.paths()), versions -> {
             view.versionSelector().getItems().setAll(versions);
-            InstalledVersion selected = context.install().pickDefaultVersion(versions,
-                    context.config().settings().getLastVersionId());
+            InstalledVersion selected = versions.stream()
+                    .filter(version -> version.id().equals(preferred))
+                    .findFirst()
+                    .orElseGet(() -> context.install().pickDefaultVersion(versions,
+                            context.config().settings().getLastVersionId()));
             if (selected != null) {
                 view.versionSelector().getSelectionModel().select(selected);
             } else {
@@ -269,7 +282,7 @@ public class ShellController {
     private void openVersionInstaller() {
         VersionInstallDialog dialog = new VersionInstallDialog(context, stage);
         if (dialog.showAndWait()) {
-            refreshVersions();
+            refreshVersions(dialog.installedVersionId());
         }
     }
 

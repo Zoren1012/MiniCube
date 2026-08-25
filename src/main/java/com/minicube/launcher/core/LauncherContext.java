@@ -7,6 +7,7 @@ import com.minicube.launcher.service.GameFileService;
 import com.minicube.launcher.service.GameLaunchService;
 import com.minicube.launcher.service.JavaRuntimeService;
 import com.minicube.launcher.service.MicrosoftAuthService;
+import com.minicube.launcher.service.LoaderService;
 import com.minicube.launcher.service.MinecraftInstallService;
 import com.minicube.launcher.service.ModService;
 import com.minicube.launcher.service.NewsService;
@@ -56,6 +57,7 @@ public class LauncherContext {
     private JavaRuntimeService javaRuntime;
     private OptionsService options;
     private GameFileService gameFiles;
+    private LoaderService loaders;
     private ShaderService shaders;
     private ModService mods;
     private GameLaunchService gameLauncher;
@@ -94,6 +96,7 @@ public class LauncherContext {
         this.gameFiles = new GameFileService(paths);
         this.shaders = new ShaderService(paths, config, options);
         this.mods = new ModService(paths, config);
+        this.loaders = new LoaderService(paths, gameFiles, javaRuntime, config);
         this.gameLauncher = new GameLaunchService(paths, config, gameFiles, javaRuntime, options);
 
         Log.info("Dossier de jeu actif : " + gameDir);
@@ -169,6 +172,11 @@ public class LauncherContext {
 
     public OptionsService options() {
         return options;
+    }
+
+    /** Installation des chargeurs de mods. */
+    public LoaderService loaders() {
+        return loaders;
     }
 
     public GameFileService gameFiles() {
