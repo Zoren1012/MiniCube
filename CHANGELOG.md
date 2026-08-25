@@ -13,6 +13,18 @@ emplacements changent ensemble ; `package.ps1` lit le premier et le transmet aux
 
 ---
 
+## 1.3.4 — 25 août 2026
+
+- **Le README documente enfin la publication d'une version.** `version.bat`, ses
+  garde-fous et la raison pour laquelle l'étiquette doit correspondre au code n'étaient
+  décrits nulle part : ils n'existaient que dans une conversation.
+- **Les sept états de l'onglet Mise à jour sont expliqués**, avec ce que chacun signifie
+  réellement. « Aucune version publiée » et « Dépôt introuvable » ne veulent pas dire la
+  même chose que « à jour ».
+- Sommaire compact en tête de page.
+
+---
+
 ## 1.3.3 — 25 août 2026
 
 ### L'onglet Mise à jour ne ment plus

@@ -12,6 +12,12 @@ Java 21 · JavaFX 21 · Windows, macOS, Linux
 
 ---
 
+**Sommaire** — [Ce que c'est](#quest-ce-que-minicube) · [Installation](#installation) ·
+[Les onglets](#les-neuf-onglets) · [Pour un serveur](#pour-un-serveur-ou-une-communauté) ·
+[Publier une version](#publier-une-version) · [Limites](#limites-connues)
+
+---
+
 ## Qu'est-ce que MiniCube ?
 
 MiniCube remplace le launcher officiel de Minecraft quand vous voulez **maîtriser ce que
@@ -203,6 +209,19 @@ exige un fichier `.sha256` publié à côté, et vérifie le téléchargement av
 lancer. Le workflow fourni génère ces empreintes automatiquement — sans elles, le
 launcher refuserait ses propres mises à jour.
 
+**L'onglet ne dit jamais « à jour » quand il n'a pas pu vérifier.** C'est une
+distinction qui compte : croire qu'on possède la dernière version parce qu'un message
+rassurant s'affiche, alors que la vérification a échoué, est pire que ne rien afficher.
+
+| Ce qui s'affiche | Ce que ça veut dire |
+|---|---|
+| **Version x.y.z disponible** | Une version plus récente existe, avec ses nouveautés |
+| **MiniCube est à jour** | Vous avez bien la dernière version publiée |
+| **Aucune version publiée** | Le dépôt existe mais ne contient aucune publication |
+| **Dépôt introuvable** | Le nom est erroné, ou le dépôt est privé |
+| **Mise à jour refusée** | La publication existe mais n'a pas pu être vérifiée |
+| **La vérification a échoué** | Réseau indisponible, ou quota GitHub atteint |
+
 Si vous préférez héberger vos mises à jour ailleurs que sur GitHub, le champ
 *adresse de mise à jour* accepte un descripteur JSON, décrit au §5 d'[INSTALL.md](INSTALL.md).
 
@@ -328,6 +347,54 @@ autonome est produit, et le script le signale.
 
 Le runtime embarqué est réduit à dix modules du JDK, ce qui divise sa taille par trois.
 
+### Publier une version
+
+```bash
+.\version.bat 1.4.0
+```
+
+Le numéro de version vit dans `Constants.APP_VERSION` et dans `pom.xml`, et doit
+correspondre à l'étiquette Git. Le script met les trois d'accord, compile pour vérifier
+que rien n'est cassé, puis crée le commit et l'étiquette. **Il ne pousse rien** : la
+commande d'envoi est affichée à la fin.
+
+Il refuse de continuer si :
+
+- le format n'est pas `majeur.mineur.correctif` ;
+- la version **recule** — ce qui empêcherait toute mise à jour ultérieure ;
+- l'étiquette existe déjà ;
+- `CHANGELOG.md` ne contient pas d'entrée pour ce numéro. Ce texte est celui que vos
+  joueurs liront dans l'onglet Mise à jour : autant qu'il existe.
+
+Puis :
+
+```bash
+git push
+```
+
+```bash
+git push origin v1.4.0
+```
+
+L'étiquette déclenche la fabrication sur GitHub : l'installeur, l'archive portable et
+leurs empreintes sont publiés automatiquement. Quelques minutes plus tard, l'onglet
+Mise à jour de vos joueurs la propose.
+
+> **Pourquoi l'étiquette doit correspondre au code.** Le projet est compilé d'après
+> `APP_VERSION` mais publié sous le nom de l'étiquette. Taguer `v1.4.0` sur un commit où
+> le code dit `1.3.0` publierait un installeur 1.3.0 sous le nom 1.4.0 : vos joueurs se
+> verraient proposer une mise à jour qui installe la version qu'ils ont déjà, **en
+> boucle**. Le workflow refuse désormais ce cas, et `version.bat` l'empêche en amont.
+
+Pour annuler avant d'avoir poussé :
+
+```bash
+git tag -d v1.4.0
+```
+
+```bash
+git reset --soft HEAD~1
+```
 
 ### Annoncer une version sur Discord
 
