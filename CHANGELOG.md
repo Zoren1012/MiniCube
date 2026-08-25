@@ -13,6 +13,42 @@ emplacements changent ensemble ; `package.ps1` lit le premier et le transmet aux
 
 ---
 
+## 1.6.0 — 25 août 2026
+
+### Accueil vocal
+
+- **Le launcher vous salue à voix haute au démarrage.** « Bienvenue *votre pseudo* ! » est
+  prononcé pendant que la fenêtre apparaît. Le pseudo est celui de votre compte MiniCube ;
+  à défaut, celui du compte de jeu actif ; sans aucun des deux, l'accueil reste générique.
+- **La voix vient de Windows, pas d'Internet.** Sous Windows 10 et 11, la synthèse utilise
+  les voix *OneCore* (Julie, Paul, Hortense en français), nettement plus naturelles que les
+  anciennes voix SAPI, avec repli automatique sur ces dernières si elles manquent. Sur macOS
+  et Linux, `say` et `spd-say` prennent le relais. **Rien n'est envoyé à un service
+  extérieur : votre pseudo ne quitte pas la machine.**
+- **Prononcé une fois, rejoué ensuite.** La phrase est synthétisée puis conservée dans le
+  cache : les démarrages suivants se contentent de relire le fichier, sans lancer le moindre
+  processus. Comptez environ une seconde la première fois, rien du tout après.
+- **Désactivable.** *Paramètres → Comportement → Accueil vocal au démarrage*. La
+  réinitialisation des préférences vide aussi les phrases déjà enregistrées.
+- La synthèse et la lecture se font sur un fil séparé : elles ne retardent jamais
+  l'affichage de la fenêtre, et un échec reste silencieux — l'accueil est un agrément, pas
+  une fonction dont le launcher dépend.
+
+### Protection
+
+- **Le pseudo ne figure jamais dans le script de synthèse.** Sous Windows, prononcer une
+  phrase suppose d'exécuter du PowerShell : y insérer le pseudo reviendrait à exécuter du
+  code choisi par l'utilisateur, et un pseudo tel que `"; Remove-Item …` suffirait. Le
+  script est donc une constante, transmise encodée pour échapper à toute règle de citation,
+  et la phrase voyage par une variable d'environnement que PowerShell lit comme une simple
+  donnée. Quatre formes d'injection ont été essayées puis vérifiées sans effet.
+- PowerShell est appelé par son chemin absolu dans `System32`, jamais par le `PATH` qu'un
+  autre logiciel pourrait avoir détourné.
+- Les caractères de contrôle sont retirés du pseudo et la phrase est plafonnée : rien
+  d'aberrant ne part au moteur de synthèse.
+
+---
+
 ## 1.5.0 — 25 août 2026
 
 ### Compte MiniCube

@@ -3,6 +3,7 @@ package com.minicube.launcher;
 import com.minicube.launcher.core.Constants;
 import com.minicube.launcher.core.LauncherContext;
 import com.minicube.launcher.core.LauncherPaths;
+import com.minicube.launcher.model.Account;
 import com.minicube.launcher.ui.ThemeManager;
 import com.minicube.launcher.ui.component.DefaultSkin;
 import com.minicube.launcher.ui.component.PlayerHead;
@@ -131,6 +132,22 @@ public class MiniCubeLauncher extends Application {
             context.accounts().refreshActiveQuietly();
             return Boolean.TRUE;
         }, ignored -> { }, error -> Log.debug("Reconnexion automatique ignoree"));
+
+        greetPlayer();
+    }
+
+    /**
+     * Prononce le mot de bienvenue.
+     *
+     * <p>Le pseudo du compte MiniCube prime : c'est celui que le joueur s'est choisi.
+     * A defaut, celui du compte de jeu actif ; sans aucun des deux, l'accueil reste
+     * generique. La synthese se fait sur un fil separe et n'attend jamais l'affichage.</p>
+     */
+    private void greetPlayer() {
+        String name = context.profiles().profile().exists()
+                ? context.profiles().profile().getUsername()
+                : context.accounts().active().map(Account::getUsername).orElse("");
+        context.voice().greet(name);
     }
 
     /**

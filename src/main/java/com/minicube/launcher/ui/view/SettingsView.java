@@ -54,6 +54,7 @@ public class SettingsView {
     private final CheckBox autoUpdate = new CheckBox();
     private final CheckBox verifyFiles = new CheckBox();
     private final CheckBox autoInstallMods = new CheckBox();
+    private final CheckBox voiceGreeting = new CheckBox();
 
     private final TextField gameDirectory = new TextField();
     private final Button changeGameDirButton = Ui.secondaryButton(I18n.tr("settings.game.change"),
@@ -162,6 +163,8 @@ public class SettingsView {
                         I18n.tr("settings.verifyBeforeLaunch.hint"), verifyFiles),
                 Ui.settingRow(I18n.tr("settings.autoInstallMods"),
                         I18n.tr("settings.autoInstallMods.hint"), autoInstallMods),
+                Ui.settingRow(I18n.tr("settings.voiceGreeting"),
+                        I18n.tr("settings.voiceGreeting.hint"), voiceGreeting),
                 Ui.settingRow(I18n.tr("settings.autoUpdate"), I18n.tr("settings.autoUpdate.hint"),
                         autoUpdate),
                 Ui.settingRow(I18n.tr("settings.debug"), I18n.tr("settings.debug.hint"),
@@ -315,6 +318,10 @@ public class SettingsView {
 
     public CheckBox autoInstallMods() {
         return autoInstallMods;
+    }
+
+    public CheckBox voiceGreeting() {
+        return voiceGreeting;
     }
 
     public TextField gameDirectory() {

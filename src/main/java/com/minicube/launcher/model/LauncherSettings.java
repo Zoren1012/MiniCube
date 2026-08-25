@@ -53,6 +53,8 @@ public class LauncherSettings {
     private boolean verifyFilesBeforeLaunch = true;
     /** Installe automatiquement les mods declares obligatoires par le manifeste. */
     private boolean autoInstallRequiredMods = true;
+    /** Prononce un mot de bienvenue au demarrage, avec le pseudo du joueur. */
+    private boolean voiceGreetingEnabled = true;
 
     /* --- Shaders ------------------------------------------------------- */
 
@@ -260,6 +262,14 @@ public class LauncherSettings {
 
     public void setAutoInstallRequiredMods(boolean autoInstallRequiredMods) {
         this.autoInstallRequiredMods = autoInstallRequiredMods;
+    }
+
+    public boolean isVoiceGreetingEnabled() {
+        return voiceGreetingEnabled;
+    }
+
+    public void setVoiceGreetingEnabled(boolean voiceGreetingEnabled) {
+        this.voiceGreetingEnabled = voiceGreetingEnabled;
     }
 
     public boolean isShadersEnabled() {

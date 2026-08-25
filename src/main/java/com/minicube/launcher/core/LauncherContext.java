@@ -19,6 +19,7 @@ import com.minicube.launcher.service.ServerPingService;
 import com.minicube.launcher.service.ShaderService;
 import com.minicube.launcher.service.SkinService;
 import com.minicube.launcher.service.UpdateService;
+import com.minicube.launcher.service.VoiceService;
 import com.minicube.launcher.util.Log;
 
 import java.nio.file.Path;
@@ -51,6 +52,7 @@ public class LauncherContext {
     private final SkinService skins;
     private final ProfileService profiles;
     private final ProfileWebServer profileServer;
+    private final VoiceService voice;
 
     private LauncherPaths paths;
     private JavaRuntimeService javaRuntime;
@@ -74,6 +76,7 @@ public class LauncherContext {
         this.skins = new SkinService(auth);
         this.profiles = new ProfileService();
         this.profileServer = new ProfileWebServer(profiles);
+        this.voice = new VoiceService(config.settings(), LauncherPaths.cacheDir());
 
         rebindGameDirectory();
     }
@@ -157,6 +160,11 @@ public class LauncherContext {
     /** Serveur local servant la page de compte. */
     public ProfileWebServer profileServer() {
         return profileServer;
+    }
+
+    /** Accueil vocal du demarrage. */
+    public VoiceService voice() {
+        return voice;
     }
 
     public LauncherPaths paths() {

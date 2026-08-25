@@ -124,6 +124,7 @@ public class SettingsController {
             view.autoUpdate().setSelected(settings.isAutoUpdateLauncher());
             view.verifyFiles().setSelected(settings.isVerifyFilesBeforeLaunch());
             view.autoInstallMods().setSelected(settings.isAutoInstallRequiredMods());
+            view.voiceGreeting().setSelected(settings.isVoiceGreetingEnabled());
             view.gameDirectory().setText(settings.getGameDirectory());
             view.msClientId().setText(settings.getMsClientId());
             view.githubRepo().setText(settings.getGithubRepo());
@@ -176,6 +177,7 @@ public class SettingsController {
         settings.setAutoUpdateLauncher(view.autoUpdate().isSelected());
         settings.setVerifyFilesBeforeLaunch(view.verifyFiles().isSelected());
         settings.setAutoInstallRequiredMods(view.autoInstallMods().isSelected());
+        settings.setVoiceGreetingEnabled(view.voiceGreeting().isSelected());
         settings.setMsClientId(view.msClientId().getText().trim());
         settings.setGithubRepo(view.githubRepo().getText().trim());
         settings.setCloudSyncEnabled(view.cloudSyncEnabled().isSelected());
@@ -410,6 +412,8 @@ public class SettingsController {
                 return;
             }
             context.config().resetToDefaults();
+            // Les phrases deja synthetisees porteraient encore l ancien pseudo.
+            context.voice().clearCache();
             loadFromSettings();
             onThemeChanged.run();
             onLanguageChanged.run();

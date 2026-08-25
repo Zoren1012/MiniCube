@@ -189,6 +189,32 @@ pourrait devenir une vraie autorisation, et le compte être reconnu d'une machin
 
 ---
 
+## L'accueil vocal
+
+Au démarrage, MiniCube vous salue à voix haute : **« Bienvenue *votre pseudo* ! »**,
+pendant que la fenêtre apparaît.
+
+Le pseudo prononcé est celui de votre [compte MiniCube](#le-compte-minicube). À défaut,
+celui du compte de jeu actif. Sans aucun des deux, l'accueil reste générique.
+
+**La voix vient de votre système, pas d'Internet.** Sous Windows 10 et 11, MiniCube
+utilise les voix *OneCore* — Julie, Paul ou Hortense en français — nettement plus
+naturelles que les anciennes voix SAPI, avec repli automatique sur ces dernières si elles
+manquent. Sur macOS c'est `say`, sur Linux `spd-say`. Votre pseudo ne quitte jamais la
+machine et aucun service extérieur n'est appelé.
+
+La phrase n'est synthétisée qu'une fois : elle est ensuite conservée dans
+`.minicube/cache/voice/` et simplement rejouée. Comptez environ une seconde au premier
+démarrage, rien du tout ensuite. La synthèse se fait de toute façon sur un fil séparé —
+elle ne retarde jamais l'affichage.
+
+Pour le couper : *Paramètres → Comportement → Accueil vocal au démarrage*.
+
+> **Si vous n'entendez rien.** Sous Windows, vérifiez qu'une voix est installée dans
+> *Paramètres Windows → Heure et langue → Voix*. Sur Linux, `spd-say` vient du paquet
+> `speech-dispatcher`. Dans tous les cas, l'absence de voix n'empêche jamais le launcher
+> de fonctionner : l'échec est silencieux et noté dans le journal détaillé.
+
 ## Les neuf onglets
 
 ### Accueil
@@ -301,7 +327,7 @@ réinitialisation.
 
 C'est aussi d'ici que s'ouvre votre [compte MiniCube](#le-compte-minicube) : la carte
 rappelle votre pseudo, votre rôle et vos statistiques, et le bouton ouvre la page dans
-votre navigateur.
+votre navigateur. L'[accueil vocal](#laccueil-vocal) se coupe depuis *Comportement*.
 
 ### Journal
 
@@ -384,7 +410,7 @@ propres données vivent ailleurs :
 ├── profile.json          Votre compte MiniCube : pseudo, rôle, statistiques
 ├── custom-servers.json   Vos serveurs ajoutés à la main
 ├── logs/                 Journaux, une archive par session
-├── cache/                Avatars, textures, empreintes connues
+├── cache/                Avatars, textures, empreintes, accueil vocal
 ├── skins/                Skins que vous avez importés
 └── updates/              Paquets de mise à jour téléchargés
 ```
