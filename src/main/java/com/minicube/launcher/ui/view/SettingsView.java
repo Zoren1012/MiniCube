@@ -13,6 +13,7 @@ import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.control.Slider;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
@@ -68,6 +69,17 @@ public class SettingsView {
     private final Button openProfileButton =
             Ui.primaryButton(I18n.tr("profile.open"), Icons.PERSON);
 
+    private final CheckBox neuralVoiceEnabled = new CheckBox();
+    private final ComboBox<String> neuralVoiceId = new ComboBox<>();
+    private final Button installVoiceButton =
+            Ui.primaryButton(I18n.tr("voice.install"), Icons.DOWNLOAD);
+    private final Button previewVoiceButton =
+            Ui.secondaryButton(I18n.tr("voice.preview"), Icons.PLAY);
+    private final Button removeVoiceButton =
+            Ui.dangerButton(I18n.tr("voice.remove"), Icons.TRASH);
+    private final Label neuralVoiceStatus = Ui.hint("");
+    private final ProgressBar neuralVoiceProgress = new ProgressBar(0);
+
     private final CheckBox cloudSyncEnabled = new CheckBox();
     private final TextField cloudSyncUrl = new TextField();
     private final PasswordField cloudSyncToken = new PasswordField();
@@ -88,7 +100,8 @@ public class SettingsView {
     public SettingsView() {
         root = Ui.page(I18n.tr("settings.title"), I18n.tr("settings.subtitle"),
                 memoryCard(), javaCard(), appearanceCard(), behaviourCard(),
-                installationCard(), accountCard(), profileCard(), updateSourceCard(),
+                installationCard(), neuralVoiceCard(), accountCard(), profileCard(),
+                updateSourceCard(),
                 cloudCard(),
                 maintenanceCard(),
                 actionsRow());
@@ -209,6 +222,28 @@ public class SettingsView {
                 actions);
     }
 
+    /**
+     * Voix neuronale : choix de la voix, installation et essai.
+     *
+     * <p>Le moteur pesant plusieurs dizaines de megaoctets, il n'est jamais telecharge
+     * sans demande explicite : la carte annonce le poids avant de proposer le bouton.</p>
+     */
+    private VBox neuralVoiceCard() {
+        neuralVoiceProgress.setMaxWidth(Double.MAX_VALUE);
+        neuralVoiceProgress.setVisible(false);
+        neuralVoiceProgress.setManaged(false);
+
+        HBox actions = new HBox(12, installVoiceButton, previewVoiceButton, removeVoiceButton);
+        actions.setAlignment(Pos.CENTER_LEFT);
+
+        return Ui.card(I18n.tr("voice.neural.title"),
+                Ui.hint(I18n.tr("voice.neural.hint")),
+                Ui.settingRow(I18n.tr("voice.neural.enable"),
+                        I18n.tr("voice.neural.enable.hint"), neuralVoiceEnabled),
+                Ui.settingRow(I18n.tr("voice.neural.voice"), null, neuralVoiceId),
+                neuralVoiceStatus, neuralVoiceProgress, actions);
+    }
+
     /** Acces au compte MiniCube, servi par le serveur local du launcher. */
     private VBox profileCard() {
         HBox actions = new HBox(12, openProfileButton);
@@ -322,6 +357,34 @@ public class SettingsView {
 
     public CheckBox voiceGreeting() {
         return voiceGreeting;
+    }
+
+    public CheckBox neuralVoiceEnabled() {
+        return neuralVoiceEnabled;
+    }
+
+    public ComboBox<String> neuralVoiceId() {
+        return neuralVoiceId;
+    }
+
+    public Button installVoiceButton() {
+        return installVoiceButton;
+    }
+
+    public Button previewVoiceButton() {
+        return previewVoiceButton;
+    }
+
+    public Button removeVoiceButton() {
+        return removeVoiceButton;
+    }
+
+    public Label neuralVoiceStatus() {
+        return neuralVoiceStatus;
+    }
+
+    public ProgressBar neuralVoiceProgress() {
+        return neuralVoiceProgress;
     }
 
     public TextField gameDirectory() {

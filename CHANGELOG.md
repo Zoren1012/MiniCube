@@ -13,6 +13,50 @@ emplacements changent ensemble ; `package.ps1` lit le premier et le transmet aux
 
 ---
 
+## 1.7.0 — 25 août 2026
+
+### Voix neuronale
+
+- **L'accueil peut désormais être prononcé par une vraie voix neuronale.** MiniCube
+  embarque [Piper](https://github.com/rhasspy/piper), un moteur de synthèse neuronale qui
+  tourne entièrement sur votre machine. La différence avec la voix de Windows s'entend
+  immédiatement : 22 kHz au lieu de 16, et une intonation qui n'a plus rien de robotique.
+- **Trois voix françaises** au choix — Siwis et UPMC (féminines), Tom (masculine) —
+  depuis *Paramètres → Voix neuronale*.
+- **Rien n'est téléchargé sans votre accord.** La carte annonce le poids exact (82 Mo pour
+  Siwis, moteur compris) et attend le bouton. Tant que rien n'est installé, le launcher
+  garde la voix de Windows : il n'est jamais muet.
+- **Une fois installée, elle est hors ligne pour de bon.** Votre pseudo ne quitte toujours
+  pas la machine, et aucun service extérieur n'est appelé — contrairement à ce qu'imposerait
+  une API vocale en ligne, qui aurait demandé une clé payante et l'envoi de chaque pseudo
+  à un tiers.
+- La voix se fait entendre juste après l'installation : cela vaut confirmation, et prépare
+  le cache. La toute première synthèse charge le réseau de neurones et prend quelques
+  secondes ; les suivantes sont instantanées.
+- Le bouton **Écouter** essaie une voix avant de la retenir, et **Désinstaller** rend les
+  quatre-vingts mégaoctets.
+
+### Protection
+
+- **Chaque fichier téléchargé est comparé à une empreinte SHA-256 inscrite dans le code.**
+  C'est la garantie qui compte, puisqu'il s'agit d'un programme qui sera exécuté : si
+  l'hébergeur servait un autre contenu, l'installation échouerait au lieu de le lancer.
+  Les adresses sont figées et en HTTPS, jamais lues sur le réseau.
+- **La phrase à prononcer passe par l'entrée standard du moteur**, jamais par la ligne de
+  commande. Le pseudo n'a donc aucune façon d'être interprété comme autre chose que du
+  texte : vérifié avec une phrase hostile, qui a bien été prononcée sans rien déclencher.
+- Le téléchargement est vérifié puis déplacé : un fichier incomplet ou refusé est effacé
+  et ne peut pas être utilisé.
+
+### Détails
+
+- La voix entre dans l'empreinte du cache : changer de voix produit un nouveau fichier au
+  lieu de rejouer l'ancienne.
+- Le moteur neuronal n'existe que pour Windows 64 bits ; ailleurs, la carte le dit et la
+  voix du système prend le relais.
+
+---
+
 ## 1.6.0 — 25 août 2026
 
 ### Accueil vocal

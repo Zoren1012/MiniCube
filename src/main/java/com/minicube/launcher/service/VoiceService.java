@@ -107,10 +107,24 @@ public class VoiceService {
 
     private final LauncherSettings settings;
     private final Path cacheDir;
+    private final NeuralVoiceService neural;
 
-    public VoiceService(LauncherSettings settings, Path cacheDir) {
+    public VoiceService(LauncherSettings settings, Path cacheDir, NeuralVoiceService neural) {
         this.settings = settings;
         this.cacheDir = cacheDir;
+        this.neural = neural;
+    }
+
+    /**
+     * Vrai si la voix neuronale est demandee, installee et utilisable.
+     *
+     * <p>Le reglage seul ne suffit pas : tant que le moteur n'est pas telecharge, la voix
+     * du systeme prend le relais plutot que de laisser le launcher muet.</p>
+     */
+    private boolean useNeural() {
+        return settings.isNeuralVoiceEnabled()
+                && neural.isSupported()
+                && neural.isReady(settings.getNeuralVoiceId());
     }
 
     /**
@@ -133,6 +147,26 @@ public class VoiceService {
     }
 
     /**
+     * Fait entendre une voix neuronale precise, sans attendre le prochain demarrage.
+     *
+     * <p>Appelee depuis les parametres pour essayer une voix avant de la retenir : elle
+     * ignore donc le reglage courant et ne masque pas ses erreurs, contrairement a
+     * l'accueil du demarrage.</p>
+     */
+    public void preview(String voiceId, String username) throws Exception {
+        String name = clean(username);
+        String phrase = name.isEmpty()
+                ? I18n.tr("voice.welcome.anonymous")
+                : I18n.tr("voice.welcome", name);
+        Path wave = cachedWave(phrase, voiceId);
+        if (!Files.isRegularFile(wave) || Files.size(wave) == 0) {
+            neural.synthesise(phrase, voiceId, wave);
+            Safety.restrictToOwner(wave);
+        }
+        play(wave);
+    }
+
+    /**
      * Prononce une phrase. Un echec ne doit jamais remonter : l'accueil vocal est un
      * agrement, pas une fonction dont depend le launcher.
      */
@@ -145,8 +179,17 @@ public class VoiceService {
     }
 
     private void speak(String phrase) throws Exception {
+        if (useNeural()) {
+            Path wave = cachedWave(phrase, settings.getNeuralVoiceId());
+            if (!Files.isRegularFile(wave) || Files.size(wave) == 0) {
+                neural.synthesise(phrase, settings.getNeuralVoiceId(), wave);
+                Safety.restrictToOwner(wave);
+            }
+            play(wave);
+            return;
+        }
         if (OsUtil.isWindows()) {
-            Path wave = cachedWave(phrase);
+            Path wave = cachedWave(phrase, "systeme");
             if (!Files.isRegularFile(wave) || Files.size(wave) == 0) {
                 synthesiseOnWindows(phrase, wave);
             }
@@ -165,10 +208,15 @@ public class VoiceService {
     /* Synthese                                                            */
     /* ------------------------------------------------------------------ */
 
-    /** Emplacement du fichier deja synthetise pour cette phrase. */
-    private Path cachedWave(String phrase) throws Exception {
+    /**
+     * Emplacement du fichier deja synthetise pour cette phrase.
+     *
+     * <p>La voix entre dans l'empreinte : changer de voix doit produire un nouveau
+     * fichier, sans quoi l'ancienne continuerait d'etre rejouee depuis le cache.</p>
+     */
+    private Path cachedWave(String phrase, String voice) throws Exception {
         String key = Hashing.toHex(java.security.MessageDigest.getInstance("SHA-256")
-                .digest(phrase.getBytes(StandardCharsets.UTF_8)));
+                .digest((voice + ' ' + phrase).getBytes(StandardCharsets.UTF_8)));
         return cacheDir.resolve("voice").resolve(key.substring(0, 16) + ".wav");
     }
 

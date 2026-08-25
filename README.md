@@ -208,6 +208,41 @@ La phrase n'est synthétisée qu'une fois : elle est ensuite conservée dans
 démarrage, rien du tout ensuite. La synthèse se fait de toute façon sur un fil séparé —
 elle ne retarde jamais l'affichage.
 
+### Deux voix possibles
+
+Par défaut, MiniCube utilise la voix de Windows — Julie, Paul ou Hortense en français.
+Elle fonctionne partout, sans rien installer, mais c'est une voix concaténative
+d'ancienne génération : on entend qu'elle est synthétique.
+
+Depuis *Paramètres → Voix neuronale*, vous pouvez la remplacer par une **vraie synthèse
+neuronale**, portée par [Piper](https://github.com/rhasspy/piper). La différence s'entend
+tout de suite : 22 kHz au lieu de 16, et une intonation naturelle.
+
+| | Voix Windows | Voix neuronale |
+|---|---|---|
+| Qualité | correcte, robotique | naturelle |
+| À installer | rien | 82 Mo, une fois |
+| Fonctionne hors ligne | oui | oui, une fois installée |
+| Systèmes | Windows, macOS, Linux | Windows 64 bits |
+
+Trois voix françaises sont proposées : **Siwis** et **UPMC** (féminines), **Tom**
+(masculine). Le bouton **Écouter** les essaie avant de choisir.
+
+**Rien n'est téléchargé sans votre accord** : la carte annonce le poids exact et attend
+le bouton. Tant que rien n'est installé, la voix de Windows continue — le launcher n'est
+jamais muet. **Désinstaller** rend les quatre-vingts mégaoctets.
+
+> **Pourquoi pas une IA en ligne ?** Une API vocale du type ElevenLabs donnerait un
+> résultat encore meilleur, mais il faudrait une clé payante, et le pseudo de chaque
+> joueur partirait chez un tiers à chaque nouveau nom. Piper donne une vraie voix
+> neuronale sans rien de tout cela.
+
+**Ce qui est vérifié au téléchargement.** Le moteur et les voix sont téléchargés depuis
+GitHub et Hugging Face, en HTTPS, à des adresses figées dans le code. Chaque fichier est
+comparé à une **empreinte SHA-256 inscrite dans MiniCube** : s'il diffère de ce qui a été
+vérifié, il est refusé et effacé au lieu d'être exécuté. C'est la garantie qui compte,
+puisqu'il s'agit d'un programme qui tournera sur votre machine.
+
 Pour le couper : *Paramètres → Comportement → Accueil vocal au démarrage*.
 
 > **Si vous n'entendez rien.** Sous Windows, vérifiez qu'une voix est installée dans
@@ -412,7 +447,8 @@ propres données vivent ailleurs :
 ├── logs/                 Journaux, une archive par session
 ├── cache/                Avatars, textures, empreintes, accueil vocal
 ├── skins/                Skins que vous avez importés
-└── updates/              Paquets de mise à jour téléchargés
+├── updates/              Paquets de mise à jour téléchargés
+└── voice-neural/         Moteur et voix neuronale, si installés
 ```
 
 `accounts.json` contient des jetons de session. MiniCube en restreint l'accès à votre
@@ -581,6 +617,8 @@ du HTML, du CSS et du JavaScript ordinaires, sans dépendance ni outil de constr
 - **Le compte MiniCube ne donne accès à aucun serveur en ligne.** Il identifie et compte,
   il n'autorise pas : seul Microsoft peut authentifier un joueur sur un serveur en
   `online-mode=true`.
+- **La voix neuronale n'existe que pour Windows 64 bits.** Ailleurs, MiniCube garde la
+  voix du système. C'est une limite du moteur Piper tel qu'il est distribué.
 - **Le compte MiniCube ne suit pas d'une machine à l'autre.** Il est enregistré
   localement, et le rôle y est déclaratif tant qu'aucun serveur ne l'attribue.
 - L'aperçu 3D montre une **pose statique** : aucune animation de marche.

@@ -4,6 +4,7 @@ import com.minicube.launcher.core.LauncherContext;
 import com.minicube.launcher.model.LauncherSettings;
 import com.minicube.launcher.service.JavaRuntimeService;
 import com.minicube.launcher.service.MinecraftInstallService;
+import com.minicube.launcher.service.NeuralVoiceService;
 import com.minicube.launcher.ui.ThemeManager;
 import com.minicube.launcher.ui.view.SettingsView;
 import com.minicube.launcher.util.Fx;
@@ -13,6 +14,7 @@ import com.minicube.launcher.util.OsUtil;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.ProgressBar;
 import javafx.stage.DirectoryChooser;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
@@ -87,6 +89,123 @@ public class SettingsController {
         view.openProfileButton().setOnAction(event -> openProfilePage());
         context.profiles().addChangeListener(this::refreshProfileSummary);
         refreshProfileSummary();
+
+        view.neuralVoiceId().getItems().setAll(NeuralVoiceService.VOICES.keySet());
+        view.neuralVoiceId().setConverter(new javafx.util.StringConverter<>() {
+            @Override
+            public String toString(String id) {
+                NeuralVoiceService.Voice voice = NeuralVoiceService.VOICES.get(id);
+                return voice == null ? "" : voice.label();
+            }
+
+            @Override
+            public String fromString(String label) {
+                return label;
+            }
+        });
+        view.neuralVoiceId().valueProperty().addListener(
+                (observable, before, after) -> refreshNeuralVoiceStatus());
+        view.installVoiceButton().setOnAction(event -> installNeuralVoice());
+        view.previewVoiceButton().setOnAction(event -> previewNeuralVoice());
+        view.removeVoiceButton().setOnAction(event -> removeNeuralVoice());
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Voix neuronale                                                      */
+    /* ------------------------------------------------------------------ */
+
+    /** Met la carte en accord avec ce qui est reellement installe. */
+    private void refreshNeuralVoiceStatus() {
+        NeuralVoiceService neural = context.neuralVoice();
+        String voiceId = view.neuralVoiceId().getValue();
+
+        if (!neural.isSupported()) {
+            view.neuralVoiceStatus().setText(I18n.tr("voice.status.unsupported"));
+            view.neuralVoiceEnabled().setDisable(true);
+            view.installVoiceButton().setDisable(true);
+            view.previewVoiceButton().setDisable(true);
+            view.removeVoiceButton().setDisable(true);
+            return;
+        }
+        boolean ready = neural.isReady(voiceId);
+        view.neuralVoiceStatus().setText(ready
+                ? I18n.tr("voice.status.ready")
+                : I18n.tr("voice.status.missing", megabytes(neural.downloadSize(voiceId))));
+        view.installVoiceButton().setText(
+                I18n.tr("voice.install", megabytes(neural.downloadSize(voiceId))));
+        view.installVoiceButton().setDisable(ready);
+        view.previewVoiceButton().setDisable(!ready);
+        view.removeVoiceButton().setDisable(!ready);
+    }
+
+    private String megabytes(long bytes) {
+        return Math.round(bytes / 1_048_576d) + " Mo";
+    }
+
+    /**
+     * Telecharge le moteur et la voix choisie.
+     *
+     * <p>Le telechargement pese plusieurs dizaines de megaoctets : il ne part jamais
+     * seul, seulement sur ce bouton.</p>
+     */
+    private void installNeuralVoice() {
+        String voiceId = view.neuralVoiceId().getValue();
+        view.installVoiceButton().setDisable(true);
+        view.neuralVoiceProgress().setVisible(true);
+        view.neuralVoiceProgress().setManaged(true);
+
+        Fx.async(() -> {
+            context.neuralVoice().install(voiceId, progress -> Fx.ui(() -> {
+                view.neuralVoiceProgress().setProgress(progress.isIndeterminate()
+                        ? ProgressBar.INDETERMINATE_PROGRESS : progress.value());
+                view.neuralVoiceStatus().setText(progress.detail() == null
+                        ? progress.message()
+                        : progress.message() + " - " + progress.detail());
+            }));
+            return voiceId;
+        }, installed -> {
+            view.neuralVoiceProgress().setVisible(false);
+            view.neuralVoiceProgress().setManaged(false);
+            // La voix vient d'etre installee : autant s'en servir sans le demander.
+            view.neuralVoiceEnabled().setSelected(true);
+            refreshNeuralVoiceStatus();
+            context.notifications().success(I18n.tr("voice.neural.title"),
+                    I18n.tr("voice.installed",
+                            NeuralVoiceService.VOICES.get(installed).label()));
+            // La faire entendre aussitot vaut confirmation, et prepare le cache : la
+            // premiere synthese charge le reseau de neurones et prend quelques secondes,
+            // autant que ce soit maintenant plutot qu'au prochain demarrage.
+            previewNeuralVoice();
+        }, error -> {
+            view.neuralVoiceProgress().setVisible(false);
+            view.neuralVoiceProgress().setManaged(false);
+            refreshNeuralVoiceStatus();
+            context.notifications().error(I18n.tr("voice.neural.title"),
+                    I18n.tr("voice.failed", error.getMessage()));
+        });
+    }
+
+    /** Fait entendre la voix choisie, sans attendre le prochain demarrage. */
+    private void previewNeuralVoice() {
+        view.previewVoiceButton().setDisable(true);
+        String voiceId = view.neuralVoiceId().getValue();
+        Fx.async(() -> {
+            context.voice().preview(voiceId, context.playerDisplayName());
+            return Boolean.TRUE;
+        }, done -> view.previewVoiceButton().setDisable(false),
+                error -> {
+                    view.previewVoiceButton().setDisable(false);
+                    context.notifications().error(I18n.tr("voice.neural.title"),
+                            error.getMessage());
+                });
+    }
+
+    private void removeNeuralVoice() {
+        context.neuralVoice().uninstall();
+        context.voice().clearCache();
+        view.neuralVoiceEnabled().setSelected(false);
+        refreshNeuralVoiceStatus();
+        context.notifications().info(I18n.tr("voice.neural.title"), I18n.tr("voice.removed"));
     }
 
     private String formatRam(int megabytes) {
@@ -125,6 +244,12 @@ public class SettingsController {
             view.verifyFiles().setSelected(settings.isVerifyFilesBeforeLaunch());
             view.autoInstallMods().setSelected(settings.isAutoInstallRequiredMods());
             view.voiceGreeting().setSelected(settings.isVoiceGreetingEnabled());
+            view.neuralVoiceEnabled().setSelected(settings.isNeuralVoiceEnabled());
+            view.neuralVoiceId().setValue(
+                    NeuralVoiceService.VOICES.containsKey(settings.getNeuralVoiceId())
+                            ? settings.getNeuralVoiceId()
+                            : NeuralVoiceService.VOICES.keySet().iterator().next());
+            refreshNeuralVoiceStatus();
             view.gameDirectory().setText(settings.getGameDirectory());
             view.msClientId().setText(settings.getMsClientId());
             view.githubRepo().setText(settings.getGithubRepo());
@@ -178,6 +303,8 @@ public class SettingsController {
         settings.setVerifyFilesBeforeLaunch(view.verifyFiles().isSelected());
         settings.setAutoInstallRequiredMods(view.autoInstallMods().isSelected());
         settings.setVoiceGreetingEnabled(view.voiceGreeting().isSelected());
+        settings.setNeuralVoiceEnabled(view.neuralVoiceEnabled().isSelected());
+        settings.setNeuralVoiceId(view.neuralVoiceId().getValue());
         settings.setMsClientId(view.msClientId().getText().trim());
         settings.setGithubRepo(view.githubRepo().getText().trim());
         settings.setCloudSyncEnabled(view.cloudSyncEnabled().isSelected());

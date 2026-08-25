@@ -3,7 +3,6 @@ package com.minicube.launcher;
 import com.minicube.launcher.core.Constants;
 import com.minicube.launcher.core.LauncherContext;
 import com.minicube.launcher.core.LauncherPaths;
-import com.minicube.launcher.model.Account;
 import com.minicube.launcher.ui.ThemeManager;
 import com.minicube.launcher.ui.component.DefaultSkin;
 import com.minicube.launcher.ui.component.PlayerHead;
@@ -144,10 +143,7 @@ public class MiniCubeLauncher extends Application {
      * generique. La synthese se fait sur un fil separe et n'attend jamais l'affichage.</p>
      */
     private void greetPlayer() {
-        String name = context.profiles().profile().exists()
-                ? context.profiles().profile().getUsername()
-                : context.accounts().active().map(Account::getUsername).orElse("");
-        context.voice().greet(name);
+        context.voice().greet(context.playerDisplayName());
     }
 
     /**
