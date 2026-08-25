@@ -176,6 +176,10 @@ public class MiniCubeLauncher extends Application {
         if (shell != null) {
             shell.dispose();
         }
+        if (context != null) {
+            // Le serveur de la page de compte ne doit pas survivre au launcher.
+            context.profileServer().stop();
+        }
         Fx.shutdown();
         Log.info("Launcher arrete");
         Log.close();

@@ -119,7 +119,7 @@ New-Item -ItemType Directory -Path 'dist' -Force | Out-Null
 $modules = @(
     'java.base', 'java.desktop', 'java.logging', 'java.management',
     'java.naming', 'java.net.http', 'java.prefs', 'java.xml',
-    'jdk.crypto.ec', 'jdk.unsupported'
+    'jdk.crypto.ec', 'jdk.httpserver', 'jdk.unsupported'
 ) -join ','
 
 Write-Detail "assemblage du runtime et de l'application..."

@@ -63,6 +63,9 @@ public class SettingsView {
 
     private final TextField msClientId = new TextField();
     private final TextField githubRepo = new TextField();
+    private final Label profileSummary = Ui.hint("");
+    private final Button openProfileButton =
+            Ui.primaryButton(I18n.tr("profile.open"), Icons.PERSON);
 
     private final CheckBox cloudSyncEnabled = new CheckBox();
     private final TextField cloudSyncUrl = new TextField();
@@ -84,7 +87,8 @@ public class SettingsView {
     public SettingsView() {
         root = Ui.page(I18n.tr("settings.title"), I18n.tr("settings.subtitle"),
                 memoryCard(), javaCard(), appearanceCard(), behaviourCard(),
-                installationCard(), accountCard(), updateSourceCard(), cloudCard(),
+                installationCard(), accountCard(), profileCard(), updateSourceCard(),
+                cloudCard(),
                 maintenanceCard(),
                 actionsRow());
     }
@@ -202,6 +206,14 @@ public class SettingsView {
                 actions);
     }
 
+    /** Acces au compte MiniCube, servi par le serveur local du launcher. */
+    private VBox profileCard() {
+        HBox actions = new HBox(12, openProfileButton);
+        actions.setAlignment(Pos.CENTER_LEFT);
+        return Ui.card(I18n.tr("profile.title"),
+                Ui.hint(I18n.tr("profile.hint")), profileSummary, actions);
+    }
+
     private VBox updateSourceCard() {
         return Ui.card(I18n.tr("updates.title"),
                 Ui.settingRow(I18n.tr("settings.github"), I18n.tr("settings.github.hint"),
@@ -315,6 +327,14 @@ public class SettingsView {
 
     public Button openGameDirButton() {
         return openGameDirButton;
+    }
+
+    public Label profileSummary() {
+        return profileSummary;
+    }
+
+    public Button openProfileButton() {
+        return openProfileButton;
     }
 
     public TextField githubRepo() {

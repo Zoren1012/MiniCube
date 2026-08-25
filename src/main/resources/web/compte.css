@@ -1,0 +1,200 @@
+/*
+ * Page de compte MiniCube.
+ * Reprend le langage visuel du launcher : fond colore, panneaux de verre,
+ * aretes lumineuses. Aucune ressource exterieure n'est chargee.
+ */
+
+:root {
+  --bg: #07080D;
+  --texte: #F0F2F8;
+  --texte-attenue: #A9B1C6;
+  --texte-discret: #7E869C;
+  --verre: rgba(255, 255, 255, 0.055);
+  --verre-fort: rgba(255, 255, 255, 0.10);
+  --trait: rgba(255, 255, 255, 0.12);
+  --accent: #7C5CFF;
+  --accent-2: #3F9BFF;
+  --accent-clair: #A896FF;
+  --danger: #FF6B63;
+  --succes: #46E0A8;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  padding: 48px 20px 28px;
+  background: var(--bg);
+  color: var(--texte);
+  font-family: "Segoe UI Variable Display", "Segoe UI", system-ui, sans-serif;
+  font-size: 14px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 22px;
+}
+
+/* Halos derivants, comme le fond du launcher. */
+.halos { position: fixed; inset: 0; overflow: hidden; z-index: -1; }
+.halo { position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.5; }
+.halo-1 { width: 560px; height: 560px; background: #7C5CFF; top: -120px; left: -80px;
+          animation: derive-1 19s ease-in-out infinite alternate; }
+.halo-2 { width: 480px; height: 480px; background: #2E8BFF; top: -60px; right: -100px;
+          animation: derive-2 23s ease-in-out infinite alternate; }
+.halo-3 { width: 420px; height: 420px; background: #16C7B4; bottom: -140px; left: 30%;
+          animation: derive-3 27s ease-in-out infinite alternate; }
+
+@keyframes derive-1 { to { transform: translate(90px, 70px); } }
+@keyframes derive-2 { to { transform: translate(-110px, 90px); } }
+@keyframes derive-3 { to { transform: translate(80px, -70px); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .halo { animation: none; }
+  .vue { animation: none !important; }
+}
+
+/* Panneau principal */
+.panneau {
+  width: 100%;
+  max-width: 520px;
+  background: var(--verre);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
+  border: 1px solid;
+  border-image: linear-gradient(to bottom,
+                rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.04)) 1;
+  border-radius: 22px;
+  padding: 30px 34px 34px;
+  box-shadow: 0 26px 60px rgba(0, 0, 0, 0.55);
+}
+
+.entete { display: flex; align-items: center; gap: 14px; margin-bottom: 26px; }
+.cube { width: 42px; height: 42px; flex-shrink: 0;
+        filter: drop-shadow(0 4px 14px rgba(124, 92, 255, 0.5)); }
+.titres h1 { margin: 0; font-size: 21px; letter-spacing: 0.5px; }
+.version { margin: 1px 0 0; font-size: 11px; color: var(--texte-discret); }
+
+.vue { animation: apparition 0.34s cubic-bezier(0.16, 1, 0.3, 1); }
+@keyframes apparition { from { opacity: 0; transform: translateY(12px); } }
+
+h2 { margin: 0 0 6px; font-size: 19px; }
+h3 { margin: 0 0 12px; font-size: 14px; color: var(--texte-attenue);
+     text-transform: uppercase; letter-spacing: 0.8px; }
+
+.explication { margin: 0 0 22px; color: var(--texte-attenue); line-height: 1.55; }
+.attente { color: var(--texte-attenue); text-align: center; padding: 30px 0; }
+
+/* Formulaires */
+label { display: block; margin: 16px 0 6px; font-size: 12.5px; font-weight: 600; }
+
+input[type="text"], input[type="password"], select {
+  width: 100%;
+  padding: 11px 13px;
+  background: var(--verre-fort);
+  border: 1px solid var(--trait);
+  border-radius: 11px;
+  color: var(--texte);
+  font-family: inherit;
+  font-size: 14px;
+  transition: border-color 0.18s, background 0.18s;
+}
+
+input:focus, select:focus {
+  outline: none;
+  border-color: var(--accent-clair);
+  background: rgba(255, 255, 255, 0.14);
+}
+
+input[type="color"] {
+  width: 64px; height: 38px; padding: 3px;
+  background: var(--verre-fort);
+  border: 1px solid var(--trait);
+  border-radius: 10px;
+  cursor: pointer;
+}
+
+button {
+  margin-top: 22px;
+  padding: 12px 22px;
+  border: 0;
+  border-radius: 12px;
+  font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: transform 0.16s, box-shadow 0.16s, background 0.16s;
+}
+
+button:active { transform: scale(0.98); }
+button:disabled { opacity: 0.5; cursor: default; }
+
+.principal {
+  width: 100%;
+  background: linear-gradient(to right, var(--accent), var(--accent-2));
+  color: #fff;
+  box-shadow: 0 8px 22px rgba(124, 92, 255, 0.36);
+}
+.principal:hover:not(:disabled) { box-shadow: 0 10px 28px rgba(124, 92, 255, 0.5); }
+
+.secondaire {
+  background: var(--verre-fort);
+  color: var(--texte);
+  border: 1px solid var(--trait);
+}
+.secondaire:hover { background: rgba(255, 255, 255, 0.16); }
+
+.danger {
+  background: transparent;
+  color: var(--danger);
+  border: 1px solid var(--danger);
+}
+.danger:hover { background: rgba(255, 107, 99, 0.14); }
+
+.erreur {
+  margin: 16px 0 0;
+  padding: 10px 13px;
+  background: rgba(255, 107, 99, 0.14);
+  border: 1px solid var(--danger);
+  border-radius: 10px;
+  color: var(--danger);
+  font-size: 13px;
+}
+
+.note { margin: 22px 0 0; font-size: 11.5px; color: var(--texte-discret); line-height: 1.6; }
+.note.compact { margin: 8px 0 0; }
+
+/* Profil */
+.identite { display: flex; align-items: center; gap: 15px; margin-bottom: 24px; }
+.pastille { width: 52px; height: 52px; border-radius: 15px; flex-shrink: 0;
+            border: 1px solid rgba(255, 255, 255, 0.24); display: flex;
+            align-items: center; justify-content: center; font-size: 24px;
+            font-weight: 700; color: #fff;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.45); }
+.identite h2 { margin: 0; }
+.role { margin: 3px 0 0; font-size: 12.5px; color: var(--accent-clair); font-weight: 600; }
+
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-bottom: 26px; }
+.stat { padding: 15px 12px; background: var(--verre-fort); border: 1px solid var(--trait);
+        border-radius: 14px; text-align: center; }
+.valeur { display: block; font-size: 19px; font-weight: 700; }
+.libelle { display: block; margin-top: 3px; font-size: 10.5px; color: var(--texte-discret); }
+
+.bloc { padding-top: 22px; border-top: 1px solid var(--trait); margin-top: 22px; }
+
+.versions { list-style: none; margin: 0; padding: 0; display: flex;
+            flex-wrap: wrap; gap: 8px; }
+.versions li { padding: 6px 12px; background: var(--verre-fort);
+               border: 1px solid var(--trait); border-radius: 8px; font-size: 12.5px; }
+.versions li.vide { color: var(--texte-discret); border-style: dashed; }
+
+.dates { font-size: 12px; color: var(--texte-discret); }
+.dates p { margin: 4px 0; }
+
+.pied { display: flex; gap: 12px; margin-top: 26px; }
+.pied button { flex: 1; margin-top: 0; }
+
+.bas-de-page {
+  max-width: 520px; margin: 0; text-align: center;
+  font-size: 11.5px; color: var(--texte-discret); line-height: 1.6;
+}

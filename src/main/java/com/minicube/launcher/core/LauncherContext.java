@@ -11,6 +11,8 @@ import com.minicube.launcher.service.MinecraftInstallService;
 import com.minicube.launcher.service.ModService;
 import com.minicube.launcher.service.NewsService;
 import com.minicube.launcher.service.NotificationService;
+import com.minicube.launcher.service.ProfileService;
+import com.minicube.launcher.service.ProfileWebServer;
 import com.minicube.launcher.service.OptionsService;
 import com.minicube.launcher.service.ServerListService;
 import com.minicube.launcher.service.ServerPingService;
@@ -47,6 +49,8 @@ public class LauncherContext {
     private final UpdateService updates;
     private final CloudSyncService cloudSync;
     private final SkinService skins;
+    private final ProfileService profiles;
+    private final ProfileWebServer profileServer;
 
     private LauncherPaths paths;
     private JavaRuntimeService javaRuntime;
@@ -68,6 +72,8 @@ public class LauncherContext {
         this.updates = new UpdateService(config);
         this.cloudSync = new CloudSyncService(config);
         this.skins = new SkinService(auth);
+        this.profiles = new ProfileService();
+        this.profileServer = new ProfileWebServer(profiles);
 
         rebindGameDirectory();
     }
@@ -142,6 +148,15 @@ public class LauncherContext {
 
     public SkinService skins() {
         return skins;
+    }
+
+    public ProfileService profiles() {
+        return profiles;
+    }
+
+    /** Serveur local servant la page de compte. */
+    public ProfileWebServer profileServer() {
+        return profileServer;
     }
 
     public LauncherPaths paths() {

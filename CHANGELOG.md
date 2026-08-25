@@ -13,6 +13,51 @@ emplacements changent ensemble ; `package.ps1` lit le premier et le transmet aux
 
 ---
 
+## 1.5.0 — 25 août 2026
+
+### Compte MiniCube
+
+- **Page de compte servie par le launcher.** Un bouton dans *Paramètres* ouvre dans le
+  navigateur une page de connexion aux couleurs de MiniCube : création du compte,
+  connexion, profil, déconnexion, suppression. Le launcher héberge lui-même cette page ;
+  il n'y a aucun site à louer, aucune inscription ailleurs, rien à configurer.
+- **Ce que le compte contient.** Un pseudo, un rôle (Membre, VIP, Modérateur,
+  Administrateur), une couleur, et les statistiques d'usage : nombre de parties lancées,
+  temps de jeu cumulé, dernière version utilisée et les cinq dernières versions jouées.
+  Les parties et le temps sont comptés automatiquement à chaque lancement.
+- **Deux limites, dites franchement.** Un compte MiniCube n'autorise **pas** à jouer sur
+  un serveur en `online-mode=true` : seul Microsoft peut le faire, et l'onglet de
+  connexion Microsoft reste la seule voie pour jouer en ligne. Et tant que le compte est
+  géré sur votre machine, le rôle est **déclaratif** : vous le choisissez vous-même.
+- **Prêt pour un vrai serveur.** Les routes (`/api/state`, `/api/login`, …) forment un
+  contrat qu'un serveur distant peut reprendre à l'identique. Passer d'une gestion locale
+  à un site hébergé ne demanderait que de changer l'adresse.
+
+### Protection du compte
+
+- **Le mot de passe n'est jamais enregistré.** Seule son empreinte l'est, dérivée par
+  PBKDF2-HMAC-SHA256 avec 210 000 itérations et un sel tiré au hasard pour chaque compte.
+  La comparaison se fait en temps constant. Le fichier `profile.json` est restreint au
+  seul propriétaire du compte Windows.
+- **Le serveur n'écoute que sur 127.0.0.1**, sur un port attribué par le système. Aucune
+  autre machine du réseau ne peut l'atteindre, même sur un réseau partagé.
+- **Une page consultée ailleurs ne peut rien déclencher.** Les actions qui modifient le
+  compte exigent une requête `POST` et une origine reconnue : une simple image pointant
+  vers `/api/delete` ne supprime plus rien. Un pseudo inconnu et un mot de passe erroné
+  renvoient le même message, pour ne pas révéler quels comptes existent.
+- La page ne charge aucune ressource extérieure ; une politique de sécurité du contenu le
+  formalise et les textes affichés le sont toujours par `textContent`, jamais par `innerHTML`.
+
+### Corrections
+
+- **Une adresse inconnue bloquait la page.** L'échange HTTP n'était pas refermé sur la
+  réponse 404, ce qui figeait la connexion réutilisée par le navigateur : toute requête
+  suivante restait sans réponse. Comme les navigateurs réclament `/favicon.ico` d'eux-mêmes,
+  le cas se serait produit à chaque ouverture.
+- Le serveur de la page est désormais arrêté à la fermeture du launcher.
+
+---
+
 ## 1.4.0 — 25 août 2026
 
 ### Animation de démarrage

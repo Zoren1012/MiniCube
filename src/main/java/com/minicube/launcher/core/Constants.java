@@ -16,7 +16,7 @@ public final class Constants {
     /* ------------------------------------------------------------------ */
 
     public static final String APP_NAME = "MiniCube";
-    public static final String APP_VERSION = "1.4.0";
+    public static final String APP_VERSION = "1.5.0";
     /** Nom du dossier de travail cree dans le repertoire utilisateur. */
     public static final String APP_DIR_NAME = ".minicube";
     public static final String USER_AGENT = APP_NAME + "/" + APP_VERSION;

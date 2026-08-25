@@ -129,6 +129,66 @@ basculer de l'un à l'autre.
 
 ---
 
+## Le compte MiniCube
+
+En plus du compte de jeu, MiniCube propose un **compte propre à votre communauté**. Il
+sert à l'identité et aux statistiques d'usage, pas à jouer.
+
+Depuis *Paramètres → Compte MiniCube*, le bouton **Ouvrir ma page de compte** lance votre
+navigateur sur une page servie par MiniCube lui-même. Vous y trouvez la création du
+compte, la connexion, votre profil, la déconnexion et la suppression.
+
+| | |
+|---|---|
+| Pseudo | 3 à 20 caractères |
+| Rôle | Membre, VIP, Modérateur, Administrateur |
+| Couleur | libre, reprise sur la pastille du profil |
+| Statistiques | parties lancées, temps de jeu cumulé, dernière version, cinq dernières versions jouées |
+
+Les parties et le temps de jeu sont comptés automatiquement à chaque lancement : vous
+n'avez rien à saisir.
+
+### Deux limites, dites franchement
+
+**Un compte MiniCube n'autorise pas à jouer sur un serveur en `online-mode=true`.** Seul
+Microsoft peut le faire, et rien ne changera cela : la connexion Microsoft reste la seule
+voie pour les serveurs en ligne. Le compte MiniCube vient en plus, pas à la place.
+
+**Tant que le compte est géré sur votre machine, le rôle est déclaratif.** Vous le
+choisissez vous-même : c'est une étiquette, pas une autorisation. Relié à un serveur, il
+serait attribué par lui.
+
+### Où vivent les données
+
+Rien ne part sur Internet. La page est servie par le launcher sur `127.0.0.1`, sur un
+port choisi par le système, et le compte est écrit dans `%APPDATA%\.minicube\profile.json`,
+dont l'accès est restreint à votre seul compte Windows.
+
+Le mot de passe, lui, **n'est jamais enregistré**. Seule son empreinte l'est, dérivée par
+PBKDF2-HMAC-SHA256 avec 210 000 itérations et un sel tiré au hasard. Sur votre machine, ce
+mot de passe ne protège rien de plus que votre session Windows — il existe pour que le
+jour où vous relierez MiniCube à un vrai serveur, rien ne soit à refaire.
+
+### Passer à un serveur distant
+
+Les routes de la page forment un contrat qu'un serveur hébergé peut reprendre à
+l'identique :
+
+```
+GET  /api/state       état : compte existant, session ouverte, profil
+POST /api/register    création du compte      { username, password }
+POST /api/login       ouverture de session    { username, password }
+POST /api/logout      fermeture de session
+POST /api/profile     mise à jour du profil   { role, color }
+POST /api/delete      suppression du compte   { password }
+```
+
+Basculer d'une gestion locale à un site hébergé ne demanderait alors que de changer
+l'adresse, sans toucher au reste du launcher. C'est à ce moment-là seulement que le rôle
+pourrait devenir une vraie autorisation, et le compte être reconnu d'une machine à l'autre.
+
+---
+
 ## Les neuf onglets
 
 ### Accueil
@@ -239,6 +299,10 @@ Mémoire allouée, runtime Java, thème clair ou sombre, langue, image de fond,
 comportement au lancement, sauvegarde distante des préférences, vérification d'intégrité,
 réinitialisation.
 
+C'est aussi d'ici que s'ouvre votre [compte MiniCube](#le-compte-minicube) : la carte
+rappelle votre pseudo, votre rôle et vos statistiques, et le bouton ouvre la page dans
+votre navigateur.
+
 ### Journal
 
 Les messages de MiniCube **et la sortie complète du jeu**, en direct. C'est le premier
@@ -317,6 +381,7 @@ propres données vivent ailleurs :
 .minicube/
 ├── config.json           Vos préférences
 ├── accounts.json         Comptes et jetons — à ne jamais partager
+├── profile.json          Votre compte MiniCube : pseudo, rôle, statistiques
 ├── custom-servers.json   Vos serveurs ajoutés à la main
 ├── logs/                 Journaux, une archive par session
 ├── cache/                Avatars, textures, empreintes connues
@@ -470,6 +535,9 @@ com.minicube.launcher
 └── util/         Http, Json, Hashing, Zips, I18n, Log, Fx, Safety
 ```
 
+La page de compte est servie depuis `src/main/resources/web/` par `ProfileWebServer` :
+du HTML, du CSS et du JavaScript ordinaires, sans dépendance ni outil de construction.
+
 ---
 
 ## Limites connues
@@ -484,6 +552,11 @@ com.minicube.launcher
   façon ; il n'existe pas d'alternative.
 - La **sauvegarde distante** attend un service HTTP répondant à `GET` et `PUT` sur une
   même adresse ; aucun hébergement n'est fourni.
+- **Le compte MiniCube ne donne accès à aucun serveur en ligne.** Il identifie et compte,
+  il n'autorise pas : seul Microsoft peut authentifier un joueur sur un serveur en
+  `online-mode=true`.
+- **Le compte MiniCube ne suit pas d'une machine à l'autre.** Il est enregistré
+  localement, et le rôle y est déclaratif tant qu'aucun serveur ne l'attribue.
 - L'aperçu 3D montre une **pose statique** : aucune animation de marche.
 
 ---

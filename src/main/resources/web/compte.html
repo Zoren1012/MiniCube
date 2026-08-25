@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Compte MiniCube</title>
+  <link rel="stylesheet" href="compte.css">
+</head>
+<body>
+
+  <div class="halos" aria-hidden="true">
+    <span class="halo halo-1"></span>
+    <span class="halo halo-2"></span>
+    <span class="halo halo-3"></span>
+  </div>
+
+  <main class="panneau" id="panneau">
+
+    <header class="entete">
+      <svg class="cube" viewBox="0 0 24 24" aria-hidden="true">
+        <path d="M2.6 6.8 L12 12 L12 22.4 L2.6 17.2 Z" fill="#4A37B4"></path>
+        <path d="M21.4 6.8 L12 12 L12 22.4 L21.4 17.2 Z" fill="#6B52E8"></path>
+        <path d="M12 1.6 L21.4 6.8 L12 12 L2.6 6.8 Z" fill="#B3A2FF"></path>
+      </svg>
+      <div class="titres">
+        <h1>MiniCube</h1>
+        <p class="version" id="version"></p>
+      </div>
+    </header>
+
+    <!-- Chargement -->
+    <section id="vue-chargement" class="vue">
+      <p class="attente">Connexion au launcher...</p>
+    </section>
+
+    <!-- Creation du compte -->
+    <section id="vue-creation" class="vue" hidden>
+      <h2>Créer votre compte</h2>
+      <p class="explication">
+        Ce compte identifie votre profil dans MiniCube : pseudo, rôle et statistiques
+        d'utilisation. Il est enregistré sur cette machine uniquement.
+      </p>
+
+      <form id="form-creation" autocomplete="off">
+        <label for="creation-pseudo">Pseudo</label>
+        <input id="creation-pseudo" name="username" type="text" required
+               minlength="3" maxlength="20" pattern="[A-Za-z0-9_-]+"
+               placeholder="3 à 20 caractères" autocomplete="username">
+
+        <label for="creation-mdp">Mot de passe</label>
+        <input id="creation-mdp" name="password" type="password" required
+               minlength="8" placeholder="8 caractères minimum"
+               autocomplete="new-password">
+
+        <label for="creation-mdp2">Confirmation</label>
+        <input id="creation-mdp2" name="confirm" type="password" required
+               minlength="8" placeholder="Répétez le mot de passe"
+               autocomplete="new-password">
+
+        <p class="erreur" id="erreur-creation" hidden></p>
+        <button type="submit" class="principal">Créer le compte</button>
+      </form>
+
+      <p class="note">
+        Le mot de passe n'est jamais enregistré : seule son empreinte l'est.
+        Sur cette machine, il ne protège rien de plus que votre session Windows —
+        il existe pour que le jour où vous relierez MiniCube à un vrai serveur,
+        rien ne soit à refaire.
+      </p>
+    </section>
+
+    <!-- Connexion -->
+    <section id="vue-connexion" class="vue" hidden>
+      <h2>Connexion</h2>
+      <p class="explication">Identifiez-vous pour accéder à votre profil.</p>
+
+      <form id="form-connexion" autocomplete="off">
+        <label for="connexion-pseudo">Pseudo</label>
+        <input id="connexion-pseudo" name="username" type="text" required
+               autocomplete="username">
+
+        <label for="connexion-mdp">Mot de passe</label>
+        <input id="connexion-mdp" name="password" type="password" required
+               autocomplete="current-password">
+
+        <p class="erreur" id="erreur-connexion" hidden></p>
+        <button type="submit" class="principal">Se connecter</button>
+      </form>
+    </section>
+
+    <!-- Profil -->
+    <section id="vue-profil" class="vue" hidden>
+      <div class="identite">
+        <div class="pastille" id="pastille"></div>
+        <div>
+          <h2 id="profil-pseudo"></h2>
+          <p class="role" id="profil-role"></p>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat"><span class="valeur" id="stat-parties">0</span>
+          <span class="libelle">parties lancées</span></div>
+        <div class="stat"><span class="valeur" id="stat-temps">0 min</span>
+          <span class="libelle">temps de jeu</span></div>
+        <div class="stat"><span class="valeur" id="stat-version">—</span>
+          <span class="libelle">dernière version</span></div>
+      </div>
+
+      <div class="bloc">
+        <h3>Versions récentes</h3>
+        <ul class="versions" id="liste-versions"></ul>
+      </div>
+
+      <form id="form-profil" class="bloc">
+        <h3>Apparence et rôle</h3>
+
+        <label for="profil-role-select">Rôle</label>
+        <select id="profil-role-select" name="role">
+          <option value="MEMBRE">Membre</option>
+          <option value="VIP">VIP</option>
+          <option value="MODERATEUR">Modérateur</option>
+          <option value="ADMINISTRATEUR">Administrateur</option>
+        </select>
+        <p class="note compact">
+          En local, le rôle est déclaratif : vous le choisissez vous-même. Relié à un
+          serveur, il serait attribué par lui.
+        </p>
+
+        <label for="profil-couleur">Couleur</label>
+        <input id="profil-couleur" name="color" type="color" value="#7C5CFF">
+
+        <p class="erreur" id="erreur-profil" hidden></p>
+        <button type="submit" class="principal">Enregistrer</button>
+      </form>
+
+      <div class="bloc dates">
+        <p>Compte créé le <span id="profil-creation">—</span></p>
+        <p>Dernière connexion <span id="profil-vu">—</span></p>
+      </div>
+
+      <div class="pied">
+        <button type="button" id="btn-deconnexion" class="secondaire">Se déconnecter</button>
+        <button type="button" id="btn-supprimer" class="danger">Supprimer le compte</button>
+      </div>
+    </section>
+
+  </main>
+
+  <p class="bas-de-page">
+    Cette page est servie par MiniCube sur votre machine. Elle n'est accessible
+    que depuis celle-ci et n'envoie rien sur Internet.
+  </p>
+
+  <script src="compte.js"></script>
+</body>
+</html>

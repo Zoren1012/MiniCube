@@ -350,7 +350,12 @@ public class ShellController {
         });
     }
 
+    /** Instant du demarrage de la partie, pour comptabiliser le temps de jeu. */
+    private long gameStartedAt;
+
     private void onGameStarted() {
+        gameStartedAt = System.currentTimeMillis();
+        context.profiles().recordLaunch(selectedVersionId());
         view.statusLabel().setText(I18n.tr("launch.running"));
         view.setProgressVisible(false);
         view.playButton().setDisable(false);
@@ -365,6 +370,10 @@ public class ShellController {
 
     /** Remet l'interface en etat lorsque le jeu se termine. */
     private void onGameExit(int exitCode) {
+        if (gameStartedAt > 0) {
+            context.profiles().recordPlayTime(System.currentTimeMillis() - gameStartedAt);
+            gameStartedAt = 0;
+        }
         setLaunching(false);
         view.statusLabel().setText("");
         stage.setIconified(false);

@@ -84,6 +84,9 @@ public class SettingsController {
         view.verifyIntegrityButton().setOnAction(event -> verifyIntegrity());
         view.resetButton().setOnAction(event -> resetSettings());
         view.saveButton().setOnAction(event -> save());
+        view.openProfileButton().setOnAction(event -> openProfilePage());
+        context.profiles().addChangeListener(this::refreshProfileSummary);
+        refreshProfileSummary();
     }
 
     private String formatRam(int megabytes) {
@@ -311,6 +314,41 @@ public class SettingsController {
     /* ------------------------------------------------------------------ */
     /* Maintenance                                                         */
     /* ------------------------------------------------------------------ */
+
+    /* ------------------------------------------------------------------ */
+    /* Compte MiniCube                                                     */
+    /* ------------------------------------------------------------------ */
+
+    /** Resume du compte affiche dans les parametres. */
+    private void refreshProfileSummary() {
+        var profile = context.profiles().profile();
+        if (!profile.exists()) {
+            view.profileSummary().setText(I18n.tr("profile.none"));
+            return;
+        }
+        view.profileSummary().setText(I18n.tr("profile.summary", profile.getUsername(),
+                profile.getRole().label(), profile.getLaunchCount(),
+                profile.playTimeLabel()));
+    }
+
+    /**
+     * Demarre le serveur local si besoin, puis ouvre la page dans le navigateur.
+     *
+     * <p>Le serveur n ecoute que sur l adresse de bouclage : la page est inaccessible
+     * depuis une autre machine, meme sur un reseau partage.</p>
+     */
+    private void openProfilePage() {
+        view.openProfileButton().setDisable(true);
+        Fx.async(() -> context.profileServer().start(), url -> {
+            view.openProfileButton().setDisable(false);
+            com.minicube.launcher.util.Safety.openWebLink(url);
+            context.notifications().info(I18n.tr("profile.title"),
+                    I18n.tr("profile.opened", url));
+        }, error -> {
+            view.openProfileButton().setDisable(false);
+            context.notifications().error(I18n.tr("profile.title"), error.getMessage());
+        });
+    }
 
     private void checkUpdates() {
         view.checkUpdatesButton().setDisable(true);
