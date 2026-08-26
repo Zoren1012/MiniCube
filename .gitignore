@@ -31,3 +31,8 @@ desktop.ini
 config.json
 accounts.json
 logs/
+
+# Mod Minecraft : sorties de compilation Gradle
+mod/build/
+mod/.gradle/
+mod/run/

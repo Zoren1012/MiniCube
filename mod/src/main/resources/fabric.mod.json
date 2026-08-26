@@ -1,0 +1,23 @@
+{
+  "schemaVersion": 1,
+  "id": "minicube-hud",
+  "version": "${version}",
+  "name": "MiniCube HUD",
+  "description": "Un affichage discret en jeu : coordonnees, images par seconde, latence, biome et heure. Aux couleurs de MiniCube.",
+  "authors": ["Zoren1012"],
+  "contact": {
+    "homepage": "https://github.com/Zoren1012/MiniCube",
+    "sources": "https://github.com/Zoren1012/MiniCube"
+  },
+  "license": "MIT",
+  "environment": "client",
+  "entrypoints": {
+    "client": ["fr.minicube.hud.MiniCubeHudClient"]
+  },
+  "depends": {
+    "fabricloader": ">=0.16.0",
+    "minecraft": "~26.2",
+    "java": ">=25",
+    "fabric-api": "*"
+  }
+}
