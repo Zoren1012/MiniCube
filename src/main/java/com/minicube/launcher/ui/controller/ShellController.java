@@ -16,6 +16,7 @@ import com.minicube.launcher.ui.dialog.LoginDialog;
 import com.minicube.launcher.ui.dialog.ProfileManagerDialog;
 import com.minicube.launcher.ui.dialog.VersionInstallDialog;
 import com.minicube.launcher.ui.view.ShellView;
+import com.minicube.launcher.ui.view.SupportView;
 import com.minicube.launcher.util.Fx;
 import com.minicube.launcher.util.I18n;
 import com.minicube.launcher.util.Log;
@@ -56,6 +57,8 @@ public class ShellController {
     private UpdatesController updates;
     private PerformanceController performance;
     private StyleController style;
+    private CommunityController community;
+    private SupportView support;
     private LogsController logs;
 
     private boolean launching;
@@ -96,6 +99,9 @@ public class ShellController {
         }
         if (performance != null) {
             performance.dispose();
+        }
+        if (support != null) {
+            support.animation().dispose();
         }
     }
 
@@ -144,6 +150,15 @@ public class ShellController {
             case MODS -> {
                 mods = new ModsController(context, stage, this::selectedVersionId);
                 return Ui.scroll(mods.root());
+            }
+            case DISCORD -> {
+                community = new CommunityController(context);
+                return Ui.scroll(community.root());
+            }
+            case SUPPORT -> {
+                support = new SupportView();
+                support.animation().setTheme(context.config().settings().getTheme());
+                return Ui.scroll(support.root());
             }
             case STYLE -> {
                 style = new StyleController(context, stage, this::applyTheme);
@@ -508,6 +523,9 @@ public class ShellController {
         // Les halos du fond suivent le theme : en clair ils s'attenuent, et le theme
         // Minecraft, entierement mat, s'en passe.
         view.background().setTheme(context.config().settings().getTheme());
+        if (support != null) {
+            support.animation().setTheme(context.config().settings().getTheme());
+        }
 
         // Police et couleur d accent tiennent dans le meme style pose sur la racine :
         // deux appels successifs a setStyle se remplaceraient l un l autre.

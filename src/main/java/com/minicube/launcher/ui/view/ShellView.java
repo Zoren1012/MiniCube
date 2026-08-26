@@ -47,6 +47,8 @@ public class ShellView {
         GRAPHICS("nav.graphics", Icons.MONITOR),
         SHADERS("nav.shaders", Icons.SPARKLE),
         MODS("nav.mods", Icons.PUZZLE),
+        DISCORD("nav.discord", Icons.CHAT),
+        SUPPORT("nav.support", Icons.HEART),
         STYLE("nav.style", Icons.PALETTE),
         PERFORMANCE("nav.performance", Icons.GAUGE),
         UPDATES("nav.updates", Icons.DOWNLOAD),

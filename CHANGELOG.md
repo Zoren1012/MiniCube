@@ -13,6 +13,45 @@ emplacements changent ensemble ; `package.ps1` lit le premier et le transmet aux
 
 ---
 
+## 1.15.0 — 26 août 2026
+
+### Un onglet Discord
+
+- **L'invitation du serveur est intégrée au launcher** : `https://discord.gg/fxEnUhmUHj`,
+  affichée en clair, avec un bouton pour l'ouvrir et un autre pour la copier.
+- **Elle n'est pas un réglage.** C'est une constante du programme, et l'onglet ne propose
+  aucun champ de saisie. La rendre modifiable permettrait de rediriger les joueurs
+  ailleurs en éditant un fichier, ce qui n'a aucun usage légitime.
+- Le lien sort par le même filtre que tous les liens du launcher : seule une adresse web
+  reconnue est transmise au système, jamais un `file:` ou un protocole applicatif.
+
+### Un onglet Boutique et soutien, annoncé comme non terminé
+
+- La page dit **« En cours de développement »** au lieu de rester vide : une page vide se
+  lit comme une panne, une page annoncée se lit comme une attente.
+- Ce qui est prévu y est listé — cosmétiques, rôles d'affichage, soutien à l'hébergement —
+  avec la seule promesse qui compte : **rien ne donnera d'avantage en jeu**.
+
+### Une animation par thème
+
+- L'animation de cette page **est dessinée dans le langage du thème actif**. En style
+  Minecraft, cinq blocs carrés vert-herbe et terre sautent d'un mouvement linéaire, sans
+  aucun lissage — comme tout ce qui bouge dans le jeu. Dans les thèmes verre, cinq orbes
+  rondes en dégradé respirent avec un amorti aux deux extrémités.
+- Elle **s'arrête quand la fenêtre est réduite** et quand la page n'est pas affichée. Une
+  animation décorative qui continue de tourner derrière une fenêtre iconifiée ne coûte
+  rien de visible et consomme quand même du processeur.
+
+### Vérifications
+
+- Cinq contrôles s'ajoutent à `SecurityCheck` : l'invitation est en `https`, vise bien
+  `discord.gg`, passe le filtre des liens, la constante est `final`, et **aucun champ de
+  `LauncherSettings` ne peut la remplacer**. Cette dernière vérification est le garde-fou
+  de la promesse « non modifiable » : elle échouera le jour où quelqu'un ajoutera le
+  réglage. Suite complète : 152 vérifications.
+
+---
+
 ## 1.14.0 — 26 août 2026
 
 ### L'historique des versions dans l'onglet Mise à jour

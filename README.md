@@ -13,7 +13,7 @@ Java 21 · JavaFX 21 · Windows, macOS, Linux
 ---
 
 **Sommaire** — [Ce que c'est](#quest-ce-que-minicube) · [Installation](#installation) ·
-[Les onglets](#les-neuf-onglets) · [Pour un serveur](#pour-un-serveur-ou-une-communauté) ·
+[Les onglets](#les-treize-onglets) · [Pour un serveur](#pour-un-serveur-ou-une-communauté) ·
 [Publier une version](#publier-une-version) · [Limites](#limites-connues)
 
 ---
@@ -333,7 +333,7 @@ refuse ensuite de le désactiver ou de le supprimer.
 Les sources sont dans [`mod/`](mod/), avec leur propre [README](mod/README.md). Le mod
 cible **Minecraft 1.21.11** et exige [Fabric API](https://modrinth.com/mod/fabric-api).
 
-## Les onze onglets
+## Les treize onglets
 
 ### Accueil
 
@@ -400,6 +400,24 @@ Si votre projet publie un manifeste, les mods déclarés obligatoires sont tél�
 vérifiés avant chaque partie, et ne peuvent pas être désactivés.
 
 Pour poser le chargeur lui-même, voyez [Installer une version](#installer-une-version-vanilla-ou-moddée).
+
+### Discord
+
+L'invitation du serveur communautaire, avec un bouton pour l'ouvrir dans le navigateur et
+un autre pour la copier.
+
+L'adresse est **fixée dans le programme**, pas dans un fichier de configuration : il n'y a
+aucun champ pour la changer. Un lien d'invitation modifiable serait un moyen commode de
+rediriger les joueurs vers un autre serveur en éditant un fichier sur leur machine.
+
+### Boutique
+
+En cours de développement. La page annonce ce qui est prévu — cosmétiques, rôles
+d'affichage, soutien à l'hébergement — plutôt que de rester vide, et rappelle que rien de
+tout cela ne donnera d'avantage en jeu.
+
+Son animation suit le thème actif : des blocs qui sautent d'un mouvement franc en style
+Minecraft, des orbes qui respirent dans les thèmes verre.
 
 ### Style
 

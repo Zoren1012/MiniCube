@@ -16,7 +16,7 @@ public final class Constants {
     /* ------------------------------------------------------------------ */
 
     public static final String APP_NAME = "MiniCube";
-    public static final String APP_VERSION = "1.14.0";
+    public static final String APP_VERSION = "1.15.0";
     /** Nom du dossier de travail cree dans le repertoire utilisateur. */
     public static final String APP_DIR_NAME = ".minicube";
     public static final String USER_AGENT = APP_NAME + "/" + APP_VERSION;
@@ -67,6 +67,15 @@ public final class Constants {
     /* ------------------------------------------------------------------ */
     /* Endpoints du projet (surchargeables)                                */
     /* ------------------------------------------------------------------ */
+
+    /**
+     * Invitation Discord du projet.
+     *
+     * <p>Ecrite ici et non dans la configuration : c'est l'adresse de la communaute, pas
+     * un reglage. La laisser modifiable permettrait de rediriger les joueurs ailleurs en
+     * editant un fichier, ce qui n'a aucun interet legitime.</p>
+     */
+    public static final String DISCORD_INVITE_URL = "https://discord.gg/fxEnUhmUHj";
 
     /** Depot GitHub surveille par defaut pour les mises a jour du launcher. */
     public static final String DEFAULT_GITHUB_REPO = "Zoren1012/MiniCube";
