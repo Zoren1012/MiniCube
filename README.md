@@ -287,7 +287,7 @@ relevés sur un fil séparé, jamais sur celui de l'interface.
 ## Style et thèmes
 
 L'onglet **Style** rassemble l'apparence : le thème, la couleur d'accent et l'image de
-fond. Le thème se choisit sur un aperçu miniature — trois ambiances très différentes
+fond. Le thème se choisit sur un aperçu miniature — sept ambiances très différentes
 cohabitent, et un nom seul ne dit pas laquelle on prend.
 
 | Thème | Ce que c'est |
@@ -295,6 +295,16 @@ cohabitent, et un nom seul ne dit pas laquelle on prend.
 | **Verre sombre** | Le thème par défaut : panneaux translucides, halos violets qui dérivent |
 | **Verre clair** | Le même langage, en clair |
 | **Minecraft** | L'habillage du launcher officiel : surfaces opaques, angles droits, biseaux, vert du bouton JOUER |
+| **Nether** | Braise et obsidienne : noir rougi, halos de lave |
+| **Abysse** | Bleu-vert froid, la lumière vue depuis le fond de l'eau |
+| **Forêt** | Vert désaturé de sous-bois |
+| **Sakura** | Rose poudré sur ivoire, le second style clair |
+
+Un style n'est pas une variante de couleur d'accent posée sur le thème sombre : c'est une
+feuille de couleurs complète, et le fond animé prend ses teintes. Tout ce qui décrit un
+style — sa palette de halos, ses couleurs d'aperçu, sa clarté — tient dans une seule
+entrée du catalogue [`Styles`](src/main/java/com/minicube/launcher/ui/Styles.java) ;
+en ajouter un, c'est cette entrée et un fichier CSS.
 
 Le thème Minecraft n'est pas une simple variante de couleurs : il remplace aussi les
 **formes**. Les interrupteurs y redeviennent des cases à cocher avec une croix verte, et
@@ -412,12 +422,23 @@ rediriger les joueurs vers un autre serveur en éditant un fichier sur leur mach
 
 ### Boutique
 
-En cours de développement. La page annonce ce qui est prévu — cosmétiques, rôles
-d'affichage, soutien à l'hébergement — plutôt que de rester vide, et rappelle que rien de
-tout cela ne donnera d'avantage en jeu.
+Le catalogue des cosmétiques du launcher. Il contient **dix habillages, tous offerts** :
+un clic pose le style et la couleur d'accent d'un seul coup.
 
-Son animation suit le thème actif : des blocs qui sautent d'un mouvement franc en style
-Minecraft, des orbes qui respirent dans les thèmes verre.
+C'est ce qui les distingue de l'onglet Style, où l'on règle les deux séparément — et deux
+habillages peuvent reposer sur le même style sans se ressembler : *Nether* et *Braise*
+partagent le style Nether, l'un en orange lave, l'autre en ambre.
+
+L'habillage appliqué est marqué. Il cesse de l'être dès que la couleur d'accent est
+retouchée à la main dans l'onglet Style, ce qui est exact : mieux vaut n'en désigner aucun
+que d'en désigner un que personne n'a choisi.
+
+La boutique payante, elle, n'est pas ouverte — la page le dit franchement, et rien de ce
+qui est prévu ne donnera d'avantage en jeu. Les capes, en particulier, appartiennent à
+Mojang : le launcher peut afficher les vôtres, il ne peut pas en donner.
+
+Son animation suit le style actif : des blocs qui sautent d'un mouvement franc en style
+Minecraft, des orbes qui respirent dans les styles de verre, aux teintes du style.
 
 ### Style
 

@@ -1,6 +1,7 @@
 package com.minicube.launcher.ui.view;
 
 import com.minicube.launcher.ui.Icons;
+import com.minicube.launcher.ui.Styles;
 import com.minicube.launcher.ui.ThemeManager;
 import com.minicube.launcher.ui.Ui;
 import com.minicube.launcher.util.I18n;
@@ -69,44 +70,25 @@ public class StyleView {
     /**
      * Vignette d'un theme : une maquette miniature de la fenetre.
      *
-     * <p>Les couleurs sont ecrites en dur ici, et c'est voulu : l'apercu doit montrer le
-     * theme <b>qu'il represente</b>, pas celui qui est applique a l'ecran.</p>
+     * <p>Les couleurs viennent du catalogue, pas de la feuille de style appliquee :
+     * l'apercu doit montrer le style <b>qu'il represente</b>, pas celui qui est a
+     * l'ecran. Un style ajoute au catalogue apparait donc ici sans rien changer.</p>
      */
     private VBox themePreview(String theme) {
-        String panel;
-        String surface;
-        String accent;
-        int radius;
+        Styles.Style style = Styles.of(theme);
+        // Les styles mats du launcher officiel n'ont aucun arrondi : la vignette doit
+        // le montrer, c'est la difference qu'on voit en premier.
+        int radius = style.matte() ? 0 : 8;
 
-        switch (theme) {
-            case ThemeManager.LIGHT -> {
-                panel = "#EEF0FA";
-                surface = "#FFFFFF";
-                accent = "#6247E0";
-                radius = 8;
-            }
-            case ThemeManager.MINECRAFT -> {
-                panel = "#1D1D1D";
-                surface = "#313233";
-                accent = "#3C8527";
-                radius = 0;
-            }
-            default -> {
-                panel = "#12131C";
-                surface = "#262838";
-                accent = "#7C5CFF";
-                radius = 8;
-            }
-        }
-
-        Region sidebar = block(34, 96, surface, radius);
-        VBox lines = new VBox(6, block(96, 10, surface, radius),
-                block(74, 10, surface, radius), block(60, 20, accent, radius));
+        Region sidebar = block(34, 96, style.surface(), radius);
+        VBox lines = new VBox(6, block(96, 10, style.surface(), radius),
+                block(74, 10, style.surface(), radius),
+                block(60, 20, style.accent(), radius));
         lines.setAlignment(Pos.TOP_LEFT);
 
         HBox mock = new HBox(8, sidebar, lines);
         mock.setPadding(new Insets(10));
-        mock.setStyle("-fx-background-color: " + panel + ";"
+        mock.setStyle("-fx-background-color: " + style.panel() + ";"
                 + "-fx-background-radius: " + radius + ";");
 
         // L etiquette suit le theme courant, pas celui qu elle decrit : ecrite dans la

@@ -16,7 +16,6 @@ import com.minicube.launcher.ui.dialog.LoginDialog;
 import com.minicube.launcher.ui.dialog.ProfileManagerDialog;
 import com.minicube.launcher.ui.dialog.VersionInstallDialog;
 import com.minicube.launcher.ui.view.ShellView;
-import com.minicube.launcher.ui.view.SupportView;
 import com.minicube.launcher.util.Fx;
 import com.minicube.launcher.util.I18n;
 import com.minicube.launcher.util.Log;
@@ -58,7 +57,7 @@ public class ShellController {
     private PerformanceController performance;
     private StyleController style;
     private CommunityController community;
-    private SupportView support;
+    private SupportController support;
     private LogsController logs;
 
     private boolean launching;
@@ -101,7 +100,7 @@ public class ShellController {
             performance.dispose();
         }
         if (support != null) {
-            support.animation().dispose();
+            support.view().animation().dispose();
         }
     }
 
@@ -156,8 +155,8 @@ public class ShellController {
                 return Ui.scroll(community.root());
             }
             case SUPPORT -> {
-                support = new SupportView();
-                support.animation().setTheme(context.config().settings().getTheme());
+                support = new SupportController(context, this::applyTheme);
+                support.view().animation().setTheme(context.config().settings().getTheme());
                 return Ui.scroll(support.root());
             }
             case STYLE -> {
@@ -524,7 +523,10 @@ public class ShellController {
         // Minecraft, entierement mat, s'en passe.
         view.background().setTheme(context.config().settings().getTheme());
         if (support != null) {
-            support.animation().setTheme(context.config().settings().getTheme());
+            support.view().animation().setTheme(context.config().settings().getTheme());
+            // Un habillage change aussi le theme : la marque de selection de la
+            // Boutique doit suivre, y compris quand le changement vient de l onglet Style.
+            support.refresh();
         }
 
         // Police et couleur d accent tiennent dans le meme style pose sur la racine :

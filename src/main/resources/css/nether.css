@@ -1,14 +1,14 @@
 /*
- * MiniCube - theme sombre.
+ * MiniCube - style nether.
  *
- * Le fond est presque noir : c'est lui qui laisse les halos colores de
- * GlassBackground s'exprimer sans les delaver. Les surfaces de verre sont de simples
- * voiles blancs a tres faible opacite ; leur teinte vient donc de ce qu'il y a dessous,
- * et change selon l'endroit de la fenetre.
+ * Braise et obsidienne : le fond tire sur le noir rougi, les halos sur la lave.
+ *
+ * Seules les couleurs changent : la structure vient de base.css, et les surfaces de
+ * verre restent des voiles blancs dont la teinte est celle du fond et des halos.
  */
 
 .root {
-    -color-bg: #07080D;
+    -color-bg: #100708;
 
     -color-text: #F0F2F8;
     -color-text-dim: #A9B1C6;
@@ -25,11 +25,11 @@
      * fenetre, mais sont attenues la ou se lisent les textes : une carte translucide
      * posee directement sur un halo vif devient illisible.
      */
-    -color-veil: rgba(7, 8, 13, 0.46);
-    -color-veil-side: rgba(7, 8, 13, 0.26);
+    -color-veil: rgba(16, 7, 8, 0.46);
+    -color-veil-side: rgba(16, 7, 8, 0.26);
     /* Sur une image de fond, il en faut nettement plus pour rester lisible. */
-    -color-veil-strong: rgba(7, 8, 13, 0.80);
-    -color-veil-strong-side: rgba(7, 8, 13, 0.70);
+    -color-veil-strong: rgba(16, 7, 8, 0.80);
+    -color-veil-strong-side: rgba(16, 7, 8, 0.70);
 
     -color-hairline: rgba(255, 255, 255, 0.055);
     -color-stroke: rgba(255, 255, 255, 0.12);
@@ -49,15 +49,15 @@
                  rgba(255, 255, 255, 0.10) 42%,
                  rgba(255, 255, 255, 0.045) 100%);
 
-    -color-accent: #7C5CFF;
-    -color-accent-2: #3F9BFF;
-    -color-accent-bright: #A896FF;
-    -color-accent-hover: #8E73FF;
-    -color-accent-pressed: #6A4CE8;
-    -color-accent-veil: rgba(124, 92, 255, 0.20);
-    -color-accent-glow: rgba(124, 92, 255, 0.50);
+    -color-accent: #FF7A3D;
+    -color-accent-2: #FF4D6D;
+    -color-accent-bright: #FFA877;
+    -color-accent-hover: #FF8C56;
+    -color-accent-pressed: #E0642C;
+    -color-accent-veil: rgba(255, 122, 61, 0.20);
+    -color-accent-glow: rgba(255, 122, 61, 0.50);
     /* Voile du bandeau d en-tete : la meme couleur d accent, plus large. */
-    -color-hero-veil: rgba(124, 92, 255, 0.34);
+    -color-hero-veil: rgba(255, 122, 61, 0.32);
 
     -color-success: #46E0A8;
     -color-warn: #FFC24D;
@@ -66,6 +66,6 @@
     -color-danger-soft: rgba(255, 107, 99, 0.16);
 
     -color-console-bg: rgba(0, 0, 0, 0.42);
-    -color-toast: rgba(24, 26, 38, 0.93);
-    -color-popup: rgba(22, 24, 34, 0.97);
+    -color-toast: rgba(42, 22, 24, 0.94);
+    -color-popup: rgba(42, 22, 24, 0.97);
 }

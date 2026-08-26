@@ -1,5 +1,6 @@
 package com.minicube.launcher.ui.component;
 
+import com.minicube.launcher.ui.Styles;
 import com.minicube.launcher.ui.ThemeManager;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
@@ -27,7 +28,7 @@ import java.util.WeakHashMap;
 /**
  * Animation d'attente, dessinee dans le langage du theme actif.
  *
- * <p>Une meme animation sous les trois themes trahirait l'habillage : le verre translucide
+ * <p>Une meme animation sous tous les styles trahirait l habillage : le verre translucide
  * demande des formes rondes qui respirent, Minecraft des blocs carres qui sautent. Ce
  * composant en tient deux et bascule de l'une a l'autre.</p>
  *
@@ -87,7 +88,7 @@ public class ThemedAnimation extends HBox {
         stopAnimations();
         getChildren().clear();
 
-        boolean blocky = ThemeManager.MINECRAFT.equals(theme);
+        boolean blocky = Styles.of(theme).matte();
         for (int index = 0; index < COUNT; index++) {
             Node node = blocky ? block(index) : orb(index);
             getChildren().add(node);
@@ -109,12 +110,23 @@ public class ThemedAnimation extends HBox {
         return rectangle;
     }
 
-    /** Une bulle de verre : ronde, diffuse, sans contour. */
+    /**
+     * Une bulle de verre : ronde, diffuse, sans contour.
+     *
+     * <p>Les teintes sont celles des halos du style : l'animation et le fond parlent
+     * ainsi la meme langue, et un style ajoute au catalogue s'anime dans ses propres
+     * couleurs sans une ligne de plus ici.</p>
+     */
     private Node orb(int index) {
-        boolean light = ThemeManager.LIGHT.equals(theme);
-        Color base = light ? Color.web("#6247E0") : Color.web("#9C86FF");
+        Styles.Style style = Styles.of(theme);
+        List<Color> palette = style.halos();
+        Color base = palette.get(index % palette.size());
         // Les bulles s'eclaircissent vers la droite : la lumiere semble venir d'un point.
-        Color tint = base.interpolate(Color.web("#3F9BFF"), index / (double) COUNT);
+        Color tint = base.interpolate(Color.web(style.accent()), index / (double) COUNT);
+        if (!style.dark()) {
+            // Sur fond clair, une bulle pale disparait : on fonce au lieu d'eclaircir.
+            tint = tint.deriveColor(0, 1.05, 0.82, 1);
+        }
 
         Circle circle = new Circle(ORB_RADIUS);
         circle.setFill(new RadialGradient(0, 0, 0.5, 0.42, 0.62, true, CycleMethod.NO_CYCLE,

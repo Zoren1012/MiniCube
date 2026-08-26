@@ -13,6 +13,59 @@ emplacements changent ensemble ; `package.ps1` lit le premier et le transmet aux
 
 ---
 
+## 1.16.0 — 27 août 2026
+
+### Quatre nouveaux styles
+
+- **Nether** — braise et obsidienne, halos de lave sur un noir rougi.
+- **Abysse** — bleu-vert froid, la lumière vue depuis le fond de l'eau.
+- **Forêt** — vert désaturé de sous-bois, parce qu'un vert vif sur toute une fenêtre
+  fatigue en dix minutes.
+- **Sakura** — rose poudré sur ivoire, le second style clair du launcher.
+
+Ils apparaissent dans l'onglet **Style** au même titre que les trois autres, et le fond
+animé prend leurs teintes : ce ne sont pas des variantes de couleur d'accent posées sur
+le thème sombre, mais des feuilles complètes.
+
+### La Boutique donne quelque chose
+
+- Elle liste **dix habillages**, applicables d'un clic et **tous offerts**. Un habillage
+  pose le style et la couleur d'accent d'un seul geste — c'est la différence avec
+  l'onglet Style, où l'on règle les deux séparément.
+- **Deux habillages peuvent partager le même style** sans se ressembler : *Nether* et
+  *Braise* reposent tous deux sur le style Nether, l'un orange lave, l'autre ambre.
+- L'habillage appliqué est marqué. Il ne l'est plus dès que la couleur d'accent est
+  retouchée à la main dans l'onglet Style : c'est exact, et préférable à désigner un
+  habillage voisin que personne n'a choisi.
+- La page dit toujours que la boutique payante n'est pas ouverte. Ce qui a changé, c'est
+  qu'elle ne se contente plus de l'annoncer.
+
+### Un seul endroit pour décrire un style
+
+- Les couleurs d'un style vivaient dans **trois `switch` séparés** — le fond animé, la
+  vignette d'aperçu, l'animation d'attente. En ajouter un obligeait à retrouver les
+  trois, et en oublier un donnait un thème à moitié appliqué.
+- Elles sont réunies dans un catalogue, `Styles`. **Ajouter un style, c'est désormais
+  une entrée et une feuille de couleurs**, rien d'autre.
+
+### Le bandeau d'en-tête suivait sa propre couleur
+
+- Son dégradé était écrit en dur en violet. Il serait resté violet sous un style orange
+  ou vert — et il ignorait déjà la couleur d'accent choisie par l'utilisateur.
+- Il est maintenant bâti sur la couleur d'accent du style, via un jeton défini par chaque
+  feuille et réécrit quand l'accent est personnalisé.
+
+### Vérifications
+
+- Nouvelle suite `StyleCheck`, **95 contrôles**. Le plus utile compare chaque feuille de
+  style à celle du thème sombre : un jeton de couleur oublié laisse JavaFX sans valeur et
+  **fait disparaître du texte sans lever la moindre erreur**. Les autres vérifient qu'un
+  style inconnu retombe sur le sombre, que chaque style et chaque habillage est traduit,
+  et qu'un seul habillage est actif à la fois.
+- Suite complète : **249 vérifications**.
+
+---
+
 ## 1.15.0 — 26 août 2026
 
 ### Un onglet Discord

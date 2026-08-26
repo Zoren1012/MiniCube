@@ -13,10 +13,13 @@ import java.util.List;
 /**
  * Application des feuilles de style et du fond personnalise.
  *
- * <p>{@code base.css} definit la structure commune ; {@code dark.css} et
- * {@code light.css} ne redefinissent que les couleurs. {@code minecraft.css} va plus
- * loin et remplace aussi les formes : son langage visuel — angles droits, biseaux,
- * surfaces opaques — est incompatible avec celui du verre.</p>
+ * <p>{@code base.css} definit la structure commune ; chaque style n y redefinit que
+ * ses couleurs. {@code minecraft.css} fait exception et remplace aussi les formes : son
+ * langage visuel — angles droits, biseaux, surfaces opaques — est incompatible avec
+ * celui du verre.</p>
+ *
+ * <p>La liste des styles et leurs teintes vivent dans {@link Styles} ; cette classe ne
+ * fait que les appliquer.</p>
  */
 public final class ThemeManager {
 
@@ -24,9 +27,8 @@ public final class ThemeManager {
     public static final String LIGHT = "light";
     public static final String MINECRAFT = "minecraft";
 
-    /** Themes proposes, dans l'ordre d'affichage. */
-    public static final java.util.List<String> ALL =
-            java.util.List.of(DARK, LIGHT, MINECRAFT);
+    /** Themes proposes, dans l ordre d affichage : celui du catalogue. */
+    public static final List<String> ALL = Styles.ids();
 
     private ThemeManager() {
     }
@@ -44,9 +46,9 @@ public final class ThemeManager {
         Log.debug("Theme applique : " + theme);
     }
 
-    /** Ramene une valeur inconnue au theme sombre plutot que de laisser l'ecran nu. */
+    /** Ramene une valeur inconnue au theme sombre plutot que de laisser l ecran nu. */
     public static String normalise(String theme) {
-        return ALL.contains(theme) ? theme : DARK;
+        return Styles.exists(theme) ? theme : DARK;
     }
 
     /**
@@ -56,7 +58,7 @@ public final class ThemeManager {
      * feuille de style.</p>
      */
     public static boolean isDark(String theme) {
-        return !LIGHT.equals(theme);
+        return Styles.of(theme).dark();
     }
 
     private static void addStylesheet(Scene scene, String resource) {
@@ -101,7 +103,7 @@ public final class ThemeManager {
      * installee, sans quoi une police a chasse fixe du systeme en donne l'esprit.</p>
      */
     private static String fontFor(String theme) {
-        if (!MINECRAFT.equals(theme)) {
+        if (!Styles.of(theme).matte()) {
             return "";
         }
         List<String> preferred = List.of("Minecraft", "Monocraft", "Consolas",
@@ -127,6 +129,8 @@ public final class ThemeManager {
 
         // derive() ne sait pas produire de transparence : les voiles sont ecrits en rgba.
         String veil = "rgba(" + red + ", " + green + ", " + blue + ", 0.20)";
+        // Le bandeau d en-tete est peint avec un voile plus large de la meme couleur.
+        String hero = "rgba(" + red + ", " + green + ", " + blue + ", 0.32)";
         String glow = "rgba(" + red + ", " + green + ", " + blue + ", 0.50)";
 
         Log.debug("Couleur d'accent appliquee : " + color);
@@ -136,7 +140,8 @@ public final class ThemeManager {
                 + "-color-accent-pressed: derive(" + color + ", -14%);"
                 + "-color-accent-bright: derive(" + color + ", 32%);"
                 + "-color-accent-veil: " + veil + ";"
-                + "-color-accent-glow: " + glow + ";";
+                + "-color-accent-glow: " + glow + ";"
+                + "-color-hero-veil: " + hero + ";";
     }
 
     /**

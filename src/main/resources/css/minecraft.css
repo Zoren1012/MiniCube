@@ -47,6 +47,8 @@
     -color-accent-pressed: #2E6B1E;
     -color-accent-veil: #2A5B1C;
     -color-accent-glow: rgba(0, 0, 0, 0);
+    /* Voile du bandeau d en-tete : la meme couleur d accent, plus large. */
+    -color-hero-veil: rgba(60, 133, 39, 0.30);
 
     -color-success: #55FF55;
     -color-warn: #FFAA00;

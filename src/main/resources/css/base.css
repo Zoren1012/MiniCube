@@ -478,10 +478,15 @@
  * La banniere d'accueil est le premier element que l'on voit : elle porte une teinte
  * d'accent franche, la ou les cartes ordinaires restent neutres.
  */
+/*
+ * Bandeau d en-tete. Le degrade est bati sur la couleur d accent du style, pas sur une
+ * teinte ecrite en dur : sinon il resterait violet sous un style orange ou vert, et il
+ * ignorerait la couleur choisie par l utilisateur.
+ */
 .hero {
     -fx-background-color: linear-gradient(to bottom right,
-                          rgba(124, 92, 255, 0.34) 0%,
-                          rgba(63, 155, 255, 0.18) 55%,
+                          -color-hero-veil 0%,
+                          -color-accent-veil 55%,
                           rgba(255, 255, 255, 0.05) 100%), -color-sheen;
     -fx-background-radius: 24, 24;
     -fx-background-insets: 0, 0;

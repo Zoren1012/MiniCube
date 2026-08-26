@@ -1,5 +1,6 @@
 package com.minicube.launcher.ui.component;
 
+import com.minicube.launcher.ui.Styles;
 import com.minicube.launcher.ui.ThemeManager;
 import com.minicube.launcher.util.Log;
 import javafx.animation.Interpolator;
@@ -35,25 +36,29 @@ import java.util.List;
  */
 public class GlassBackground extends Pane {
 
-    /** Un halo : sa couleur, sa taille relative et sa position de repos. */
-    private record Blob(Color color, double radiusRatio, double centerXRatio,
-                        double centerYRatio, double driftX, double driftY, int seconds) {
+    /** Forme d un halo : sa taille relative, sa position de repos et sa derive. */
+    private record Blob(double radiusRatio, double centerXRatio, double centerYRatio,
+                        double driftX, double driftY, int seconds) {
     }
 
-    private static final List<Blob> DARK_BLOBS = List.of(
-            new Blob(Color.web("#6D4AFF"), 0.78, 0.06, 0.10, 70, 50, 23),
-            new Blob(Color.web("#2E6BFF"), 0.70, 0.94, 0.20, -80, 60, 29),
-            new Blob(Color.web("#4A2FD0"), 0.62, 0.55, 1.02, -60, -40, 35));
-
-    private static final List<Blob> LIGHT_BLOBS = List.of(
-            new Blob(Color.web("#9C86FF"), 0.78, 0.06, 0.10, 70, 50, 23),
-            new Blob(Color.web("#7FB0FF"), 0.70, 0.94, 0.20, -80, 60, 29),
-            new Blob(Color.web("#8E7BFF"), 0.62, 0.55, 1.02, -60, -40, 35));
+    /**
+     * Geometrie des trois halos : taille, position de repos, derive et duree.
+     *
+     * <p>Elle ne depend pas du style — seules les couleurs en dependent, et elles
+     * viennent du catalogue. Un style ajoute herite donc du meme mouvement, deja
+     * regle pour que les trois cycles ne retombent jamais en phase.</p>
+     */
+    private static final List<Blob> SHAPES = List.of(
+            new Blob(0.78, 0.06, 0.10, 70, 50, 23),
+            new Blob(0.70, 0.94, 0.20, -80, 60, 29),
+            new Blob(0.62, 0.55, 1.02, -60, -40, 35));
 
     private final Pane halos = new Pane();
     private final List<Timeline> animations = new ArrayList<>();
     private boolean dark = true;
-    /** Faux pour le theme Minecraft, entierement mat. */
+    /** Teintes des halos, celles du style courant. */
+    private List<Color> colors = Styles.of(ThemeManager.DARK).halos();
+    /** Faux pour un style mat, sans verre ni halo. */
     private boolean halosEnabled = true;
     /** Faux quand la fenetre est reduite : inutile d'animer ce que personne ne voit. */
     private boolean visibleToUser = true;
@@ -126,16 +131,18 @@ public class GlassBackground extends Pane {
     /**
      * Adapte le fond au theme courant.
      *
-     * @param theme identifiant du theme : dark, light ou minecraft
+     * @param theme identifiant du style, tel qu il figure au catalogue
      */
     public void setTheme(String theme) {
-        boolean darkTheme = ThemeManager.isDark(theme);
-        // Le theme Minecraft est mat de bout en bout : des halos derivant derriere des
+        Styles.Style style = Styles.of(theme);
+        // Un style mat est opaque de bout en bout : des halos derivant derriere des
         // panneaux opaques ne se verraient pas, et couteraient pour rien.
-        boolean wantHalos = !ThemeManager.MINECRAFT.equals(theme);
-        if (this.dark != darkTheme || this.halosEnabled != wantHalos) {
-            this.dark = darkTheme;
+        boolean wantHalos = !style.matte();
+        if (this.dark != style.dark() || this.halosEnabled != wantHalos
+                || !this.colors.equals(style.halos())) {
+            this.dark = style.dark();
             this.halosEnabled = wantHalos;
+            this.colors = style.halos();
             rebuild();
         }
     }
@@ -158,14 +165,16 @@ public class GlassBackground extends Pane {
         // intensite donnerait des taches de couleur au lieu d'une lumiere diffuse.
         double peak = dark ? 0.46 : 0.26;
 
-        for (Blob blob : (dark ? DARK_BLOBS : LIGHT_BLOBS)) {
+        for (int index = 0; index < SHAPES.size() && index < colors.size(); index++) {
+            Blob blob = SHAPES.get(index);
+            Color tint = colors.get(index);
             double radius = reference * blob.radiusRatio();
             Circle circle = new Circle(radius);
             circle.setCenterX(width * blob.centerXRatio());
             circle.setCenterY(height * blob.centerYRatio());
             circle.setFill(new RadialGradient(0, 0, 0.5, 0.5, 0.5, true, CycleMethod.NO_CYCLE,
-                    new Stop(0, blob.color().deriveColor(0, 1, 1, peak)),
-                    new Stop(0.55, blob.color().deriveColor(0, 1, 1, peak * 0.35)),
+                    new Stop(0, tint.deriveColor(0, 1, 1, peak)),
+                    new Stop(0.55, tint.deriveColor(0, 1, 1, peak * 0.35)),
                     new Stop(1, Color.TRANSPARENT)));
             halos.getChildren().add(circle);
             animations.add(drift(circle, blob));
