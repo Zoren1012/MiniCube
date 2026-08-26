@@ -31,11 +31,16 @@ peut être utilisé sur un serveur sans rien demander à personne.
 Le mod ajoute deux choses au menu du jeu, sans rien en retirer : les boutons d'origine
 restent a leur place, la ou les joueurs les cherchent.
 
-- Une **signature** discrete en bas a gauche : « MiniCube » et le nom de votre communaute.
+- Une **signature** en haut a gauche : « MiniCube » et le nom de votre communaute.
 - Un bouton **Rejoindre &lt;serveur&gt;** sous les boutons du jeu, qui connecte directement.
 
-Les deux se coupent dans la configuration (`menuBranding`, `menuJoinButton`), et le bouton
-ne s'affiche pas tant que `serverAddress` est vide.
+**L'adresse du serveur est reprise du launcher.** Au premier lancement, le mod lit la
+liste de serveurs de MiniCube (`~/.minicube/custom-servers.json`) et retient le premier :
+le bouton apparait donc tout seul, sans rien a configurer. Sans MiniCube installe, le mod
+fonctionne simplement sans ce bouton.
+
+Les deux ajouts se coupent dans la configuration (`menuBranding`, `menuJoinButton`), et
+l'adresse reste modifiable dans `serverAddress`.
 
 ---
 

@@ -105,6 +105,33 @@ public class HudConfig {
         return this;
     }
 
+    /**
+     * Complete l'adresse du serveur depuis le launcher, si elle manque.
+     *
+     * <p>Sans cela le bouton de connexion resterait invisible chez tout le monde :
+     * personne ne va editer un fichier de configuration pour decouvrir une fonction
+     * dont il ignore l'existence.</p>
+     *
+     * @return true si quelque chose a ete complete, et donc enregistre
+     */
+    public boolean fillFromLauncher() {
+        if (!serverAddress.isBlank()) {
+            return false;
+        }
+        MiniCubeLink.Server server = MiniCubeLink.firstServer();
+        if (server == null) {
+            return false;
+        }
+        serverAddress = server.address();
+        if (serverName.isBlank()) {
+            serverName = server.name();
+        }
+        MiniCubeHudClient.LOGGER.info("Serveur repris du launcher : {} ({})",
+                serverName, serverAddress);
+        save();
+        return true;
+    }
+
     public void save() {
         try {
             Path path = file();

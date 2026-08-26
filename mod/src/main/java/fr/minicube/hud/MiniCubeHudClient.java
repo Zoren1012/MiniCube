@@ -28,6 +28,9 @@ public class MiniCubeHudClient implements ClientModInitializer {
     @Override
     public void onInitializeClient() {
         HudConfig config = HudConfig.load();
+        // L adresse du serveur vient du launcher : sans cela, le bouton du menu resterait
+        // invisible chez tout le monde.
+        config.fillFromLauncher();
 
         // F6 et F7 sont libres dans Minecraft. Ils restent modifiables dans les commandes
         // du jeu, la ou le joueur cherche naturellement.

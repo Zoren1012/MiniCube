@@ -13,6 +13,27 @@ emplacements changent ensemble ; `package.ps1` lit le premier et le transmet aux
 
 ---
 
+## 1.13.1 — 26 août 2026
+
+### Le menu : deux défauts corrigés
+
+- **La signature se posait sur la version du jeu.** Minecraft écrit déjà « Minecraft
+  1.21.11/Fabric » dans le coin inférieur gauche du menu ; la signature s'affichait
+  par-dessus. Elle est remontée dans le coin supérieur gauche, qui est libre.
+- **Le bouton « Rejoindre » ne s'affichait jamais.** Il attendait une adresse de serveur
+  dans le fichier de configuration du mod — que personne n'allait éditer pour découvrir
+  une fonction dont il ignorait l'existence.
+
+  Le mod lit désormais la **liste de serveurs du launcher** (`custom-servers.json`) au
+  premier lancement et en retient le premier : le bouton apparaît tout seul. Lecture
+  seule, sur un fichier du même utilisateur ; rien n'est écrit dans les données de
+  MiniCube, et l'absence du launcher n'est pas une erreur — le mod fonctionne alors sans
+  ce bouton.
+
+Mod en version **1.1.0**.
+
+---
+
 ## 1.13.0 — 26 août 2026
 
 ### Le mod devient obligatoire

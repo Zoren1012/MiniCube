@@ -95,32 +95,33 @@ public final class MiniCubeTitleScreen {
     /* ------------------------------------------------------------------ */
 
     /**
-     * Dessine la signature en bas a gauche.
+     * Dessine la signature en haut a gauche.
      *
-     * <p>Volontairement petite et posee dans un coin : le menu appartient au jeu, pas au
-     * launcher. Elle rappelle l'identite sans encombrer.</p>
+     * <p>En haut, et non en bas : Minecraft ecrit deja sa version dans le coin inferieur
+     * gauche, et la signature s'y posait par-dessus. Le coin superieur gauche du menu
+     * est libre.</p>
      */
     private static void drawBranding(DrawContext context, HudConfig config, int height) {
         var font = MinecraftClient.getInstance().textRenderer;
 
         String title = "MiniCube";
         String subtitle = config.communityName == null || config.communityName.isBlank()
-                ? config.serverAddress
+                ? serverLabel(config)
                 : config.communityName;
 
         int textWidth = Math.max(font.getWidth(title), font.getWidth(subtitle));
-        int panelWidth = textWidth + 16;
-        int panelHeight = subtitle.isBlank() ? 20 : 30;
+        int panelWidth = textWidth + 18;
+        int panelHeight = subtitle.isBlank() ? 20 : 31;
 
-        int x = 4;
-        int y = height - panelHeight - 4;
+        int x = 6;
+        int y = 6;
 
         context.fill(x, y, x + panelWidth, y + panelHeight, config.backgroundColor);
-        context.fill(x, y, x + 2, y + panelHeight, config.accentColor);
+        context.fill(x, y, x + 3, y + panelHeight, config.accentColor);
 
-        context.drawText(font, title, x + 8, y + 6, config.accentColor, true);
+        context.drawText(font, title, x + 10, y + 6, config.accentColor, true);
         if (!subtitle.isBlank()) {
-            context.drawText(font, subtitle, x + 8, y + 17, config.textColor, true);
+            context.drawText(font, subtitle, x + 10, y + 18, config.textColor, true);
         }
     }
 }
