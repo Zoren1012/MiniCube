@@ -2,6 +2,7 @@ package com.minicube.launcher.ui.controller;
 
 import com.minicube.launcher.core.LauncherContext;
 import com.minicube.launcher.model.LauncherSettings;
+import com.minicube.launcher.service.Challenges;
 import com.minicube.launcher.service.ShopService;
 import com.minicube.launcher.ui.Cosmetics;
 import com.minicube.launcher.ui.view.SupportView;
@@ -27,12 +28,15 @@ public class SupportController {
     private final LauncherContext context;
     private final SupportView view = new SupportView();
     private final Runnable onThemeChanged;
+    private final Runnable onChallengesChecked;
     /** Garde une reference : le service ne retient que des Runnable. */
     private final Runnable shopListener = this::refresh;
 
-    public SupportController(LauncherContext context, Runnable onThemeChanged) {
+    public SupportController(LauncherContext context, Runnable onThemeChanged,
+                             Runnable onChallengesChecked) {
         this.context = context;
         this.onThemeChanged = onThemeChanged;
+        this.onChallengesChecked = onChallengesChecked;
 
         view.setOnPackPicked(this::pick);
         // Les pieces arrivent a la fin d'une partie, pendant que l'onglet est peut-etre
@@ -70,6 +74,18 @@ public class SupportController {
             states.put(pack.id(), stateOf(pack, shop, settings));
         }
         view.refreshPacks(states);
+        view.refreshChallenges(shop.stats(), claimedIds());
+    }
+
+    /** Defis deja payes, tels que la vue les affiche. */
+    private java.util.Set<String> claimedIds() {
+        java.util.Set<String> ids = new java.util.LinkedHashSet<>();
+        for (Challenges.Challenge challenge : Challenges.all()) {
+            if (context.shop().isClaimed(challenge.id())) {
+                ids.add(challenge.id());
+            }
+        }
+        return ids;
     }
 
     private SupportView.State stateOf(Cosmetics.Pack pack, ShopService shop,
@@ -108,6 +124,9 @@ public class SupportController {
             case DONE -> {
                 context.notifications().success(I18n.tr("support.title"),
                         I18n.tr("support.bought", name, pack.price()));
+                // Un achat fait grossir la collection : le defi du collectionneur peut
+                // tomber a cet instant precis.
+                onChallengesChecked.run();
                 return true;
             }
             case ALREADY_OWNED -> {

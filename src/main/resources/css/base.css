@@ -289,6 +289,21 @@
 }
 
 /*
+ * Barre d avancement d un defi. Plus fine que celle du lancement : elle accompagne une
+ * ligne de texte au lieu de porter toute l attention d un telechargement.
+ */
+.challenge-bar > .track {
+    -fx-background-color: -color-glass-strong;
+    -fx-background-radius: 5;
+}
+
+.challenge-bar > .bar {
+    -fx-background-color: linear-gradient(to right, -color-accent, -color-accent-2);
+    -fx-background-radius: 5;
+    -fx-padding: 4;
+}
+
+/*
  * Voile pose sur l apercu d un habillage hors de portee. Il grise sans masquer : on
  * doit pouvoir juger ce qu on n a pas encore, sinon rien ne donne envie de l obtenir.
  */

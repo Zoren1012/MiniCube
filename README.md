@@ -442,6 +442,24 @@ Les pièces sont créditées à la fermeture du jeu. Un habillage hors de porté
 sous un voile, prix affiché : on doit pouvoir juger ce qu'on n'a pas encore. Un achat
 refusé dit combien il manque.
 
+**Des défis, en plus du temps.** Payer à la minute récompenserait l'attente : laisser le
+jeu ouvert rapporterait autant que d'y jouer. Sept défis récompensent ce que vous faites.
+
+| Défi | Condition | Récompense |
+|---|---|---|
+| Première partie | 1 partie | 100 |
+| Habitué | 10 parties | 250 |
+| Marathon | 60 minutes | 200 |
+| Vétéran | 600 minutes | 500 |
+| Moddeur | 1 partie moddée | 250 |
+| Bricoleur | 3 chargeurs différents | 400 |
+| Collectionneur | 5 habillages débloqués | 400 |
+
+Rien à réclamer : un défi est une **condition relue**, pas un événement. Rempli pendant
+que le launcher était fermé, ou ajouté par une mise à jour, il se verse à la prochaine
+ouverture. OptiFine ne compte pas comme partie moddée — il n'ajoute pas de mods — mais
+compte comme chargeur distinct.
+
 **Il n'y a rien à payer.** Une boutique payante demanderait un encaissement, donc un
 serveur et un prestataire ; un bouton « Acheter » qui ne débite rien serait un mensonge.
 Les pièces se gagnent donc en jouant, et la boutique fonctionne entièrement hors ligne.

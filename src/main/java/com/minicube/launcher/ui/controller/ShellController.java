@@ -7,6 +7,7 @@ import com.minicube.launcher.model.InstalledVersion;
 import com.minicube.launcher.model.Notification;
 import com.minicube.launcher.model.Progress;
 import com.minicube.launcher.model.ServerEntry;
+import com.minicube.launcher.service.Challenges;
 import com.minicube.launcher.service.GameLaunchService;
 import com.minicube.launcher.ui.Icons;
 import com.minicube.launcher.ui.ThemeManager;
@@ -79,6 +80,9 @@ public class ShellController {
         refreshVersions();
         showTab(ShellView.Tab.HOME);
         checkForLauncherUpdate();
+        // Un defi est une condition relue : celui rempli pendant que le launcher etait
+        // ferme, ou ajoute par une mise a jour, se verse ici.
+        announceChallenges();
     }
 
     /** Racine a placer dans la scene. */
@@ -155,7 +159,8 @@ public class ShellController {
                 return Ui.scroll(community.root());
             }
             case SUPPORT -> {
-                support = new SupportController(context, this::applyTheme);
+                support = new SupportController(context, this::applyTheme,
+                        this::announceChallenges);
                 support.view().animation().setTheme(context.config().settings().getTheme());
                 return Ui.scroll(support.root());
             }
@@ -386,6 +391,26 @@ public class ShellController {
         return version == null ? "" : version.id();
     }
 
+    /** Chargeur de la version selectionnee : Vanilla, Fabric, Forge... */
+    private String selectedLoader() {
+        InstalledVersion version = view.versionSelector().getValue();
+        return version == null ? "" : version.loader();
+    }
+
+    /**
+     * Verse les defis accomplis et l'annonce.
+     *
+     * <p>Une par une : trois defis tombes ensemble mais annonces d'un bloc donneraient
+     * l'impression d'un seul, et le joueur ne saurait pas lequel il vient de reussir.</p>
+     */
+    public void announceChallenges() {
+        for (String id : context.shop().claimCompletedChallenges()) {
+            context.notifications().success(I18n.tr("challenge.done"),
+                    I18n.tr("challenge.reward", I18n.tr("challenge." + id),
+                            Challenges.rewardOf(id)));
+        }
+    }
+
     /** Lance le jeu en se connectant directement au serveur indique. */
     private void playOnServer(ServerEntry server) {
         play(server);
@@ -486,11 +511,12 @@ public class ShellController {
             context.profiles().recordPlayTime(played);
             // Les pieces de la Boutique se gagnent en jouant : c est ici, et nulle part
             // ailleurs, qu une partie terminee les cree.
-            int coins = context.shop().recordSession(played);
+            int coins = context.shop().recordSession(played, selectedLoader());
             if (coins > 0) {
                 context.notifications().success(I18n.tr("support.title"),
                         I18n.tr("support.earned", coins));
             }
+            announceChallenges();
             gameStartedAt = 0;
         }
         setLaunching(false);

@@ -1,5 +1,7 @@
 package com.minicube.launcher.ui.view;
 
+import com.minicube.launcher.model.PlayerStats;
+import com.minicube.launcher.service.Challenges;
 import com.minicube.launcher.ui.Cosmetics;
 import com.minicube.launcher.ui.Icons;
 import com.minicube.launcher.ui.Styles;
@@ -10,13 +12,16 @@ import javafx.css.PseudoClass;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Label;
+import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Consumer;
 
 /**
@@ -44,6 +49,8 @@ public class SupportView {
     private final ThemedAnimation animation = new ThemedAnimation();
     /** Cartes des habillages, retrouvees pour rafraichir leur etat. */
     private final Map<String, PackCard> packCards = new LinkedHashMap<>();
+    /** Lignes de defis, retrouvees pour rafraichir leur avancement. */
+    private final Map<String, ChallengeRow> challengeRows = new LinkedHashMap<>();
 
     private final Label balanceLabel = new Label();
     private final Label earnedLabel = Ui.hint("");
@@ -52,7 +59,83 @@ public class SupportView {
 
     public SupportView() {
         root = Ui.page(I18n.tr("support.title"), I18n.tr("support.subtitle"),
-                hero(), packsCard(), plannedCard());
+                hero(), challengesCard(), packsCard(), plannedCard());
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Defis                                                               */
+    /* ------------------------------------------------------------------ */
+
+    private VBox challengesCard() {
+        VBox rows = new VBox(2);
+        Challenges.all().forEach(challenge -> {
+            ChallengeRow row = new ChallengeRow(challenge);
+            challengeRows.put(challenge.id(), row);
+            rows.getChildren().add(row.node);
+        });
+        return Ui.card(I18n.tr("challenge.title"),
+                Ui.hint(I18n.tr("challenge.hint")), rows);
+    }
+
+    /**
+     * Une ligne de defi : ce qu'il demande, ou l'on en est, ce qu'il rapporte.
+     *
+     * <p>La barre reste affichee une fois le defi accompli, pleine. La faire disparaitre
+     * effacerait la trace de ce qu'on a fait, et ferait paraitre la carte plus vide a
+     * mesure qu'on avance — exactement l'inverse de ce qu'on veut montrer.</p>
+     */
+    private final class ChallengeRow {
+
+        private final HBox node;
+        private final Label progress = Ui.hint("");
+        private final Label reward;
+        private final ProgressBar bar = new ProgressBar(0);
+
+        private ChallengeRow(Challenges.Challenge challenge) {
+            Label name = new Label(I18n.tr("challenge." + challenge.id()));
+            name.getStyleClass().add("setting-label");
+
+            bar.getStyleClass().add("challenge-bar");
+            bar.setPrefWidth(150);
+            bar.setMinWidth(150);
+
+            reward = Ui.badge(I18n.tr("support.price", challenge.reward()), "chip-label");
+
+            VBox texts = new VBox(4, name, progress);
+            HBox.setHgrow(texts, Priority.ALWAYS);
+
+            node = new HBox(14, texts, bar, reward);
+            node.setAlignment(Pos.CENTER_LEFT);
+            node.getStyleClass().add("setting-row");
+        }
+
+        private void apply(Challenges.Challenge challenge, PlayerStats stats,
+                           boolean claimed) {
+            bar.setProgress(challenge.ratio(stats));
+            progress.setText(I18n.tr("challenge.progress",
+                    challenge.progress(stats), challenge.target()));
+
+            reward.getStyleClass().removeAll("chip-accent", "chip-label");
+            reward.setText(claimed
+                    ? I18n.tr("challenge.claimed")
+                    : I18n.tr("support.price", challenge.reward()));
+            reward.getStyleClass().add(claimed ? "chip-accent" : "chip-label");
+        }
+    }
+
+    /**
+     * Met les defis a jour.
+     *
+     * @param stats compteurs du joueur
+     * @param claimed identifiants des defis deja payes
+     */
+    public void refreshChallenges(PlayerStats stats, Set<String> claimed) {
+        Challenges.all().forEach(challenge -> {
+            ChallengeRow row = challengeRows.get(challenge.id());
+            if (row != null) {
+                row.apply(challenge, stats, claimed.contains(challenge.id()));
+            }
+        });
     }
 
     /* ------------------------------------------------------------------ */

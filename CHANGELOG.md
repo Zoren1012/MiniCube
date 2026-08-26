@@ -13,6 +13,50 @@ emplacements changent ensemble ; `package.ps1` lit le premier et le transmet aux
 
 ---
 
+## 1.19.0 — 27 août 2026
+
+### Des défis pour gagner des pièces
+
+Payer à la minute récompensait l'attente : laisser le jeu ouvert rapportait autant que d'y
+jouer. Sept défis récompensent maintenant ce qu'on **fait**.
+
+| Défi | Condition | Récompense |
+|---|---|---|
+| Première partie | 1 partie | 100 |
+| Habitué | 10 parties | 250 |
+| Marathon | 60 minutes | 200 |
+| Vétéran | 600 minutes | 500 |
+| Moddeur | 1 partie moddée | 250 |
+| Bricoleur | 3 chargeurs différents | 400 |
+| Collectionneur | 5 habillages débloqués | 400 |
+
+- **Rien à réclamer.** Un défi n'est pas un événement qu'on aurait pu manquer : c'est une
+  **condition relue** sur vos compteurs. Un défi rempli pendant que le launcher était
+  fermé — ou ajouté par une mise à jour — se verse à la prochaine ouverture, et aucun ne
+  peut être perdu parce que le launcher s'est fermé au mauvais moment.
+- Les récompenses sont annoncées **une par une**. Trois défis tombés ensemble mais
+  annoncés d'un bloc donneraient l'impression d'un seul.
+- **OptiFine ne compte pas comme partie moddée** : il n'ajoute pas de mods. Il compte en
+  revanche comme un chargeur distinct pour le Bricoleur.
+
+### Ce que le launcher observe
+
+- Un `PlayerStats` réduit à cinq nombres — parties, minutes, chargeurs distincts, parties
+  moddées, habillages possédés. Les défis se lisent là-dessus et sur rien d'autre.
+- Sans lui, chaque défi irait interroger un service différent et deviendrait **impossible
+  à vérifier sans lancer toute l'application**. Là, les sept se testent sur un record.
+- Le chargeur vient de `InstalledVersion`, qui le détectait déjà : rien à redétecter.
+
+### Vérifications
+
+- `ShopCheck` passe de 47 à **67 contrôles**. Les vingt nouveaux portent sur ce qui
+  pourrait faire perdre ou dupliquer des pièces : un second appel ne reverse rien,
+  OptiFine ne valide pas le Moddeur, deux fois le même chargeur n'en font qu'un, un
+  chargeur vide n'est pas compté, les compteurs survivent au rechargement.
+- Suite complète : **316 vérifications**.
+
+---
+
 ## 1.18.0 — 27 août 2026
 
 ### Les styles ne sont plus dans l'onglet Style

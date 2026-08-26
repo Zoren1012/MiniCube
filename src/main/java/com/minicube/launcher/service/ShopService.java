@@ -1,6 +1,7 @@
 package com.minicube.launcher.service;
 
 import com.minicube.launcher.core.LauncherPaths;
+import com.minicube.launcher.model.PlayerStats;
 import com.minicube.launcher.util.Json;
 import com.minicube.launcher.util.Log;
 import com.minicube.launcher.util.Safety;
@@ -26,8 +27,9 @@ import java.util.function.ToIntFunction;
  *
  * <h2>Le solde est calcule, pas stocke</h2>
  *
- * <p>Seuls le temps de jeu et la liste des articles possedes sont enregistres. Le solde
- * est la difference entre ce que ce temps a rapporte et le prix de ce qui est possede.
+ * <p>Seuls le temps de jeu, les defis accomplis et la liste des articles possedes sont
+ * enregistres. Le solde est la difference entre ce que tout cela a rapporte et le prix de
+ * ce qui est possede.
  * Un compteur de solde ecrit a part pourrait diverger de cette liste — apres une panne au
  * mauvais moment, ou quand le prix d'un article change d'une version a l'autre. Ici, la
  * question ne se pose pas : il n'y a qu'une seule source.</p>
@@ -56,14 +58,22 @@ public class ShopService {
     private static class Store {
         long playMinutes;
         int sessions;
+        int moddedSessions;
         List<String> owned = new ArrayList<>();
+        List<String> loaders = new ArrayList<>();
+        List<String> claimed = new ArrayList<>();
     }
 
     private final Set<String> owned = new LinkedHashSet<>();
+    /** Chargeurs deja utilises, un defi comptant leur variete. */
+    private final Set<String> loaders = new LinkedHashSet<>();
+    /** Defis deja payes : leur recompense ne se verse qu une fois. */
+    private final Set<String> claimed = new LinkedHashSet<>();
     private final List<Runnable> listeners = new ArrayList<>();
     private final ToIntFunction<String> priceOf;
     private long playMinutes;
     private int sessions;
+    private int moddedSessions;
 
     /**
      * @param priceOf prix d'un article, 0 pour un article offert ou inconnu ; le
@@ -91,9 +101,18 @@ public class ShopService {
             Store store = Json.read(path, new TypeToken<Store>() { }.getType());
             playMinutes = Math.max(0, store.playMinutes);
             sessions = Math.max(0, store.sessions);
+            moddedSessions = Math.max(0, store.moddedSessions);
             owned.clear();
+            loaders.clear();
+            claimed.clear();
             if (store.owned != null) {
                 owned.addAll(store.owned);
+            }
+            if (store.loaders != null) {
+                loaders.addAll(store.loaders);
+            }
+            if (store.claimed != null) {
+                claimed.addAll(store.claimed);
             }
             Log.info("Boutique : " + owned.size() + " article(s), " + balance() + " piece(s)");
         } catch (Exception e) {
@@ -102,8 +121,11 @@ public class ShopService {
             // regrettable, ce n'est pas grave.
             Log.warn("Boutique illisible, remise a neuf : " + e.getMessage());
             owned.clear();
+            loaders.clear();
+            claimed.clear();
             playMinutes = 0;
             sessions = 0;
+            moddedSessions = 0;
         }
     }
 
@@ -112,7 +134,10 @@ public class ShopService {
             Store store = new Store();
             store.playMinutes = playMinutes;
             store.sessions = sessions;
+            store.moddedSessions = moddedSessions;
             store.owned = new ArrayList<>(owned);
+            store.loaders = new ArrayList<>(loaders);
+            store.claimed = new ArrayList<>(claimed);
             Path path = file();
             Files.createDirectories(path.getParent());
             Json.write(path, store);
@@ -130,9 +155,10 @@ public class ShopService {
      * Comptabilise une partie terminee.
      *
      * @param millis duree de la partie
+     * @param loader chargeur de la version jouee : Vanilla, Fabric, Forge...
      * @return pieces gagnees, zero si la partie a ete trop courte pour compter
      */
-    public int recordSession(long millis) {
+    public int recordSession(long millis, String loader) {
         if (millis <= 0) {
             return 0;
         }
@@ -140,6 +166,13 @@ public class ShopService {
         int before = totalEarned();
         playMinutes += minutes;
         sessions++;
+        if (loader != null && !loader.isBlank()) {
+            loaders.add(loader);
+            // OptiFine n'ajoute pas de mods : il ne compte pas comme une partie moddee.
+            if (!"Vanilla".equalsIgnoreCase(loader) && !"OptiFine".equalsIgnoreCase(loader)) {
+                moddedSessions++;
+            }
+        }
         save();
         int gained = totalEarned() - before;
         notifyListeners();
@@ -147,11 +180,55 @@ public class ShopService {
         return gained;
     }
 
+    /* ------------------------------------------------------------------ */
+    /* Defis                                                               */
+    /* ------------------------------------------------------------------ */
+
+    /** Instantane des compteurs, tel que les defis le lisent. */
+    public PlayerStats stats() {
+        return new PlayerStats(sessions, playMinutes, loaders.size(), moddedSessions,
+                owned.size());
+    }
+
+    /**
+     * Verse les defis nouvellement accomplis.
+     *
+     * <p>Un defi est une condition relue, pas un evenement : appeler cette methode deux
+     * fois ne paie pas deux fois, et un defi rempli pendant que le launcher etait ferme
+     * est verse au demarrage suivant.</p>
+     *
+     * @return identifiants des defis payes a cet appel, vide si aucun
+     */
+    public synchronized List<String> claimCompletedChallenges() {
+        PlayerStats stats = stats();
+        List<String> justClaimed = new ArrayList<>();
+        for (Challenges.Challenge challenge : Challenges.all()) {
+            if (!claimed.contains(challenge.id()) && challenge.isComplete(stats)) {
+                claimed.add(challenge.id());
+                justClaimed.add(challenge.id());
+            }
+        }
+        if (justClaimed.isEmpty()) {
+            return List.of();
+        }
+        save();
+        notifyListeners();
+        Log.info("Boutique : defi(s) accompli(s) " + justClaimed);
+        return justClaimed;
+    }
+
+    /** Vrai si la recompense de ce defi a deja ete versee. */
+    public boolean isClaimed(String id) {
+        return claimed.contains(id);
+    }
+
     /** Tout ce que le joueur a gagne depuis le debut, prime de bienvenue comprise. */
     public int totalEarned() {
+        int rewards = claimed.stream().mapToInt(Challenges::rewardOf).sum();
         return WELCOME_COINS
                 + (int) Math.min(Integer.MAX_VALUE, playMinutes * COINS_PER_MINUTE)
-                + sessions * COINS_PER_SESSION;
+                + sessions * COINS_PER_SESSION
+                + rewards;
     }
 
     /** Somme des prix des articles possedes. */
