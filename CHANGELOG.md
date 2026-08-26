@@ -48,7 +48,12 @@ emplacements changent ensemble ; `package.ps1` lit le premier et le transmet aux
   `discord.gg`, passe le filtre des liens, la constante est `final`, et **aucun champ de
   `LauncherSettings` ne peut la remplacer**. Cette dernière vérification est le garde-fou
   de la promesse « non modifiable » : elle échouera le jour où quelqu'un ajoutera le
-  réglage. Suite complète : 152 vérifications.
+  réglage.
+- `IdleCheck` compte désormais les images de cette animation en plus de celles du fond :
+  **279 images fenêtre ouverte, 0 fenêtre réduite**. La mesure a servi : la mise en pause
+  n'était accrochée qu'à la fenêtre déjà attachée, or la page est construite avant que la
+  fenêtre existe — l'animation ne s'arrêtait donc jamais. La scène est maintenant
+  surveillée elle aussi. Suite complète : **154 vérifications**.
 
 ---
 

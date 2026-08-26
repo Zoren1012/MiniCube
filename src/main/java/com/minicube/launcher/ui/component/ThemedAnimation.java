@@ -19,7 +19,10 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Set;
+import java.util.WeakHashMap;
 
 /**
  * Animation d'attente, dessinee dans le langage du theme actif.
@@ -51,10 +54,13 @@ public class ThemedAnimation extends HBox {
             Color.web("#6E5334"), Color.web("#5FA83E"));
 
     private final List<Timeline> animations = new ArrayList<>();
+    /** Fenetres deja surveillees, pour ne pas empiler les ecouteurs. */
+    private final Set<Stage> watched = Collections.newSetFromMap(new WeakHashMap<>());
     private String theme = ThemeManager.DARK;
     private boolean visibleToUser = true;
 
     public ThemedAnimation() {
+        getStyleClass().add("themed-animation");
         setAlignment(Pos.CENTER_LEFT);
         setSpacing(10);
         setMinHeight(52);
@@ -170,19 +176,48 @@ public class ThemedAnimation extends HBox {
     /* Economie                                                            */
     /* ------------------------------------------------------------------ */
 
-    /** Suspend l'animation quand la fenetre est reduite ou l'onglet quitte l'ecran. */
+    /**
+     * Suspend l'animation quand la fenetre est reduite, fermee, ou quand la page quitte
+     * la scene.
+     *
+     * <p>La fenetre n'est pas toujours attachee au moment ou la vue rejoint la scene :
+     * ecouter seulement {@code scene.getWindow()} laisserait l'animation tourner pour
+     * toujours. La scene est donc surveillee elle aussi.</p>
+     */
     private void watchWindow() {
         sceneProperty().addListener((observable, oldScene, scene) -> {
             if (scene == null) {
                 setActive(false);
                 return;
             }
-            setActive(true);
+            scene.windowProperty().addListener((watched, oldWindow, window) -> {
+                if (window instanceof Stage stage) {
+                    bindTo(stage);
+                }
+            });
             if (scene.getWindow() instanceof Stage stage) {
-                stage.iconifiedProperty().addListener(
-                        (watched, before, iconified) -> setActive(!iconified));
+                bindTo(stage);
+            } else {
+                setActive(true);
             }
         });
+    }
+
+    /** Une fenetre reduite ou fermee ne montre rien : inutile de l'animer. */
+    private void bindTo(Stage stage) {
+        if (!watched.add(stage)) {
+            refreshFrom(stage);
+            return;
+        }
+        stage.iconifiedProperty().addListener(
+                (observable, before, iconified) -> refreshFrom(stage));
+        stage.showingProperty().addListener(
+                (observable, before, showing) -> refreshFrom(stage));
+        refreshFrom(stage);
+    }
+
+    private void refreshFrom(Stage stage) {
+        setActive(stage.isShowing() && !stage.isIconified());
     }
 
     private void setActive(boolean active) {
