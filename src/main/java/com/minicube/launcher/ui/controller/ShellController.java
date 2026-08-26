@@ -160,7 +160,8 @@ public class ShellController {
                 return Ui.scroll(support.root());
             }
             case STYLE -> {
-                style = new StyleController(context, stage, this::applyTheme);
+                style = new StyleController(context, stage, this::applyTheme,
+                        () -> showTab(ShellView.Tab.SUPPORT));
                 return Ui.scroll(style.root());
             }
             case PERFORMANCE -> {

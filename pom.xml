@@ -7,7 +7,7 @@
 
     <groupId>com.minicube</groupId>
     <artifactId>minicube</artifactId>
-    <version>1.17.0</version>
+    <version>1.18.0</version>
     <packaging>jar</packaging>
 
     <name>MiniCube</name>

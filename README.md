@@ -286,9 +286,9 @@ relevés sur un fil séparé, jamais sur celui de l'interface.
 
 ## Style et thèmes
 
-L'onglet **Style** rassemble l'apparence : le thème, la couleur d'accent et l'image de
-fond. Le thème se choisit sur un aperçu miniature — sept ambiances très différentes
-cohabitent, et un nom seul ne dit pas laquelle on prend.
+Sept ambiances très différentes cohabitent. Elles se choisissent dans la
+[Boutique](#boutique), sur un aperçu miniature : un nom seul ne dit pas laquelle on
+prend. L'onglet **Style**, lui, ne garde que la couleur d'accent et l'image de fond.
 
 | Thème | Ce que c'est |
 |---|---|
@@ -456,7 +456,9 @@ peut pas en donner.
 
 ### Style
 
-Thème, couleur d'accent et image de fond. Voyez [Style et thèmes](#style-et-thèmes).
+La couleur d'accent et l'image de fond. Le style de la fenêtre, lui, se choisit dans la
+[Boutique](#boutique), où il va de pair avec sa couleur — les proposer aux deux endroits
+reviendrait à donner gratuitement ce que la Boutique demande de débloquer.
 
 ### Performances
 

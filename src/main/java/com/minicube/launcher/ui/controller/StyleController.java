@@ -2,6 +2,7 @@ package com.minicube.launcher.ui.controller;
 
 import com.minicube.launcher.core.LauncherContext;
 import com.minicube.launcher.model.LauncherSettings;
+import com.minicube.launcher.ui.Styles;
 import com.minicube.launcher.ui.view.StyleView;
 import com.minicube.launcher.util.I18n;
 import javafx.scene.Node;
@@ -22,13 +23,16 @@ public class StyleController {
     private final StyleView view = new StyleView();
     private final Window owner;
     private final Runnable onThemeChanged;
+    private final Runnable onOpenShop;
 
-    public StyleController(LauncherContext context, Window owner, Runnable onThemeChanged) {
+    public StyleController(LauncherContext context, Window owner, Runnable onThemeChanged,
+                           Runnable onOpenShop) {
         this.context = context;
         this.owner = owner;
         this.onThemeChanged = onThemeChanged;
+        this.onOpenShop = onOpenShop;
 
-        view.setOnThemePicked(this::applyPickedTheme);
+        view.openShopButton().setOnAction(event -> onOpenShop.run());
         view.accentPicker().setOnAction(event -> applyAccent(view.accentHex()));
         view.resetAccentButton().setOnAction(event -> applyAccent(""));
         view.browseBackgroundButton().setOnAction(event -> browseBackground());
@@ -49,27 +53,16 @@ public class StyleController {
      */
     public void refresh() {
         LauncherSettings settings = context.config().settings();
-        view.markActiveTheme(settings.getTheme());
         String accent = settings.getAccentColor();
-        view.setAccentHex(accent.isBlank() ? "#7C5CFF" : accent);
+        // Une couleur vide signifie "celle du style" : afficher un violet fixe mentirait
+        // des que le style courant n est pas le sombre.
+        view.setAccentHex(accent.isBlank() ? styleAccent() : accent);
         view.backgroundPath().setText(settings.getBackgroundImage());
     }
 
-    /* ------------------------------------------------------------------ */
-    /* Theme                                                               */
-    /* ------------------------------------------------------------------ */
-
-    private void applyPickedTheme() {
-        String theme = view.pendingTheme();
-        if (theme.equals(context.config().settings().getTheme())) {
-            return;
-        }
-        context.config().settings().setTheme(theme);
-        context.config().save();
-        view.markActiveTheme(theme);
-        onThemeChanged.run();
-        context.notifications().info(I18n.tr("style.title"),
-                I18n.tr("style.theme.applied", I18n.tr("style.theme." + theme)));
+    /** Couleur d accent native du style courant. */
+    private String styleAccent() {
+        return Styles.of(context.config().settings().getTheme()).accent();
     }
 
     /* ------------------------------------------------------------------ */
@@ -81,7 +74,7 @@ public class StyleController {
         context.config().save();
         onThemeChanged.run();
         if (hex.isBlank()) {
-            view.setAccentHex("#7C5CFF");
+            view.setAccentHex(styleAccent());
         }
     }
 

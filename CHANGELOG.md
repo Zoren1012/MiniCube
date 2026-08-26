@@ -13,6 +13,29 @@ emplacements changent ensemble ; `package.ps1` lit le premier et le transmet aux
 
 ---
 
+## 1.18.0 — 27 août 2026
+
+### Les styles ne sont plus dans l'onglet Style
+
+- L'onglet Style listait les sept styles, gratuitement, pendant que la Boutique en faisait
+  payer quatre. **Autant supprimer la Boutique** : personne n'aurait dépensé une pièce
+  pour ce qui était à portée de clic dans l'onglet d'à côté.
+- L'onglet Style ne garde donc que ce qui ne s'achète pas : la **couleur d'accent** et
+  l'**image de fond**. Une carte en tête dit où les habillages sont passés et y emmène —
+  un onglet nommé Style qui ne propose plus de style se lirait autrement comme une panne.
+- La Boutique devient le seul chemin vers un style. Une vérification l'exige : **chaque
+  style du catalogue doit être proposé par au moins un habillage**, faute de quoi il
+  serait devenu inaccessible.
+
+### Le sélecteur de couleur mentait
+
+- Quand aucune couleur n'était choisie, il affichait `#7C5CFF` — le violet du thème
+  sombre — **quel que soit le style appliqué**. Sous Nether, le bouton « Couleur du
+  thème » proposait donc du violet.
+- Il affiche maintenant la couleur native du style courant.
+
+---
+
 ## 1.17.0 — 27 août 2026
 
 ### Le bug : un style choisi ne survivait pas au redémarrage

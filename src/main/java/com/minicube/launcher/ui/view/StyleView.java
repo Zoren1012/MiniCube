@@ -1,39 +1,29 @@
 package com.minicube.launcher.ui.view;
 
 import com.minicube.launcher.ui.Icons;
-import com.minicube.launcher.ui.Styles;
-import com.minicube.launcher.ui.ThemeManager;
 import com.minicube.launcher.ui.Ui;
 import com.minicube.launcher.util.I18n;
-import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
-import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
-import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
-import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 
-import java.util.LinkedHashMap;
-import java.util.Map;
 
 /**
  * Onglet Style : apparence du launcher.
  *
- * <p>Le theme se choisit sur un apercu plutot que dans une liste deroulante. Trois
- * ambiances tres differentes cohabitent — le verre translucide, sa version claire, et
- * l'habillage Minecraft — et un nom seul ne dit pas laquelle on prend.</p>
+ * <p>Les habillages — style et couleur ensemble — vivent dans la Boutique. Cet onglet
+ * ne garde que ce qui ne s achete pas : la couleur d accent et l image de fond. Les
+ * proposer aux deux endroits reviendrait a donner gratuitement ce que la Boutique
+ * demande de debloquer.</p>
  */
 public class StyleView {
 
     private final VBox root;
-
-    /** Vignettes d'apercu, une par theme, retrouvees pour marquer celle qui est active. */
-    private final Map<String, VBox> themeCards = new LinkedHashMap<>();
 
     private final ColorPicker accentPicker = new ColorPicker();
     private final Button resetAccentButton =
@@ -45,12 +35,12 @@ public class StyleView {
     private final Button clearBackgroundButton =
             Ui.iconButton(Icons.CLOSE, I18n.tr("settings.background.clear"));
 
-    private Runnable onThemePicked = () -> { };
-    private String pendingTheme = ThemeManager.DARK;
+    private final Button openShopButton =
+            Ui.secondaryButton(I18n.tr("style.looks.open"), Icons.HEART);
 
     public StyleView() {
         root = Ui.page(I18n.tr("style.title"), I18n.tr("style.subtitle"),
-                themeCard(), accentCard(), backgroundCard());
+                looksCard(), accentCard(), backgroundCard());
     }
 
     public VBox root() {
@@ -58,81 +48,19 @@ public class StyleView {
     }
 
     /* ------------------------------------------------------------------ */
-    /* Themes                                                              */
+    /* Habillages                                                          */
     /* ------------------------------------------------------------------ */
 
-    private VBox themeCard() {
-        FlowPane grid = new FlowPane(16, 16);
-        ThemeManager.ALL.forEach(theme -> grid.getChildren().add(themePreview(theme)));
-        return Ui.card(I18n.tr("style.theme"), Ui.hint(I18n.tr("style.theme.hint")), grid);
-    }
-
     /**
-     * Vignette d'un theme : une maquette miniature de la fenetre.
+     * Renvoie vers la Boutique.
      *
-     * <p>Les couleurs viennent du catalogue, pas de la feuille de style appliquee :
-     * l'apercu doit montrer le style <b>qu'il represente</b>, pas celui qui est a
-     * l'ecran. Un style ajoute au catalogue apparait donc ici sans rien changer.</p>
+     * <p>Sans cette carte, un onglet nomme Style qui ne propose plus de style se lirait
+     * comme une regression. Elle dit ou les habillages sont passes, et y emmene.</p>
      */
-    private VBox themePreview(String theme) {
-        Styles.Style style = Styles.of(theme);
-        // Les styles mats du launcher officiel n'ont aucun arrondi : la vignette doit
-        // le montrer, c'est la difference qu'on voit en premier.
-        int radius = style.matte() ? 0 : 8;
-
-        Region sidebar = block(34, 96, style.surface(), radius);
-        VBox lines = new VBox(6, block(96, 10, style.surface(), radius),
-                block(74, 10, style.surface(), radius),
-                block(60, 20, style.accent(), radius));
-        lines.setAlignment(Pos.TOP_LEFT);
-
-        HBox mock = new HBox(8, sidebar, lines);
-        mock.setPadding(new Insets(10));
-        mock.setStyle("-fx-background-color: " + style.panel() + ";"
-                + "-fx-background-radius: " + radius + ";");
-
-        // L etiquette suit le theme courant, pas celui qu elle decrit : ecrite dans la
-        // couleur du theme clair, elle disparaitrait sur une carte sombre.
-        Label name = new Label(I18n.tr("style.theme." + theme));
-        name.getStyleClass().add("setting-label");
-
-        VBox card = new VBox(12, mock, name);
-        card.getStyleClass().addAll("card", "theme-card");
-        card.setPadding(new Insets(14));
-        card.setMinWidth(200);
-        card.setPrefWidth(200);
-        card.setOnMouseClicked(event -> {
-            pendingTheme = theme;
-            onThemePicked.run();
-        });
-        themeCards.put(theme, card);
-        return card;
-    }
-
-    private Region block(double width, double height, String color, int radius) {
-        Region region = new Region();
-        region.setMinSize(width, height);
-        region.setPrefSize(width, height);
-        region.setMaxSize(width, height);
-        region.setStyle("-fx-background-color: " + color + ";"
-                + "-fx-background-radius: " + radius + ";");
-        return region;
-    }
-
-    /** Entoure d'un liseré la vignette du theme actif. */
-    public void markActiveTheme(String theme) {
-        themeCards.forEach((key, card) ->
-                card.pseudoClassStateChanged(
-                        javafx.css.PseudoClass.getPseudoClass("selected"),
-                        key.equals(theme)));
-    }
-
-    public String pendingTheme() {
-        return pendingTheme;
-    }
-
-    public void setOnThemePicked(Runnable action) {
-        this.onThemePicked = action;
+    private VBox looksCard() {
+        HBox row = new HBox(12, openShopButton);
+        row.setAlignment(Pos.CENTER_LEFT);
+        return Ui.card(I18n.tr("style.looks"), Ui.hint(I18n.tr("style.looks.hint")), row);
     }
 
     /* ------------------------------------------------------------------ */
@@ -180,6 +108,10 @@ public class StyleView {
 
     public Button clearBackgroundButton() {
         return clearBackgroundButton;
+    }
+
+    public Button openShopButton() {
+        return openShopButton;
     }
 
     /** Couleur affichee par le selecteur, au format hexadecimal. */
