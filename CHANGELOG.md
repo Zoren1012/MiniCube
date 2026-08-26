@@ -13,6 +13,39 @@ emplacements changent ensemble ; `package.ps1` lit le premier et le transmet aux
 
 ---
 
+## 1.13.0 — 26 août 2026
+
+### Le mod devient obligatoire
+
+- **MiniCube HUD est désormais installé d'office et non désactivable.** Le launcher lit le
+  manifeste des mods requis à l'adresse de la **dernière publication** du dépôt — celle-ci
+  suit automatiquement la version la plus récente, sans rien à reconfigurer.
+- Le manifeste est **généré à la fabrication**, avec l'empreinte SHA-1 réelle du jar qui
+  vient d'être construit. Une empreinte figée dans le dépôt serait fausse dès la
+  compilation suivante : Gradle ne produit pas deux jars identiques à l'octet près.
+- Le jar du mod et son manifeste sont joints à chaque publication GitHub, à côté de
+  l'installeur.
+- L'onglet *Mods* refusait déjà de désactiver ou de supprimer un mod requis, côté interface
+  comme côté service. Rien n'a eu à changer là.
+
+> **Un mod client ne peut pas être imposé par un serveur.** Rien ne permet de vérifier de
+> façon fiable ce qui tourne chez un joueur : quiconque lance le jeu autrement que par
+> MiniCube pourra s'en passer. Ce que le launcher garantit, c'est que ses utilisateurs
+> l'auront toujours, à jour et intact.
+
+### Le menu du jeu aux couleurs de la communauté
+
+- **Une signature** en bas à gauche du menu principal : « MiniCube » et le nom de votre
+  communauté.
+- **Un bouton « Rejoindre »** sous ceux du jeu, qui connecte directement à votre serveur.
+  Il passe par le même chemin que le menu multijoueur : l'écran de connexion s'affiche,
+  avec ses messages d'erreur habituels si le serveur est injoignable.
+- Placé **sous** les boutons du jeu, pas au milieu de la pile : insérer un bouton entre
+  eux les décalerait tous, et un joueur habitué cliquerait à côté.
+- Rien n'est retiré du menu, et les deux ajouts se coupent dans la configuration.
+
+---
+
 ## 1.12.0 — 26 août 2026
 
 ### Onglet Style

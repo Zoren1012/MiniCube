@@ -312,6 +312,27 @@ l'identité.
 qui les porte se densifie automatiquement tant qu'une image est en place : sans cela, une
 photographie chargée passerait au travers des cartes et rendrait les textes illisibles.
 
+---
+
+## Le mod MiniCube HUD
+
+Le projet livre aussi un **mod Fabric** : un panneau discret en jeu — coordonnées,
+direction, images par seconde, latence, heure et serveur — et un menu principal aux
+couleurs de votre communauté, avec un bouton qui rejoint votre serveur d'un clic.
+
+Il est **installé d'office et non désactivable** pour qui joue avec MiniCube. Le launcher
+lit le manifeste des mods requis à l'adresse de la dernière publication du dépôt ; ce
+manifeste est généré à la fabrication, avec l'empreinte réelle du jar. L'onglet *Mods*
+refuse ensuite de le désactiver ou de le supprimer.
+
+> **Un mod client ne peut pas être imposé par un serveur.** Rien ne permet de vérifier de
+> façon fiable ce qui tourne chez un joueur : quiconque lance le jeu autrement que par
+> MiniCube pourra s'en passer. Ce que le launcher garantit, c'est que ses utilisateurs
+> l'auront toujours, à jour et intact.
+
+Les sources sont dans [`mod/`](mod/), avec leur propre [README](mod/README.md). Le mod
+cible **Minecraft 1.21.11** et exige [Fabric API](https://modrinth.com/mod/fabric-api).
+
 ## Les onze onglets
 
 ### Accueil

@@ -49,6 +49,8 @@ public class MiniCubeHudClient implements ClientModInitializer {
                 Identifier.of(MOD_ID, "info-panel"),
                 new MiniCubeHudElement(config, toggleKey, cornerKey));
 
+        MiniCubeTitleScreen.register(config);
+
         LOGGER.info("MiniCube HUD pret");
     }
 }

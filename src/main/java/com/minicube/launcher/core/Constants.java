@@ -16,7 +16,7 @@ public final class Constants {
     /* ------------------------------------------------------------------ */
 
     public static final String APP_NAME = "MiniCube";
-    public static final String APP_VERSION = "1.12.0";
+    public static final String APP_VERSION = "1.13.0";
     /** Nom du dossier de travail cree dans le repertoire utilisateur. */
     public static final String APP_DIR_NAME = ".minicube";
     public static final String USER_AGENT = APP_NAME + "/" + APP_VERSION;
@@ -68,13 +68,27 @@ public final class Constants {
     /* Endpoints du projet (surchargeables)                                */
     /* ------------------------------------------------------------------ */
 
+    /** Depot GitHub surveille par defaut pour les mises a jour du launcher. */
+    public static final String DEFAULT_GITHUB_REPO = "Zoren1012/MiniCube";
+
     /** Laisser vide pour utiliser les donnees embarquees dans le jar. */
     public static final String DEFAULT_NEWS_URL = "";
     public static final String DEFAULT_SERVERS_URL = "";
-    public static final String DEFAULT_MODS_MANIFEST_URL = "";
+
+    /**
+     * Manifeste des mods requis, servi par la derniere publication du depot.
+     *
+     * <p>L'adresse {@code releases/latest/download} suit automatiquement la publication
+     * la plus recente : le manifeste y est genere a la fabrication, avec l'empreinte
+     * reelle du jar qui vient d'etre construit. Une empreinte figee dans le depot serait
+     * fausse des la compilation suivante, Gradle ne produisant pas deux jars identiques
+     * a l'octet pres.</p>
+     */
+    public static final String DEFAULT_MODS_MANIFEST_URL =
+            "https://github.com/" + DEFAULT_GITHUB_REPO
+                    + "/releases/latest/download/mods-manifest.json";
+
     public static final String DEFAULT_UPDATE_URL = "";
-    /** Depot GitHub surveille par defaut pour les mises a jour du launcher. */
-    public static final String DEFAULT_GITHUB_REPO = "Zoren1012/MiniCube";
     public static final String DEFAULT_CLOUD_SYNC_URL = "";
 
     /* ------------------------------------------------------------------ */

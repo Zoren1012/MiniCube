@@ -26,6 +26,19 @@ peut être utilisé sur un serveur sans rien demander à personne.
 
 ---
 
+## Le menu principal
+
+Le mod ajoute deux choses au menu du jeu, sans rien en retirer : les boutons d'origine
+restent a leur place, la ou les joueurs les cherchent.
+
+- Une **signature** discrete en bas a gauche : « MiniCube » et le nom de votre communaute.
+- Un bouton **Rejoindre &lt;serveur&gt;** sous les boutons du jeu, qui connecte directement.
+
+Les deux se coupent dans la configuration (`menuBranding`, `menuJoinButton`), et le bouton
+ne s'affiche pas tant que `serverAddress` est vide.
+
+---
+
 ## Utilisation
 
 | Touche | Effet |
@@ -55,6 +68,11 @@ Tout se règle dans `config/minicube-hud.json`, créé au premier lancement. Le 
   "showTime": true,
   "showServer": true,
   "margin": 6,
+  "menuBranding": true,
+  "menuJoinButton": true,
+  "communityName": "",
+  "serverName": "",
+  "serverAddress": "",
   "textColor": -1512235,
   "accentColor": -6519482,
   "backgroundColor": -1608515560

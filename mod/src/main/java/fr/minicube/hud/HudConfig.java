@@ -43,8 +43,21 @@ public class HudConfig {
     public boolean showTime = true;
     public boolean showServer = true;
 
-    /** Marge entre le panneau et le bord de l'ecran, en pixels. */
+    /** Marge entre le panneau et le bord de l ecran, en pixels. */
     public int margin = 6;
+
+    /* --- Menu principal --------------------------------------------- */
+
+    /** Signature MiniCube en bas du menu principal. */
+    public boolean menuBranding = true;
+    /** Bouton de connexion directe, ajoute sous ceux du jeu. */
+    public boolean menuJoinButton = true;
+    /** Nom de la communaute, affiche sous la signature. */
+    public String communityName = "";
+    /** Nom lisible du serveur, pour le bouton de connexion. */
+    public String serverName = "";
+    /** Adresse du serveur. Vide : le bouton ne s affiche pas. */
+    public String serverAddress = "";
 
     /** Couleur du texte, en ARGB. Le violet de MiniCube sert d'accent. */
     public int textColor = 0xFFE8EAF5;

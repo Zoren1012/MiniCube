@@ -74,6 +74,44 @@ jobs:
                       -Pattern 'APP_VERSION\s*=\s*"([^"]+)"').Matches[0].Groups[1].Value
           Compress-Archive -Path 'dist\MiniCube\*' -DestinationPath "dist\MiniCube-$version-windows.zip"
 
+      - name: Fabriquer le mod MiniCube HUD
+        # Le mod est publie avec le launcher : c'est ce qui permet au manifeste des mods
+        # requis de pointer vers une adresse stable, celle de cette publication.
+        shell: pwsh
+        working-directory: mod
+        run: .\gradlew.bat build --no-daemon
+
+      - name: Rassembler le mod et son manifeste
+        # Le manifeste est genere ici, avec l'empreinte reelle du jar qui vient d'etre
+        # construit : une empreinte figee dans le depot serait fausse des la compilation
+        # suivante, Gradle ne produisant pas deux jars identiques a l'octet pres.
+        shell: pwsh
+        run: |
+          $jar = Get-ChildItem 'mod\build\libs' -Filter 'minicube-hud-*.jar' |
+                 Where-Object { $_.Name -notmatch 'sources|dev' } | Select-Object -First 1
+          if (-not $jar) { throw "Aucun jar de mod produit dans mod/build/libs" }
+          Copy-Item $jar.FullName 'dist\'
+
+          $sha1 = (Get-FileHash $jar.FullName -Algorithm SHA1).Hash.ToLower()
+          $base = "https://github.com/${{ github.repository }}/releases/download/${{ github.ref_name }}"
+          $manifeste = [ordered]@{
+            mods = @([ordered]@{
+              id        = 'minicube-hud'
+              name      = 'MiniCube HUD'
+              version   = ($jar.BaseName -replace '^minicube-hud-', '')
+              fileName  = $jar.Name
+              url       = "$base/$($jar.Name)"
+              sha1      = $sha1
+              size      = $jar.Length
+              required  = $true
+              mcVersion = '1.21.11'
+              loader    = 'fabric'
+            })
+          }
+          $manifeste | ConvertTo-Json -Depth 5 |
+            Set-Content 'dist\mods-manifest.json' -Encoding utf8
+          Write-Host "$($jar.Name) -> $sha1"
+
       - name: Calculer les empreintes
         # MiniCube refuse d'installer une mise a jour dont il ne peut pas verifier
         # l'integrite. Chaque fichier publie est donc accompagne de son empreinte
@@ -96,7 +134,8 @@ jobs:
         run: |
           # Les .sha256 doivent accompagner les fichiers : sans eux, l'onglet Mise a
           # jour du launcher refusera la publication faute de pouvoir la verifier.
-          $fichiers = Get-ChildItem 'dist\*' -File -Include '*.exe', '*.zip', '*.sha256' |
+          $fichiers = Get-ChildItem 'dist\*' -File `
+                        -Include '*.exe', '*.zip', '*.sha256', '*.jar', 'mods-manifest.json' |
                       ForEach-Object { $_.FullName }
           gh release create "${{ github.ref_name }}" $fichiers `
             --title "MiniCube ${{ github.ref_name }}" `
