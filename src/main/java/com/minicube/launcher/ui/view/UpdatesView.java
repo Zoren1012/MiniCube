@@ -37,6 +37,10 @@ public class UpdatesView {
 
     private final VBox changelogCard;
     private final TextArea changelog = new TextArea();
+
+    /** Historique des versions publiees, avec leurs nouveautes. */
+    private final VBox historyCard;
+    private final VBox historyBox = new VBox(12);
     private final ProgressBar progress = new ProgressBar(0);
 
     public UpdatesView() {
@@ -74,8 +78,21 @@ public class UpdatesView {
         changelogCard.setVisible(false);
         changelogCard.setManaged(false);
 
+        historyCard = Ui.card(I18n.tr("updates.history"),
+                Ui.hint(I18n.tr("updates.history.hint")), historyBox);
+
         root = Ui.page(I18n.tr("updates.title"), I18n.tr("updates.subtitle"),
-                statusCard, changelogCard);
+                statusCard, changelogCard, historyCard);
+    }
+
+    /**
+     * Remplace le contenu de l'historique.
+     *
+     * <p>Chaque version y figure avec ses nouveautes : ce qui a change vaut d'etre lu
+     * avant de mettre a jour, et pas seulement quand une nouvelle version existe.</p>
+     */
+    public VBox historyBox() {
+        return historyBox;
     }
 
     /**

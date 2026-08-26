@@ -412,6 +412,9 @@ Mesures en direct, analyse de votre machine et état de vos serveurs. Voyez
 
 ### Mise à jour
 
+L'état de votre version, et un **historique** des publications avec ce qui a changé dans
+chacune — lisible même quand vous êtes déjà à jour.
+
 ![L'onglet Mise à jour](docs/images/updates.png)
 
 MiniCube surveille les **publications de votre dépôt GitHub**. Renseignez le dépôt au

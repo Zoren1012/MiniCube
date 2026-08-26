@@ -4,11 +4,17 @@ import com.minicube.launcher.core.Constants;
 import com.minicube.launcher.core.LauncherContext;
 import com.minicube.launcher.service.UpdateService;
 import com.minicube.launcher.ui.Confirm;
+import com.minicube.launcher.ui.Ui;
 import com.minicube.launcher.ui.view.UpdatesView;
 import com.minicube.launcher.util.Fx;
 import com.minicube.launcher.util.I18n;
 import com.minicube.launcher.util.Safety;
+import javafx.geometry.Pos;
 import javafx.scene.Node;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 import javafx.stage.Window;
 
 import java.nio.file.Path;
@@ -41,10 +47,89 @@ public class UpdatesController {
 
         describeInstall();
         describeSource();
+        loadHistory();
     }
 
     public Node root() {
         return view.root();
+    }
+
+    /* ------------------------------------------------------------------ */
+    /* Historique des versions                                             */
+    /* ------------------------------------------------------------------ */
+
+    /** Nombre de versions rapportees : de quoi couvrir plusieurs mois sans noyer la page. */
+    private static final int HISTORY_SIZE = 15;
+
+    /**
+     * Charge l'historique des publications.
+     *
+     * <p>Independant de la verification de mise a jour : ce qui a change se lit meme
+     * quand on est deja a jour, ne serait-ce que pour retrouver quand telle chose est
+     * arrivee.</p>
+     */
+    private void loadHistory() {
+        view.historyBox().getChildren().setAll(Ui.hint(I18n.tr("updates.history.loading")));
+
+        Fx.async(() -> context.updates().fetchReleaseHistory(HISTORY_SIZE), notes -> {
+            view.historyBox().getChildren().clear();
+            if (notes.isEmpty()) {
+                view.historyBox().getChildren().add(
+                        Ui.hint(I18n.tr("updates.history.none")));
+                return;
+            }
+            notes.forEach(note -> view.historyBox().getChildren().add(historyEntry(note)));
+        }, error -> view.historyBox().getChildren().setAll(
+                Ui.hint(I18n.tr("updates.history.failed", error.getMessage()))));
+    }
+
+    /**
+     * Une version de l'historique.
+     *
+     * <p>La version installee et celles plus recentes sont signalees : sans ce reperage,
+     * une liste de numeros ne dit pas ou l'on se situe.</p>
+     */
+    private Node historyEntry(UpdateService.ReleaseNote note) {
+        Label version = new Label("MiniCube " + note.version());
+        version.getStyleClass().add("setting-label");
+
+        HBox header = new HBox(10, version);
+        header.setAlignment(Pos.CENTER_LEFT);
+
+        if (note.installed()) {
+            header.getChildren().add(badge(I18n.tr("updates.history.installed"),
+                    "status-online"));
+        } else if (note.newer()) {
+            header.getChildren().add(badge(I18n.tr("updates.history.newer"), "chip-accent"));
+        }
+        if (!note.dateLabel().isEmpty()) {
+            header.getChildren().addAll(Ui.growSpacer(), Ui.hint(note.dateLabel()));
+        }
+
+        VBox entry = new VBox(6, header);
+
+        String notes = note.plainNotes();
+        if (!notes.isBlank()) {
+            Label body = Ui.hint(notes);
+            body.setWrapText(true);
+            body.setMaxWidth(760);
+            entry.getChildren().add(body);
+        }
+        if (!note.url().isBlank()) {
+            Button page = Ui.secondaryButton(I18n.tr("updates.openPage"), null);
+            page.setOnAction(event -> Safety.openWebLink(note.url()));
+            HBox row = new HBox(page);
+            row.setAlignment(Pos.CENTER_LEFT);
+            entry.getChildren().add(row);
+        }
+        entry.getStyleClass().add("setting-row");
+        return entry;
+    }
+
+    private Label badge(String text, String style) {
+        Label label = new Label(text);
+        label.getStyleClass().addAll("chip", "chip-label", style);
+        return label;
     }
 
     /** Rappelle comment MiniCube a ete installe : cela determine ce qui sera telecharge. */
@@ -102,6 +187,9 @@ public class UpdatesController {
                                 formatDate(pending.publishedAt())),
                         null);
                 view.setChangelog(pending.changelog());
+                // Une nouvelle version vient d etre trouvee : l historique la contient
+                // desormais, il doit etre relu.
+                loadHistory();
                 view.setUpdateAvailable(true);
             }
             case UP_TO_DATE -> view.setStatus(I18n.tr("updates.upToDate"),

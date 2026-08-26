@@ -137,9 +137,33 @@ jobs:
           $fichiers = Get-ChildItem 'dist\*' -File `
                         -Include '*.exe', '*.zip', '*.sha256', '*.jar', 'mods-manifest.json' |
                       ForEach-Object { $_.FullName }
+          # Les notes reprennent la section du CHANGELOG correspondant a cette version.
+          # Un texte generique identique d'une publication a l'autre ne dit rien de ce
+          # qui a change, et c'est pourtant ce que l'onglet Mise a jour affiche aux
+          # joueurs avant qu'ils n'installent.
+          $version = '${{ github.ref_name }}'.TrimStart('v')
+          $lignes = Get-Content 'CHANGELOG.md' -Encoding utf8
+          $debut = ($lignes | Select-String -Pattern "^## $([regex]::Escape($version)) " |
+                    Select-Object -First 1).LineNumber
+          if ($debut) {
+            $reste = $lignes[$debut..($lignes.Count - 1)]
+            $fin = ($reste | Select-String -Pattern '^## ' | Select-Object -First 1).LineNumber
+            $section = if ($fin) { $reste[0..($fin - 2)] } else { $reste }
+            $notes = ($section -join "`n").Trim()
+            # La section se termine par le separateur qui precede la version suivante :
+            # le garder afficherait deux traits horizontaux a la suite.
+            $notes = $notes.TrimEnd("-", "`n", "`r").Trim()
+          } else {
+            Write-Host "::warning::Aucune section $version dans CHANGELOG.md"
+            $notes = "Voir CHANGELOG.md pour le detail des changements."
+          }
+          $notes += "`n`n---`n`nInstalleur Windows, aucun prerequis : le runtime Java est inclus."
+          $notes += "`nLes fichiers .sha256 permettent au launcher de verifier l'integrite."
+          Set-Content 'dist\notes.md' -Value $notes -Encoding utf8
+
           gh release create "${{ github.ref_name }}" $fichiers `
             --title "MiniCube ${{ github.ref_name }}" `
-            --notes "Installeur Windows, aucun prerequis : le runtime Java est inclus.`n`nLes fichiers .sha256 permettent au launcher de verifier l'integrite de la mise a jour.`n`nVoir CHANGELOG.md pour le detail des changements."
+            --notes-file 'dist\notes.md'
 
       - name: Conserver les livrables meme sans etiquette
         if: "!startsWith(github.ref, 'refs/tags/')"

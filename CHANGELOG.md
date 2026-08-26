@@ -13,6 +13,36 @@ emplacements changent ensemble ; `package.ps1` lit le premier et le transmet aux
 
 ---
 
+## 1.14.0 — 26 août 2026
+
+### L'historique des versions dans l'onglet Mise à jour
+
+- **Une carte « Historique des versions »** liste les quinze dernières publications avec
+  ce qui a changé dans chacune, leur date et un lien vers la publication.
+- Elle est chargée **à l'ouverture de l'onglet**, indépendamment de la vérification de
+  mise à jour : savoir ce qui a changé vaut d'être lu même quand on est déjà à jour, ne
+  serait-ce que pour retrouver quand telle chose est arrivée.
+- Votre version y est signalée, et celles plus récentes aussi : sans ce repérage, une
+  liste de numéros ne dit pas où l'on se situe.
+
+### Les notes de publication disaient enfin quelque chose
+
+- **Le vrai problème n'était pas l'affichage.** Chaque publication portait le même texte
+  générique — « Installeur Windows, aucun prérequis… » — écrit en dur dans le workflow.
+  L'onglet affichait donc consciencieusement une phrase identique d'une version à l'autre.
+- Le workflow **extrait désormais du CHANGELOG la section de la version publiée** et
+  l'utilise comme notes. Si la section manque, un avertissement est émis dans la
+  fabrication plutôt que de publier en silence un texte creux.
+- Le balisage Markdown est **nettoyé pour l'affichage** : le launcher montre du texte
+  brut, où les `###` et les `**` resteraient visibles. Seul le balisage est retiré, pas
+  un mot du contenu.
+
+> Les publications déjà en ligne gardent leur texte générique : il est figé sur GitHub.
+> Pour le remplacer après coup :
+> `gh release edit v1.12.0 --notes-file notes.md`
+
+---
+
 ## 1.13.1 — 26 août 2026
 
 ### Le menu : deux défauts corrigés

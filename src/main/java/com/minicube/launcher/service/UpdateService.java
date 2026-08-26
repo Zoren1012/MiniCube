@@ -16,6 +16,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -331,6 +332,107 @@ public class UpdateService {
     }
 
     /** Retire le "v" des etiquettes de la forme v1.2.3. */
+    /**
+     * Une version publiee, telle qu'affichee dans l'historique.
+     *
+     * @param version     numero, sans le "v" de l'etiquette
+     * @param publishedAt date de publication, au format ISO ou vide
+     * @param notes       ce qui a change, tel que redige dans la publication
+     * @param url         page de la publication
+     * @param installed   true s'il s'agit de la version en cours d'execution
+     * @param newer       true si elle est plus recente que celle installee
+     */
+    public record ReleaseNote(String version, String publishedAt, String notes,
+                              String url, boolean installed, boolean newer) {
+
+        /**
+         * Les nouveautes debarrassees de leur balisage Markdown.
+         *
+         * <p>GitHub rend le Markdown ; le launcher affiche du texte brut, ou les
+         * {@code ###} et les {@code **} resteraient visibles et parasiteraient la
+         * lecture. Seul le balisage est retire : pas un mot du contenu.</p>
+         */
+        public String plainNotes() {
+            if (notes == null || notes.isBlank()) {
+                return "";
+            }
+            StringBuilder text = new StringBuilder();
+            for (String line : notes.split("\\R")) {
+                String cleaned = line.strip()
+                        .replaceAll("^#{1,6}\\s*", "")
+                        .replaceAll("\\*\\*([^*]+)\\*\\*", "$1")
+                        .replaceAll("`([^`]+)`", "$1")
+                        // Les liens Markdown gardent leur libelle, pas leur adresse.
+                        .replaceAll("\\[([^\\]]+)]\\([^)]+\\)", "$1")
+                        .replaceAll("^[-*]\\s+", "• ")
+                        .replaceAll("^>\\s*", "");
+                if (cleaned.matches("-{3,}")) {
+                    continue;
+                }
+                text.append(cleaned).append('\n');
+            }
+            return text.toString().strip();
+        }
+
+        /** Date lisible, ou chaine vide si la publication n'en porte pas. */
+        public String dateLabel() {
+            if (publishedAt == null || publishedAt.length() < 10) {
+                return "";
+            }
+            String iso = publishedAt.substring(0, 10);
+            return iso.substring(8) + "/" + iso.substring(5, 7) + "/" + iso.substring(0, 4);
+        }
+    }
+
+    /**
+     * Historique des versions publiees, de la plus recente a la plus ancienne.
+     *
+     * <p>Le detail de ce qui a change vaut d'etre lu <b>avant</b> de mettre a jour, et
+     * pas seulement quand une nouvelle version existe : savoir ce que l'on a manque, ou
+     * ce que l'on a deja, fait partie du suivi d'un projet.</p>
+     *
+     * <p>Methode bloquante : a appeler depuis un fil de fond. Les brouillons sont
+     * ecartes ; les versions preliminaires sont conservees mais signalees par leur
+     * numero, car elles font partie de l'histoire du projet.</p>
+     *
+     * @param limit nombre maximal de publications a rapporter
+     */
+    public List<ReleaseNote> fetchReleaseHistory(int limit) throws IOException {
+        String repository = config.settings().getGithubRepo().trim();
+        if (repository.isBlank()) {
+            return List.of();
+        }
+        Map<String, String> headers = new HashMap<>();
+        headers.put("Accept", "application/vnd.github+json");
+        headers.put("X-GitHub-Api-Version", "2022-11-28");
+
+        String body = Http.getString(
+                GITHUB_API + repository + "/releases?per_page=" + Math.min(limit, 30),
+                headers);
+
+        List<ReleaseNote> notes = new ArrayList<>();
+        for (JsonElement element : Json.parseArray(body)) {
+            if (!element.isJsonObject()) {
+                continue;
+            }
+            JsonObject release = element.getAsJsonObject();
+            if (Json.bool(release, "draft", false)) {
+                continue;
+            }
+            String version = normalizeVersion(Json.string(release, "tag_name", ""));
+            if (version.isBlank()) {
+                continue;
+            }
+            int comparison = compareVersions(version, Constants.APP_VERSION);
+            notes.add(new ReleaseNote(version,
+                    Json.string(release, "published_at", ""),
+                    Json.string(release, "body", "").trim(),
+                    Json.string(release, "html_url", ""),
+                    comparison == 0, comparison > 0));
+        }
+        return notes;
+    }
+
     private String normalizeVersion(String tag) {
         String cleaned = tag == null ? "" : tag.trim();
         if (cleaned.startsWith("v") || cleaned.startsWith("V")) {
