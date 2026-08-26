@@ -68,11 +68,6 @@ public class SettingsController {
             }
         });
         view.browseJavaButton().setOnAction(event -> browseJava());
-        view.browseBackgroundButton().setOnAction(event -> browseBackground());
-        view.clearBackgroundButton().setOnAction(event -> {
-            view.backgroundPath().clear();
-            save();
-        });
         view.changeGameDirButton().setOnAction(event -> changeGameDirectory());
         view.openGameDirButton().setOnAction(event ->
                 OsUtil.openFolder(context.paths().gameDir()));
@@ -114,10 +109,8 @@ public class SettingsController {
             view.ramValue().setText(formatRam(settings.getRamMb()));
             view.customJavaPath().setText(settings.getJavaPath());
             view.extraJvmArgs().setText(settings.getExtraJvmArgs());
-            view.themeChoice().getSelectionModel().select(settings.isDarkTheme() ? 0 : 1);
             view.languageChoice().getSelectionModel().select(
                     languageIndex(settings.getLanguage()));
-            view.backgroundPath().setText(settings.getBackgroundImage());
             view.keepLauncherOpen().setSelected(settings.isKeepLauncherOpen());
             view.notificationsEnabled().setSelected(settings.isNotificationsEnabled());
             view.debugMode().setSelected(settings.isDebugMode());
@@ -165,11 +158,8 @@ public class SettingsController {
         settings.setRamMb((int) view.ramSlider().getValue());
         settings.setJavaPath(view.customJavaPath().getText().trim());
         settings.setExtraJvmArgs(view.extraJvmArgs().getText().trim());
-        settings.setTheme(view.themeChoice().getSelectionModel().getSelectedIndex() == 1
-                ? ThemeManager.LIGHT : ThemeManager.DARK);
         settings.setLanguage(languageCode(
                 view.languageChoice().getSelectionModel().getSelectedIndex()));
-        settings.setBackgroundImage(view.backgroundPath().getText().trim());
         settings.setKeepLauncherOpen(view.keepLauncherOpen().isSelected());
         settings.setNotificationsEnabled(view.notificationsEnabled().isSelected());
         settings.setDebugMode(view.debugMode().isSelected());
@@ -230,18 +220,6 @@ public class SettingsController {
         java.io.File file = chooser.showOpenDialog(owner);
         if (file != null) {
             view.customJavaPath().setText(file.getAbsolutePath());
-        }
-    }
-
-    private void browseBackground() {
-        FileChooser chooser = new FileChooser();
-        chooser.setTitle(I18n.tr("settings.background.browse"));
-        chooser.getExtensionFilters().add(
-                new FileChooser.ExtensionFilter("Images", "*.png", "*.jpg", "*.jpeg"));
-        java.io.File file = chooser.showOpenDialog(owner);
-        if (file != null) {
-            view.backgroundPath().setText(file.getAbsolutePath());
-            save();
         }
     }
 

@@ -1,5 +1,6 @@
 package com.minicube.launcher.ui.component;
 
+import com.minicube.launcher.ui.ThemeManager;
 import com.minicube.launcher.util.Log;
 import javafx.animation.Interpolator;
 import javafx.animation.KeyFrame;
@@ -52,6 +53,8 @@ public class GlassBackground extends Pane {
     private final Pane halos = new Pane();
     private final List<Timeline> animations = new ArrayList<>();
     private boolean dark = true;
+    /** Faux pour le theme Minecraft, entierement mat. */
+    private boolean halosEnabled = true;
     /** Faux quand la fenetre est reduite : inutile d'animer ce que personne ne voit. */
     private boolean visibleToUser = true;
 
@@ -121,13 +124,18 @@ public class GlassBackground extends Pane {
     }
 
     /**
-     * Adapte la palette au theme courant.
+     * Adapte le fond au theme courant.
      *
-     * @param darkTheme true pour le theme sombre
+     * @param theme identifiant du theme : dark, light ou minecraft
      */
-    public void setDark(boolean darkTheme) {
-        if (this.dark != darkTheme) {
+    public void setTheme(String theme) {
+        boolean darkTheme = ThemeManager.isDark(theme);
+        // Le theme Minecraft est mat de bout en bout : des halos derivant derriere des
+        // panneaux opaques ne se verraient pas, et couteraient pour rien.
+        boolean wantHalos = !ThemeManager.MINECRAFT.equals(theme);
+        if (this.dark != darkTheme || this.halosEnabled != wantHalos) {
             this.dark = darkTheme;
+            this.halosEnabled = wantHalos;
             rebuild();
         }
     }
@@ -141,6 +149,9 @@ public class GlassBackground extends Pane {
         }
         stopAnimations();
         halos.getChildren().clear();
+        if (!halosEnabled) {
+            return;
+        }
 
         double reference = Math.max(width, height);
         // Le theme clair recoit des halos plus discrets : sur fond pale, la meme

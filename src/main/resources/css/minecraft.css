@@ -1,0 +1,338 @@
+/*
+ * MiniCube - theme Minecraft.
+ *
+ * Reprend le langage visuel du launcher officiel et des menus du jeu : des surfaces
+ * opaques et sombres, aucun angle arrondi, et des bordures en biseau — claire en haut a
+ * gauche, sombre en bas a droite — qui donnent aux boutons leur relief caracteristique.
+ * Le vert des boutons est celui du bouton JOUER officiel.
+ *
+ * C'est l'oppose exact du theme Liquid Glass : rien n'est translucide, rien n'est floute,
+ * rien ne brille. Melanger les deux donnerait un resultat batard ; ce fichier remplace
+ * donc aussi les regles de forme, pas seulement les couleurs.
+ */
+
+.root {
+    -color-bg: #191919;
+
+    -color-text: #FFFFFF;
+    -color-text-dim: #B8B8B8;
+    -color-text-faint: #8C8C8C;
+
+    /* Surfaces opaques : les panneaux du jeu ne laissent rien transparaitre. */
+    -color-glass: #313233;
+    -color-glass-soft: #2B2B2C;
+    -color-glass-strong: #3C3D3E;
+    -color-glass-bright: #4A4B4C;
+    -color-glass-panel: #232323;
+
+    -color-veil: #1D1D1D;
+    -color-veil-side: #161616;
+    -color-veil-strong: rgba(20, 20, 20, 0.88);
+    -color-veil-strong-side: rgba(14, 14, 14, 0.88);
+
+    -color-hairline: #3C3D3E;
+    -color-stroke: #4A4B4C;
+    -color-stroke-bright: #5C5D5E;
+    -color-shadow: rgba(0, 0, 0, 0.75);
+
+    /* Pas de reflet de verre : une surface mate reste mate. */
+    -color-sheen: transparent;
+    -color-edge: #4A4B4C;
+
+    /* Le vert du bouton JOUER officiel, et sa variante survolee. */
+    -color-accent: #3C8527;
+    -color-accent-2: #4CA032;
+    -color-accent-bright: #6FCF4A;
+    -color-accent-hover: #4CA032;
+    -color-accent-pressed: #2E6B1E;
+    -color-accent-veil: #2A5B1C;
+    -color-accent-glow: rgba(0, 0, 0, 0);
+
+    -color-success: #55FF55;
+    -color-warn: #FFAA00;
+    -color-warn-soft: #4A3A14;
+    -color-danger: #FF5555;
+    -color-danger-soft: #4A1E1E;
+
+    -color-console-bg: #0F0F0F;
+    -color-toast: #313233;
+    -color-popup: #232323;
+
+    /*
+     * La police est choisie a l'execution par ThemeManager, parmi celles reellement
+     * installees : JavaFX ne parcourt pas une liste de familles comme un navigateur.
+     */
+    -fx-font-size: 13px;
+}
+
+/* ------------------------------------------------------------------ */
+/* Formes : tout est carre                                             */
+/* ------------------------------------------------------------------ */
+
+.card,
+.hero,
+.stat-card,
+.chip,
+.button-base,
+.button-primary,
+.button-secondary,
+.button-danger,
+.button-icon,
+.play-button,
+.nav-button,
+.nav-indicator,
+.account-card,
+.player-head,
+.text-field,
+.password-field,
+.combo-box,
+.choice-box,
+.list-view,
+.severity-dot {
+    -fx-background-radius: 0;
+    -fx-border-radius: 0;
+}
+
+/*
+ * Biseau des panneaux : deux bordures superposees plutot qu'une seule. La premiere
+ * eclaire le haut et la gauche, la seconde assombrit le bas et la droite. C'est ce qui
+ * fait qu'un bouton de Minecraft parait sortir de l'ecran.
+ */
+.card,
+.hero,
+.stat-card {
+    -fx-background-color: -color-glass;
+    -fx-background-insets: 0;
+    -fx-border-color: #4A4B4C #131313 #131313 #4A4B4C;
+    -fx-border-width: 2;
+    -fx-effect: null;
+}
+
+.chip {
+    -fx-background-color: -color-glass-soft;
+    -fx-border-color: #454647 #161616 #161616 #454647;
+    -fx-border-width: 2;
+}
+
+/* ------------------------------------------------------------------ */
+/* Boutons                                                             */
+/* ------------------------------------------------------------------ */
+
+.button-base {
+    -fx-font-weight: normal;
+}
+
+.button-primary {
+    -fx-background-color: -color-accent;
+    -fx-border-color: #5FA83E #23511A #23511A #5FA83E;
+    -fx-border-width: 2;
+    -fx-effect: null;
+    -fx-text-fill: white;
+}
+
+.button-primary:hover {
+    -fx-background-color: -color-accent-hover;
+}
+
+.button-primary:pressed {
+    -fx-background-color: -color-accent-pressed;
+    /* Biseau inverse : le bouton parait s'enfoncer. */
+    -fx-border-color: #23511A #5FA83E #5FA83E #23511A;
+}
+
+.button-secondary,
+.button-icon {
+    -fx-background-color: #4E4E4E;
+    -fx-border-color: #6B6B6B #232323 #232323 #6B6B6B;
+    -fx-border-width: 2;
+    -fx-text-fill: -color-text;
+}
+
+.button-secondary:hover,
+.button-icon:hover {
+    -fx-background-color: #5E5E5E;
+}
+
+.button-secondary:pressed,
+.button-icon:pressed {
+    -fx-border-color: #232323 #6B6B6B #6B6B6B #232323;
+}
+
+.button-danger {
+    -fx-background-color: #8B2E2E;
+    -fx-border-color: #B94747 #4A1616 #4A1616 #B94747;
+    -fx-border-width: 2;
+    -fx-text-fill: #FFD8D8;
+}
+
+.button-danger:hover {
+    -fx-background-color: #A63838;
+}
+
+/* Le bouton JOUER : le meme vert, en plus grand, comme dans le launcher officiel. */
+.play-button {
+    -fx-background-color: -color-accent;
+    -fx-border-color: #5FA83E #23511A #23511A #5FA83E;
+    -fx-border-width: 3;
+    -fx-effect: null;
+    -fx-font-size: 17px;
+}
+
+.play-button:hover {
+    -fx-background-color: -color-accent-hover;
+    -fx-effect: null;
+}
+
+/* ------------------------------------------------------------------ */
+/* Structure                                                           */
+/* ------------------------------------------------------------------ */
+
+.sidebar {
+    -fx-background-color: -color-veil-side;
+    -fx-border-color: transparent #0E0E0E transparent transparent;
+    -fx-border-width: 0 2 0 0;
+}
+
+.content-area {
+    -fx-background-color: -color-veil;
+}
+
+.launch-bar {
+    -fx-background-color: -color-glass-panel;
+    -fx-border-color: #0E0E0E transparent transparent transparent;
+    -fx-border-width: 2 0 0 0;
+}
+
+.nav-indicator {
+    -fx-background-color: -color-accent-veil;
+    -fx-border-color: #4C8B36 #1B3D12 #1B3D12 #4C8B36;
+    -fx-border-width: 2;
+    -fx-effect: null;
+}
+
+.nav-button:selected .icon {
+    -fx-fill: -color-accent-bright;
+}
+
+.account-card {
+    -fx-background-color: -color-glass;
+    -fx-border-color: #4A4B4C #131313 #131313 #4A4B4C;
+    -fx-border-width: 2;
+}
+
+.player-head {
+    -fx-background-color: #202020;
+    -fx-border-color: #4A4B4C;
+    -fx-border-width: 2;
+}
+
+/* ------------------------------------------------------------------ */
+/* Champs et listes                                                    */
+/* ------------------------------------------------------------------ */
+
+.text-field,
+.password-field,
+.combo-box,
+.choice-box,
+.list-view {
+    -fx-background-color: #101010;
+    -fx-border-color: #0A0A0A #5A5A5A #5A5A5A #0A0A0A;
+    -fx-border-width: 2;
+    -fx-text-fill: -color-text;
+}
+
+.text-field:focused,
+.password-field:focused {
+    -fx-border-color: -color-accent-bright;
+}
+
+.list-view .list-cell:filled:selected {
+    -fx-background-color: -color-accent-veil;
+    -fx-text-fill: white;
+}
+
+/*
+ * Les interrupteurs redeviennent des cases a cocher : un rail arrondi n'existe nulle
+ * part dans Minecraft, alors qu'une case avec une croix verte y est partout.
+ */
+.check-box .box {
+    -fx-background-color: #101010;
+    -fx-border-color: #0A0A0A #5A5A5A #5A5A5A #0A0A0A;
+    -fx-border-width: 2;
+    -fx-pref-width: 24;
+    -fx-min-width: 24;
+    -fx-max-width: 24;
+    -fx-pref-height: 24;
+    -fx-min-height: 24;
+    -fx-max-height: 24;
+}
+
+.check-box .box .mark {
+    -fx-shape: "M2 6 L5 9 L10 1 L12 3 L5 12 L0 8 Z";
+    -fx-scale-shape: true;
+    -fx-background-color: transparent;
+    -fx-min-width: 14;
+    -fx-min-height: 14;
+    -fx-pref-width: 14;
+    -fx-pref-height: 14;
+    -fx-max-width: 14;
+    -fx-max-height: 14;
+    -fx-translate-x: 0;
+    -fx-effect: null;
+}
+
+.check-box:selected .box {
+    -fx-background-color: #101010;
+    -fx-border-color: #0A0A0A #5A5A5A #5A5A5A #0A0A0A;
+    -fx-effect: null;
+}
+
+.check-box:selected .box .mark {
+    -fx-background-color: -color-success;
+    -fx-translate-x: 0;
+}
+
+/* ------------------------------------------------------------------ */
+/* Details                                                             */
+/* ------------------------------------------------------------------ */
+
+.progress-bar > .bar,
+.launch-progress > .bar {
+    -fx-background-color: -color-accent;
+    -fx-background-radius: 0;
+}
+
+.progress-bar > .track,
+.launch-progress > .track {
+    -fx-background-color: #101010;
+    -fx-background-radius: 0;
+}
+
+.slider .thumb {
+    -fx-background-color: #8B8B8B;
+    -fx-background-radius: 0;
+    -fx-border-color: #C6C6C6 #373737 #373737 #C6C6C6;
+    -fx-border-width: 2;
+    -fx-effect: null;
+}
+
+.slider .track {
+    -fx-background-color: #101010;
+    -fx-background-radius: 0;
+}
+
+.page-title {
+    -fx-font-size: 26px;
+}
+
+.hero-title {
+    -fx-font-size: 26px;
+}
+
+.stat-value {
+    -fx-font-size: 22px;
+}
+
+.severity-dot {
+    -fx-background-radius: 0;
+}

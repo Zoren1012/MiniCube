@@ -254,6 +254,40 @@
     -fx-background-color: -color-danger;
 }
 
+/*
+ * Quand une image de fond est posee, les voiles se densifient. Une image chargee passe
+ * sinon au travers des cartes translucides et rend les textes illisibles : l'image doit
+ * rester une ambiance, pas concurrencer le contenu.
+ */
+.with-background .content-area {
+    -fx-background-color: -color-veil-strong;
+}
+
+.with-background .sidebar {
+    -fx-background-color: -color-veil-strong-side, -color-glass-panel;
+}
+
+.with-background .launch-bar {
+    -fx-background-color: -color-veil-strong, -color-glass-panel;
+}
+
+/*
+ * Vignette d'apercu de theme. Le liseré d'accent marque celle qui est active : sur
+ * trois maquettes cote a cote, rien d'autre ne dit laquelle est en place.
+ */
+.theme-card {
+    -fx-cursor: hand;
+}
+
+.theme-card:hover {
+    -fx-border-color: -color-stroke-bright;
+}
+
+.theme-card:selected {
+    -fx-border-color: -color-accent-bright;
+    -fx-border-width: 2;
+}
+
 /* Pastille : une information courte qui doit se rattacher a quelque chose. */
 .chip {
     -fx-background-color: -color-glass-soft;

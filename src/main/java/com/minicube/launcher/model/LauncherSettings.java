@@ -34,12 +34,14 @@ public class LauncherSettings {
 
     /* --- Interface ----------------------------------------------------- */
 
-    /** dark ou light. */
+    /** dark, light ou minecraft. */
     private String theme = "dark";
     /** Code de langue ISO 639-1 : fr, en. */
     private String language = "";
     /** Image de fond personnalisee ; vide = degrade par defaut. */
     private String backgroundImage = "";
+    /** Couleur d accent choisie par l utilisateur ; vide = celle du theme. */
+    private String accentColor = "";
     /** Garde la fenetre du launcher ouverte pendant la partie. */
     private boolean keepLauncherOpen = true;
     private boolean notificationsEnabled = true;
@@ -113,7 +115,8 @@ public class LauncherSettings {
         if (ramMb < Constants.MIN_RAM_MB) {
             ramMb = Constants.DEFAULT_RAM_MB;
         }
-        if (theme == null || (!theme.equals("dark") && !theme.equals("light"))) {
+        if (theme == null
+                || !java.util.List.of("dark", "light", "minecraft").contains(theme)) {
             theme = "dark";
         }
         if (language == null || language.isBlank()) {
@@ -208,6 +211,14 @@ public class LauncherSettings {
 
     public String getBackgroundImage() {
         return backgroundImage == null ? "" : backgroundImage;
+    }
+
+    public String getAccentColor() {
+        return accentColor == null ? "" : accentColor;
+    }
+
+    public void setAccentColor(String accentColor) {
+        this.accentColor = accentColor;
     }
 
     public void setBackgroundImage(String backgroundImage) {

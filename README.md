@@ -282,7 +282,37 @@ Deux économies concrètes : **le fond animé s'arrête quand la fenêtre est r�
 rend le processeur graphique au jeu pendant que vous jouez ; et les compteurs système sont
 relevés sur un fil séparé, jamais sur celui de l'interface.
 
-## Les dix onglets
+---
+
+## Style et thèmes
+
+L'onglet **Style** rassemble l'apparence : le thème, la couleur d'accent et l'image de
+fond. Le thème se choisit sur un aperçu miniature — trois ambiances très différentes
+cohabitent, et un nom seul ne dit pas laquelle on prend.
+
+| Thème | Ce que c'est |
+|---|---|
+| **Verre sombre** | Le thème par défaut : panneaux translucides, halos violets qui dérivent |
+| **Verre clair** | Le même langage, en clair |
+| **Minecraft** | L'habillage du launcher officiel : surfaces opaques, angles droits, biseaux, vert du bouton JOUER |
+
+Le thème Minecraft n'est pas une simple variante de couleurs : il remplace aussi les
+**formes**. Les interrupteurs y redeviennent des cases à cocher avec une croix verte, et
+le fond animé s'éteint — des halos derrière des panneaux opaques ne se verraient pas.
+
+> **La police du jeu n'est pas embarquée** : elle n'est pas redistribuable. MiniCube
+> l'utilise si vous l'avez installée sur votre machine, sinon il retient une police à
+> chasse fixe du système qui en donne l'esprit.
+
+**La couleur d'accent** se règle d'un seul choix : survol, appui, voile et lueur en sont
+dérivés. Elle n'a pas d'effet sur le thème Minecraft, dont le vert fait partie de
+l'identité.
+
+**L'image de fond** remplace les halos animés. Elle reste sous les panneaux, et le voile
+qui les porte se densifie automatiquement tant qu'une image est en place : sans cela, une
+photographie chargée passerait au travers des cartes et rendrait les textes illisibles.
+
+## Les onze onglets
 
 ### Accueil
 
@@ -349,6 +379,10 @@ Si votre projet publie un manifeste, les mods déclarés obligatoires sont tél�
 vérifiés avant chaque partie, et ne peuvent pas être désactivés.
 
 Pour poser le chargeur lui-même, voyez [Installer une version](#installer-une-version-vanilla-ou-moddée).
+
+### Style
+
+Thème, couleur d'accent et image de fond. Voyez [Style et thèmes](#style-et-thèmes).
 
 ### Performances
 

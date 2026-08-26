@@ -13,6 +13,48 @@ emplacements changent ensemble ; `package.ps1` lit le premier et le transmet aux
 
 ---
 
+## 1.12.0 — 26 août 2026
+
+### Onglet Style
+
+- Nouvel onglet **Style**, qui rassemble tout ce qui touche à l'apparence. Le thème se
+  choisit sur un **aperçu miniature** plutôt que dans une liste déroulante : trois
+  ambiances très différentes cohabitent, et un nom seul ne dit pas laquelle on prend.
+- **Couleur d'accent personnalisable.** Une seule couleur suffit : survol, appui, voile et
+  lueur en sont dérivés. Elle se repose sur la racine de la fenêtre, donc sans toucher aux
+  feuilles de style.
+- L'image de fond a rejoint cet onglet. Le thème et l'image ont été **retirés des
+  Paramètres** : les régler à deux endroits finissait par produire deux vérités.
+
+### Thème Minecraft
+
+- Un troisième thème reprend le langage visuel du launcher officiel et des menus du jeu :
+  **surfaces opaques et sombres, aucun angle arrondi, bordures en biseau** — claire en
+  haut à gauche, sombre en bas à droite — et le vert du bouton JOUER officiel.
+- C'est l'opposé exact du thème Liquid Glass, et le fichier de style le traite comme tel :
+  il remplace aussi les **formes**, pas seulement les couleurs. Les interrupteurs
+  redeviennent des cases à cocher avec une croix verte : un rail arrondi n'existe nulle
+  part dans Minecraft.
+- Le fond animé **s'éteint** sous ce thème : des halos dérivant derrière des panneaux
+  opaques ne se verraient pas, et coûteraient pour rien.
+- **La police du jeu n'est pas embarquée** — elle n'est pas redistribuable. MiniCube
+  l'utilise si vous l'avez installée, sinon il retient une police à chasse fixe du système
+  qui en donne l'esprit.
+
+### Corrections
+
+- **JavaFX ne parcourt pas une liste de polices** comme le fait un navigateur : il retient
+  la première et retombe sur la police par défaut si elle manque. Nommer « Minecraft » en
+  tête d'une liste ne servait donc à rien. Le choix se fait désormais à l'exécution, parmi
+  les familles réellement installées.
+- **Une image de fond rendait le contenu illisible.** Le voile posé sous le contenu était
+  calibré pour les halos, pas pour une photographie. Il se densifie maintenant tant qu'une
+  image est en place : l'image reste une ambiance au lieu de concurrencer les textes.
+- L'étiquette de l'aperçu « Verre clair » était écrite dans la couleur du thème qu'elle
+  décrit, donc invisible sur une carte sombre.
+
+---
+
 ## 1.11.0 — 26 août 2026
 
 ### Performances : ce que les mesures ont montré

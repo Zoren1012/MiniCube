@@ -3,22 +3,30 @@ package com.minicube.launcher.ui;
 import com.minicube.launcher.util.Log;
 import javafx.scene.Scene;
 import javafx.scene.layout.Region;
+import javafx.scene.text.Font;
 
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 
 /**
  * Application des feuilles de style et du fond personnalise.
  *
- * <p>Trois feuilles cohabitent : {@code base.css} definit la structure commune,
- * {@code dark.css} et {@code light.css} ne redefinissent que les couleurs. Changer de
- * theme revient donc a echanger une seule feuille, sans reconstruire l'interface.</p>
+ * <p>{@code base.css} definit la structure commune ; {@code dark.css} et
+ * {@code light.css} ne redefinissent que les couleurs. {@code minecraft.css} va plus
+ * loin et remplace aussi les formes : son langage visuel — angles droits, biseaux,
+ * surfaces opaques — est incompatible avec celui du verre.</p>
  */
 public final class ThemeManager {
 
     public static final String DARK = "dark";
     public static final String LIGHT = "light";
+    public static final String MINECRAFT = "minecraft";
+
+    /** Themes proposes, dans l'ordre d'affichage. */
+    public static final java.util.List<String> ALL =
+            java.util.List.of(DARK, LIGHT, MINECRAFT);
 
     private ThemeManager() {
     }
@@ -32,8 +40,23 @@ public final class ThemeManager {
     public static void apply(Scene scene, String theme) {
         scene.getStylesheets().clear();
         addStylesheet(scene, "/css/base.css");
-        addStylesheet(scene, LIGHT.equals(theme) ? "/css/light.css" : "/css/dark.css");
+        addStylesheet(scene, "/css/" + normalise(theme) + ".css");
         Log.debug("Theme applique : " + theme);
+    }
+
+    /** Ramene une valeur inconnue au theme sombre plutot que de laisser l'ecran nu. */
+    public static String normalise(String theme) {
+        return ALL.contains(theme) ? theme : DARK;
+    }
+
+    /**
+     * Vrai si le theme est fonce.
+     *
+     * <p>Sert au fond anime et aux composants dessines a la main, qui ne lisent pas la
+     * feuille de style.</p>
+     */
+    public static boolean isDark(String theme) {
+        return !LIGHT.equals(theme);
     }
 
     private static void addStylesheet(Scene scene, String resource) {
@@ -43,6 +66,77 @@ public final class ThemeManager {
             return;
         }
         scene.getStylesheets().add(url.toExternalForm());
+    }
+
+    /**
+     * Remplace la couleur d'accent du theme par celle choisie par l'utilisateur.
+     *
+     * <p>Les couleurs nommees de JavaFX se resolvent en remontant l'arbre : un style
+     * pose sur la racine redefinit donc {@code -color-accent} pour toute la fenetre,
+     * sans toucher aux feuilles de style. Les variantes — survol, appui, voile — sont
+     * derivees de la couleur de base, pour qu'il n'y ait qu'un reglage a fournir.</p>
+     *
+     * @param root  racine de la scene
+     * @param color couleur au format {@code #RRGGBB}, ou vide pour revenir au theme
+     */
+    public static void applyRootStyle(Region root, String theme, String color) {
+        StringBuilder style = new StringBuilder();
+        String font = fontFor(theme);
+        if (!font.isEmpty()) {
+            style.append("-fx-font-family: \"").append(font).append("\";");
+        }
+        style.append(accentStyle(color));
+        root.setStyle(style.toString());
+    }
+
+    /**
+     * Police du theme, choisie parmi celles reellement installees.
+     *
+     * <p>JavaFX ne parcourt pas une liste de familles comme le ferait un navigateur : il
+     * retient la premiere et retombe sur la police par defaut si elle manque. Nommer
+     * "Minecraft" en tete d'une liste ne servirait donc a rien chez qui ne l'a pas. Le
+     * choix se fait ici, a l'execution.</p>
+     *
+     * <p>La police du jeu n'est pas redistribuable : elle est utilisee si le joueur l'a
+     * installee, sans quoi une police a chasse fixe du systeme en donne l'esprit.</p>
+     */
+    private static String fontFor(String theme) {
+        if (!MINECRAFT.equals(theme)) {
+            return "";
+        }
+        List<String> preferred = List.of("Minecraft", "Monocraft", "Consolas",
+                "Cascadia Mono", "Lucida Console", "Courier New");
+        List<String> installed = Font.getFamilies();
+        for (String family : preferred) {
+            if (installed.stream().anyMatch(name -> name.equalsIgnoreCase(family))) {
+                return family;
+            }
+        }
+        return "";
+    }
+
+    /** Fragment de style redefinissant la couleur d'accent, ou chaine vide. */
+    private static String accentStyle(String color) {
+        if (color == null || !color.matches("#[0-9a-fA-F]{6}")) {
+            return "";
+        }
+        String rgb = color.substring(1);
+        int red = Integer.parseInt(rgb.substring(0, 2), 16);
+        int green = Integer.parseInt(rgb.substring(2, 4), 16);
+        int blue = Integer.parseInt(rgb.substring(4, 6), 16);
+
+        // derive() ne sait pas produire de transparence : les voiles sont ecrits en rgba.
+        String veil = "rgba(" + red + ", " + green + ", " + blue + ", 0.20)";
+        String glow = "rgba(" + red + ", " + green + ", " + blue + ", 0.50)";
+
+        Log.debug("Couleur d'accent appliquee : " + color);
+        return "-color-accent: " + color + ";"
+                + "-color-accent-2: derive(" + color + ", 18%);"
+                + "-color-accent-hover: derive(" + color + ", 12%);"
+                + "-color-accent-pressed: derive(" + color + ", -14%);"
+                + "-color-accent-bright: derive(" + color + ", 32%);"
+                + "-color-accent-veil: " + veil + ";"
+                + "-color-accent-glow: " + glow + ";";
     }
 
     /**

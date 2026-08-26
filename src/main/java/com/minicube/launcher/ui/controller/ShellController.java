@@ -55,6 +55,7 @@ public class ShellController {
     private SettingsController settings;
     private UpdatesController updates;
     private PerformanceController performance;
+    private StyleController style;
     private LogsController logs;
 
     private boolean launching;
@@ -143,6 +144,10 @@ public class ShellController {
             case MODS -> {
                 mods = new ModsController(context, stage, this::selectedVersionId);
                 return Ui.scroll(mods.root());
+            }
+            case STYLE -> {
+                style = new StyleController(context, stage, this::applyTheme);
+                return Ui.scroll(style.root());
             }
             case PERFORMANCE -> {
                 performance = new PerformanceController(context, this::selectedVersionId);
@@ -500,14 +505,26 @@ public class ShellController {
             ThemeManager.apply(view.root().getScene(),
                     context.config().settings().getTheme());
         }
-        // Les halos du fond suivent le theme : en clair ils s'attenuent, sinon ils
-        // formeraient des taches de couleur au lieu d'une lumiere diffuse.
-        view.background().setDark(context.config().settings().isDarkTheme());
+        // Les halos du fond suivent le theme : en clair ils s'attenuent, et le theme
+        // Minecraft, entierement mat, s'en passe.
+        view.background().setTheme(context.config().settings().getTheme());
+
+        // Police et couleur d accent tiennent dans le meme style pose sur la racine :
+        // deux appels successifs a setStyle se remplaceraient l un l autre.
+        ThemeManager.applyRootStyle(view.root(),
+                context.config().settings().getTheme(),
+                context.config().settings().getAccentColor());
 
         // Une image de fond choisie par l'utilisateur se substitue aux halos : elle est
         // posee sur la mise en page, donc au-dessus d'eux et sous le verre.
-        ThemeManager.applyBackground(view.layout(),
-                context.config().settings().getBackgroundImage());
+        String image = context.config().settings().getBackgroundImage();
+        ThemeManager.applyBackground(view.layout(), image);
+        // Une image chargee passerait au travers des cartes translucides : les voiles se
+        // densifient tant qu il y en a une.
+        view.root().getStyleClass().removeAll("with-background");
+        if (!image.isBlank()) {
+            view.root().getStyleClass().add("with-background");
+        }
     }
 
     private void onNotification(Notification notification) {

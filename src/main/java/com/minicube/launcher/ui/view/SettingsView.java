@@ -40,13 +40,7 @@ public class SettingsView {
             I18n.tr("settings.java.browse"));
     private final TextField extraJvmArgs = new TextField();
 
-    private final ChoiceBox<String> themeChoice = new ChoiceBox<>();
     private final ChoiceBox<String> languageChoice = new ChoiceBox<>();
-    private final TextField backgroundPath = new TextField();
-    private final Button browseBackgroundButton = Ui.iconButton(Icons.FOLDER,
-            I18n.tr("settings.background.browse"));
-    private final Button clearBackgroundButton = Ui.iconButton(Icons.CLOSE,
-            I18n.tr("settings.background.clear"));
 
     private final CheckBox keepLauncherOpen = new CheckBox();
     private final CheckBox notificationsEnabled = new CheckBox();
@@ -134,23 +128,19 @@ public class SettingsView {
                         extraJvmArgs));
     }
 
+    /**
+     * Langue de l'interface.
+     *
+     * <p>Le theme et l'image de fond ont rejoint l'onglet Style : les regler a deux
+     * endroits differents finissait par produire deux verites.</p>
+     */
     private VBox appearanceCard() {
-        themeChoice.getItems().addAll(I18n.tr("settings.theme.dark"),
-                I18n.tr("settings.theme.light"));
         I18n.SUPPORTED.values().forEach(languageChoice.getItems()::add);
 
-        backgroundPath.setPromptText(I18n.tr("settings.background.hint"));
-        HBox.setHgrow(backgroundPath, Priority.ALWAYS);
-        HBox backgroundRow = new HBox(10, backgroundPath, browseBackgroundButton,
-                clearBackgroundButton);
-        backgroundRow.setAlignment(Pos.CENTER_LEFT);
-        backgroundRow.setPrefWidth(420);
-
         return Ui.card(I18n.tr("settings.appearance"),
-                Ui.settingRow(I18n.tr("settings.theme"), null, themeChoice),
                 Ui.settingRow(I18n.tr("settings.language"), I18n.tr("settings.language.hint"),
                         languageChoice),
-                Ui.settingRow(I18n.tr("settings.background"), null, backgroundRow));
+                Ui.hint(I18n.tr("settings.appearance.moved")));
     }
 
     private VBox behaviourCard() {
@@ -273,24 +263,8 @@ public class SettingsView {
         return extraJvmArgs;
     }
 
-    public ChoiceBox<String> themeChoice() {
-        return themeChoice;
-    }
-
     public ChoiceBox<String> languageChoice() {
         return languageChoice;
-    }
-
-    public TextField backgroundPath() {
-        return backgroundPath;
-    }
-
-    public Button browseBackgroundButton() {
-        return browseBackgroundButton;
-    }
-
-    public Button clearBackgroundButton() {
-        return clearBackgroundButton;
     }
 
     public CheckBox keepLauncherOpen() {
