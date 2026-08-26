@@ -16,7 +16,7 @@ public final class Constants {
     /* ------------------------------------------------------------------ */
 
     public static final String APP_NAME = "MiniCube";
-    public static final String APP_VERSION = "1.16.0";
+    public static final String APP_VERSION = "1.17.0";
     /** Nom du dossier de travail cree dans le repertoire utilisateur. */
     public static final String APP_DIR_NAME = ".minicube";
     public static final String USER_AGENT = APP_NAME + "/" + APP_VERSION;
@@ -76,6 +76,21 @@ public final class Constants {
      * editant un fichier, ce qui n'a aucun interet legitime.</p>
      */
     public static final String DISCORD_INVITE_URL = "https://discord.gg/fxEnUhmUHj";
+
+    /* ------------------------------------------------------------------ */
+    /* Apparence                                                           */
+    /* ------------------------------------------------------------------ */
+
+    /**
+     * Styles livres avec le launcher.
+     *
+     * <p>Cette liste vit ici, et non dans le catalogue des styles, parce que la
+     * validation des reglages doit y acceder sans dependre de JavaFX. Les deux listes
+     * sont tenues identiques par la suite de verifications : ajouter un style au
+     * catalogue sans l'ajouter ici le ferait effacer au prochain chargement.</p>
+     */
+    public static final java.util.List<String> STYLE_IDS = java.util.List.of(
+            "dark", "light", "minecraft", "nether", "abysse", "foret", "sakura");
 
     /** Depot GitHub surveille par defaut pour les mises a jour du launcher. */
     public static final String DEFAULT_GITHUB_REPO = "Zoren1012/MiniCube";

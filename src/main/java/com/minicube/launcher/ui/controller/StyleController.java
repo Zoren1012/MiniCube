@@ -34,14 +34,20 @@ public class StyleController {
         view.browseBackgroundButton().setOnAction(event -> browseBackground());
         view.clearBackgroundButton().setOnAction(event -> applyBackground(""));
 
-        loadFromSettings();
+        refresh();
     }
 
     public Node root() {
         return view.root();
     }
 
-    private void loadFromSettings() {
+    /**
+     * Remet l onglet en accord avec les reglages.
+     *
+     * <p>Appele aussi depuis l exterieur : un habillage applique dans la Boutique change
+     * le theme et la couleur, et cet onglet afficherait sinon l ancien choix.</p>
+     */
+    public void refresh() {
         LauncherSettings settings = context.config().settings();
         view.markActiveTheme(settings.getTheme());
         String accent = settings.getAccentColor();

@@ -21,6 +21,7 @@ import com.minicube.launcher.service.PerformanceService;
 import com.minicube.launcher.service.ServerListService;
 import com.minicube.launcher.service.ServerPingService;
 import com.minicube.launcher.service.ShaderService;
+import com.minicube.launcher.service.ShopService;
 import com.minicube.launcher.service.SkinService;
 import com.minicube.launcher.service.UpdateService;
 import com.minicube.launcher.util.Log;
@@ -64,6 +65,14 @@ public class LauncherContext {
     private OptimizationService optimization;
     private final GameProfileService gameProfiles;
     private final PerformanceService performance = new PerformanceService();
+    /**
+     * Economie de la Boutique.
+     *
+     * <p>Le catalogue et ses prix vivent dans l interface ; le service ne recoit qu une
+     * fonction de tarification, pour que la couche metier n ait pas a dependre de JavaFX.</p>
+     */
+    private final ShopService shop =
+            new ShopService(com.minicube.launcher.ui.Cosmetics::priceOf);
     private ShaderService shaders;
     private ModService mods;
     private GameLaunchService gameLauncher;
@@ -197,6 +206,11 @@ public class LauncherContext {
     /** Mesures de fonctionnement du launcher et du jeu. */
     public PerformanceService performance() {
         return performance;
+    }
+
+    /** Pieces gagnees en jouant et habillages debloques. */
+    public ShopService shop() {
+        return shop;
     }
 
     /** Installation des chargeurs de mods. */

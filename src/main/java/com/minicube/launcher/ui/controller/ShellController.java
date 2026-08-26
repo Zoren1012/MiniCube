@@ -100,7 +100,7 @@ public class ShellController {
             performance.dispose();
         }
         if (support != null) {
-            support.view().animation().dispose();
+            support.dispose();
         }
     }
 
@@ -481,7 +481,15 @@ public class ShellController {
     /** Remet l'interface en etat lorsque le jeu se termine. */
     private void onGameExit(int exitCode) {
         if (gameStartedAt > 0) {
-            context.profiles().recordPlayTime(System.currentTimeMillis() - gameStartedAt);
+            long played = System.currentTimeMillis() - gameStartedAt;
+            context.profiles().recordPlayTime(played);
+            // Les pieces de la Boutique se gagnent en jouant : c est ici, et nulle part
+            // ailleurs, qu une partie terminee les cree.
+            int coins = context.shop().recordSession(played);
+            if (coins > 0) {
+                context.notifications().success(I18n.tr("support.title"),
+                        I18n.tr("support.earned", coins));
+            }
             gameStartedAt = 0;
         }
         setLaunching(false);
@@ -522,6 +530,11 @@ public class ShellController {
         // Les halos du fond suivent le theme : en clair ils s'attenuent, et le theme
         // Minecraft, entierement mat, s'en passe.
         view.background().setTheme(context.config().settings().getTheme());
+        if (style != null) {
+            // Un habillage applique dans la Boutique pose le theme et la couleur : sans
+            // cela, l onglet Style continuerait de designer l ancien.
+            style.refresh();
+        }
         if (support != null) {
             support.view().animation().setTheme(context.config().settings().getTheme());
             // Un habillage change aussi le theme : la marque de selection de la

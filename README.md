@@ -422,23 +422,37 @@ rediriger les joueurs vers un autre serveur en éditant un fichier sur leur mach
 
 ### Boutique
 
-Le catalogue des cosmétiques du launcher. Il contient **dix habillages, tous offerts** :
-un clic pose le style et la couleur d'accent d'un seul coup.
+Le catalogue des cosmétiques du launcher : **dix habillages**, dont trois offerts et sept
+à débloquer avec les pièces gagnées en jouant.
 
-C'est ce qui les distingue de l'onglet Style, où l'on règle les deux séparément — et deux
-habillages peuvent reposer sur le même style sans se ressembler : *Nether* et *Braise*
-partagent le style Nether, l'un en orange lave, l'autre en ambre.
+Un habillage pose le style **et** la couleur d'accent d'un seul clic — c'est ce qui le
+distingue de l'onglet Style, où l'on règle les deux séparément. Deux habillages peuvent
+reposer sur le même style sans se ressembler : *Nether* et *Braise* partagent le style
+Nether, l'un en orange lave, l'autre en ambre.
 
-L'habillage appliqué est marqué. Il cesse de l'être dès que la couleur d'accent est
-retouchée à la main dans l'onglet Style, ce qui est exact : mieux vaut n'en désigner aucun
-que d'en désigner un que personne n'a choisi.
+| | |
+|---|---|
+| Départ | 250 pièces |
+| Par minute de jeu | 5 pièces |
+| Par partie lancée | 25 pièces |
+| Plafond par session | 4 heures |
+| Prix | de 150 à 800 pièces |
 
-La boutique payante, elle, n'est pas ouverte — la page le dit franchement, et rien de ce
-qui est prévu ne donnera d'avantage en jeu. Les capes, en particulier, appartiennent à
-Mojang : le launcher peut afficher les vôtres, il ne peut pas en donner.
+Les pièces sont créditées à la fermeture du jeu. Un habillage hors de portée reste visible
+sous un voile, prix affiché : on doit pouvoir juger ce qu'on n'a pas encore. Un achat
+refusé dit combien il manque.
 
-Son animation suit le style actif : des blocs qui sautent d'un mouvement franc en style
-Minecraft, des orbes qui respirent dans les styles de verre, aux teintes du style.
+**Il n'y a rien à payer.** Une boutique payante demanderait un encaissement, donc un
+serveur et un prestataire ; un bouton « Acheter » qui ne débite rien serait un mensonge.
+Les pièces se gagnent donc en jouant, et la boutique fonctionne entièrement hors ligne.
+
+Le solde n'est jamais stocké : `shop.json` retient le temps de jeu et les articles
+possédés, et le solde s'en déduit. Un compteur écrit à part finirait par diverger de la
+liste.
+
+Ce qui reste à venir est annoncé comme tel, et rien ne donnera d'avantage en jeu. Les
+capes en particulier appartiennent à Mojang : le launcher peut afficher les vôtres, il ne
+peut pas en donner.
 
 ### Style
 
@@ -580,6 +594,7 @@ propres données vivent ailleurs :
 ├── accounts.json         Comptes et jetons — à ne jamais partager
 ├── profile.json          Votre compte MiniCube : pseudo, rôle, statistiques
 ├── profiles.json         Vos profils de jeu
+├── shop.json             Temps de jeu et habillages débloqués
 ├── instances/            Dossiers des profils isolés
 ├── custom-servers.json   Vos serveurs ajoutés à la main
 ├── logs/                 Journaux, une archive par session

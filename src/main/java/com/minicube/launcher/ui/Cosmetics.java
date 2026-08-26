@@ -21,33 +21,59 @@ public final class Cosmetics {
      * @param id     identifiant stable, utilise pour la traduction du nom
      * @param style  style applique
      * @param accent couleur d'accent au format {@code #RRGGBB}
+     * @param price  prix en pieces ; zero pour un habillage offert d'emblee
      */
-    public record Pack(String id, String style, String accent) {
+    public record Pack(String id, String style, String accent, int price) {
+
+        /** Vrai si l'habillage est disponible sans rien depenser. */
+        public boolean free() {
+            return price <= 0;
+        }
     }
 
     /**
      * Les habillages, dans l'ordre d'affichage.
      *
-     * <p>Les quatre premiers reprennent la couleur native de leur style ; les suivants
-     * la detournent, pour montrer qu'un style n'impose pas sa teinte.</p>
+     * <p>Les trois premiers sont offerts : une boutique dont rien n'est accessible au
+     * premier lancement ne se distingue pas d'une boutique vide. Les suivants coutent
+     * d'autant plus qu'ils s'eloignent de l'habillage d'origine.</p>
+     *
+     * <p>Plusieurs habillages partagent un meme style avec une couleur differente : un
+     * style n'impose pas sa teinte, et c'est ce qui separe un habillage d'un theme.</p>
      */
     private static final List<Pack> PACKS = List.of(
-            new Pack("amethyste", "dark", "#7C5CFF"),
-            new Pack("nether", "nether", "#FF7A3D"),
-            new Pack("abysse", "abysse", "#2FD3C4"),
-            new Pack("foret", "foret", "#7DC95E"),
-            new Pack("sakura", "sakura", "#D9548A"),
-            new Pack("bloc", "minecraft", "#3C8527"),
-            new Pack("aurore", "dark", "#46E0A8"),
-            new Pack("braise", "nether", "#FFC24D"),
-            new Pack("givre", "abysse", "#7FB0FF"),
-            new Pack("papier", "light", "#B8760D"));
+            new Pack("amethyste", "dark", "#7C5CFF", 0),
+            new Pack("papier", "light", "#B8760D", 0),
+            new Pack("bloc", "minecraft", "#3C8527", 0),
+            new Pack("aurore", "dark", "#46E0A8", 150),
+            new Pack("foret", "foret", "#7DC95E", 300),
+            new Pack("abysse", "abysse", "#2FD3C4", 400),
+            new Pack("givre", "abysse", "#7FB0FF", 450),
+            new Pack("nether", "nether", "#FF7A3D", 600),
+            new Pack("braise", "nether", "#FFC24D", 650),
+            new Pack("sakura", "sakura", "#D9548A", 800));
 
     private Cosmetics() {
     }
 
     public static List<Pack> all() {
         return PACKS;
+    }
+
+    /**
+     * Prix d'un habillage, zero pour un identifiant inconnu.
+     *
+     * <p>C'est la fonction que la boutique consulte pour chiffrer une collection. Un
+     * identifiant inconnu vaut zero plutot que de lever une erreur : un article retire
+     * du catalogue ne doit pas empecher le launcher de demarrer, ni faire disparaitre
+     * les pieces de qui l'avait achete.</p>
+     */
+    public static int priceOf(String id) {
+        return PACKS.stream()
+                .filter(pack -> pack.id().equals(id))
+                .mapToInt(Pack::price)
+                .findFirst()
+                .orElse(0);
     }
 
     /**

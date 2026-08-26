@@ -13,6 +13,69 @@ emplacements changent ensemble ; `package.ps1` lit le premier et le transmet aux
 
 ---
 
+## 1.17.0 — 27 août 2026
+
+### Le bug : un style choisi ne survivait pas au redémarrage
+
+- `LauncherSettings.sanitize()` **n'acceptait que `dark`, `light` et `minecraft`**, écrits
+  en dur. Les quatre styles ajoutés en 1.16.0 étaient donc effacés et remplacés par le
+  thème sombre **à chaque chargement des réglages**.
+- Vous pouviez choisir Nether, le voir s'appliquer, fermer le launcher — et le retrouver
+  sombre. Rien dans les journaux ne le signalait : la validation faisait exactement ce
+  qu'on lui avait demandé.
+- La liste vit désormais dans `Constants.STYLE_IDS`, et **une vérification échoue si elle
+  cesse de correspondre au catalogue**. C'est le seul moyen d'empêcher que ça se
+  reproduise au prochain style ajouté.
+- Au passage : `isDarkTheme()` répondait `false` pour tout ce qui n'était pas `dark`, y
+  compris le thème Minecraft qui est pourtant sombre. La méthode n'était appelée nulle
+  part ; elle est supprimée plutôt que corrigée.
+
+### Un habillage appliqué se voyait dans un onglet, pas dans l'autre
+
+- Appliquer un habillage depuis la Boutique changeait bien le thème, mais **l'onglet
+  Style continuait de désigner l'ancien**, et son sélecteur de couleur affichait la
+  couleur précédente. Les deux onglets se synchronisent maintenant dans les deux sens.
+
+### La Boutique fonctionne vraiment
+
+- **Des pièces, gagnées en jouant.** 5 pièces par minute de jeu, 25 par partie lancée,
+  250 offertes au départ. Elles sont créditées à la fermeture du jeu, avec une
+  notification.
+- **Dix habillages, trois offerts et sept à débloquer**, de 150 à 800 pièces. Une carte
+  hors de portée reste visible sous un voile : on doit pouvoir juger ce qu'on n'a pas
+  encore, sinon rien ne donne envie de l'obtenir. Le prix reste affiché, et un achat
+  refusé dit **combien il manque**.
+- Un clic fait la seule chose sensée à ce moment-là : appliquer si c'est acquis, acheter
+  sinon. Deux boutons par carte auraient doublé les clics pour rien.
+- **Une session est plafonnée à 4 heures.** Un launcher laissé ouvert toute la nuit
+  rapporterait sinon de quoi tout acheter d'un coup, ce qui viderait la progression de
+  son sens.
+
+> **Pourquoi des pièces et pas de l'argent.** Une boutique payante demande un
+> encaissement, donc un serveur, un prestataire et la responsabilité qui va avec. Rien de
+> cela n'existe ici, et un bouton « Acheter » qui ne débite rien serait un mensonge. La
+> boutique fonctionne donc de bout en bout, hors ligne, sans qu'un centime change de main.
+
+### Le solde est calculé, jamais stocké
+
+- Seuls le temps de jeu et la liste des articles possédés sont enregistrés dans
+  `shop.json`. Le solde est la différence entre ce que ce temps a rapporté et le prix de
+  ce qui est possédé.
+- Un compteur écrit à part pourrait diverger de cette liste — après une coupure au
+  mauvais moment, ou quand le prix d'un article change d'une version à l'autre. Ici la
+  question ne se pose pas : il n'y a qu'une seule source.
+
+### Vérifications
+
+- Nouvelle suite `ShopCheck`, **47 contrôles** : un achat sans les pièces est refusé et
+  ne débite rien, le solde n'est jamais négatif, racheter ne redébite pas, une session
+  interminable est plafonnée, un `shop.json` illisible repart à neuf sans empêcher le
+  démarrage — et **les sept styles survivent à la validation des réglages**, ce qui est
+  la vérification du bug corrigé.
+- Suite complète : **296 vérifications**.
+
+---
+
 ## 1.16.0 — 27 août 2026
 
 ### Quatre nouveaux styles

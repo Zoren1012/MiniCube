@@ -288,6 +288,16 @@
     -fx-border-width: 2;
 }
 
+/*
+ * Voile pose sur l apercu d un habillage hors de portee. Il grise sans masquer : on
+ * doit pouvoir juger ce qu on n a pas encore, sinon rien ne donne envie de l obtenir.
+ */
+.locked-veil {
+    -fx-background-color: -color-veil-strong;
+    -fx-background-radius: 8;
+    -fx-opacity: 0.62;
+}
+
 /* Pastille : une information courte qui doit se rattacher a quelque chose. */
 .chip {
     -fx-background-color: -color-glass-soft;

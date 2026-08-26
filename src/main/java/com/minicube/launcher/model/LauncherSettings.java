@@ -34,7 +34,7 @@ public class LauncherSettings {
 
     /* --- Interface ----------------------------------------------------- */
 
-    /** dark, light ou minecraft. */
+    /** Identifiant du style : voir Constants.STYLE_IDS. */
     private String theme = "dark";
     /** Code de langue ISO 639-1 : fr, en. */
     private String language = "";
@@ -115,8 +115,9 @@ public class LauncherSettings {
         if (ramMb < Constants.MIN_RAM_MB) {
             ramMb = Constants.DEFAULT_RAM_MB;
         }
-        if (theme == null
-                || !java.util.List.of("dark", "light", "minecraft").contains(theme)) {
+        // La liste des styles vient de Constants : ecrite en dur ici, elle effacait le
+        // choix de l'utilisateur des qu'un style etait ajoute au launcher.
+        if (theme == null || !Constants.STYLE_IDS.contains(theme)) {
             theme = "dark";
         }
         if (language == null || language.isBlank()) {
@@ -194,10 +195,6 @@ public class LauncherSettings {
 
     public void setTheme(String theme) {
         this.theme = theme;
-    }
-
-    public boolean isDarkTheme() {
-        return "dark".equals(getTheme());
     }
 
     public String getLanguage() {
