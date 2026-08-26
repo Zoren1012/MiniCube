@@ -1,13 +1,11 @@
 package fr.minicube.hud;
 
-import com.mojang.blaze3d.platform.InputConstants;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
-import net.fabricmc.fabric.api.client.keymapping.v1.KeyMappingHelper;
+import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
-import net.minecraft.client.KeyMapping;
-import net.minecraft.client.Minecraft;
-import net.minecraft.resources.Identifier;
+import net.minecraft.client.option.KeyBinding;
+import net.minecraft.client.util.InputUtil;
+import net.minecraft.util.Identifier;
 import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -27,66 +25,30 @@ public class MiniCubeHudClient implements ClientModInitializer {
     public static final String MOD_ID = "minicube-hud";
     public static final Logger LOGGER = LoggerFactory.getLogger("MiniCube HUD");
 
-    private static HudConfig config;
-
-    private KeyMapping toggleKey;
-    private KeyMapping cornerKey;
-
     @Override
     public void onInitializeClient() {
-        config = HudConfig.load();
+        HudConfig config = HudConfig.load();
 
-        registerKeys();
+        // F6 et F7 sont libres dans Minecraft. Ils restent modifiables dans les commandes
+        // du jeu, la ou le joueur cherche naturellement.
+        KeyBinding toggleKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key." + MOD_ID + ".toggle",
+                InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_F6,
+                KeyBinding.Category.MISC));
+
+        KeyBinding cornerKey = KeyBindingHelper.registerKeyBinding(new KeyBinding(
+                "key." + MOD_ID + ".corner",
+                InputUtil.Type.KEYSYM,
+                GLFW.GLFW_KEY_F7,
+                KeyBinding.Category.MISC));
+
         // addLast : le panneau se dessine par-dessus les elements du jeu, mais avant les
         // ecrans, qui ne doivent jamais etre recouverts.
         HudElementRegistry.addLast(
-                Identifier.fromNamespaceAndPath(MOD_ID, "info-panel"),
-                new MiniCubeHudElement(config));
+                Identifier.of(MOD_ID, "info-panel"),
+                new MiniCubeHudElement(config, toggleKey, cornerKey));
 
         LOGGER.info("MiniCube HUD pret");
     }
-
-    /* ------------------------------------------------------------------ */
-    /* Touches                                                             */
-    /* ------------------------------------------------------------------ */
-
-    /**
-     * Enregistre les raccourcis.
-     *
-     * <p>F6 et F7 sont libres dans Minecraft. Ils restent modifiables dans les commandes
-     * du jeu, la ou le joueur cherche naturellement.</p>
-     */
-    private void registerKeys() {
-        toggleKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
-                "key." + MOD_ID + ".toggle",
-                InputConstants.Type.KEYSYM,
-                GLFW.GLFW_KEY_F6,
-                KeyMapping.Category.MISC));
-
-        cornerKey = KeyMappingHelper.registerKeyMapping(new KeyMapping(
-                "key." + MOD_ID + ".corner",
-                InputConstants.Type.KEYSYM,
-                GLFW.GLFW_KEY_F7,
-                KeyMapping.Category.MISC));
-
-        ClientTickEvents.END_CLIENT_TICK.register(this::onTick);
-    }
-
-    /**
-     * Traite les touches une fois par tick.
-     *
-     * <p>{@code consumeClick} ne rend vrai qu'une fois par pression : maintenir la touche
-     * ne declenche donc pas l'action en boucle.</p>
-     */
-    private void onTick(Minecraft client) {
-        if (toggleKey.consumeClick()) {
-            config.enabled = !config.enabled;
-            config.save();
-        }
-        if (cornerKey.consumeClick()) {
-            config.corner = config.corner.next();
-            config.save();
-        }
-    }
-
 }

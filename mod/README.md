@@ -13,13 +13,13 @@ peut être utilisé sur un serveur sans rien demander à personne.
 
 | | |
 |---|---|
-| Minecraft | 26.2 |
+| Minecraft | 1.21.11 |
 | Chargeur | Fabric (loader 0.19.3 ou plus récent) |
-| Requis | [Fabric API](https://modrinth.com/mod/fabric-api) 0.158.0+26.2 |
-| Java | 25 ou plus |
+| Requis | [Fabric API](https://modrinth.com/mod/fabric-api) 0.141.6+1.21.11 |
+| Java | 21 ou plus |
 
-1. Installez **Fabric pour 26.2** — depuis MiniCube, bouton **+** de la barre du bas,
-   chargeur *Fabric*, version *26.2*.
+1. Installez **Fabric pour 1.21.11** — vous l'avez probablement déjà. Sinon : depuis
+   MiniCube, bouton **+** de la barre du bas, chargeur *Fabric*, version *1.21.11*.
 2. Déposez `minicube-hud-1.0.0.jar` **et** le jar de Fabric API dans le dossier `mods`
    de votre profil.
 3. Lancez le jeu.
@@ -97,6 +97,24 @@ est appelée à chaque image.
 
 Le mod s'enregistre avec `HudElementRegistry.addLast(...)`, ce qui le place au-dessus des
 éléments du jeu mais sous les écrans, qui ne doivent jamais être recouverts.
+
+---
+
+## Note sur la chaîne de compilation
+
+Le plugin Gradle de Fabric a changé d'espace de noms entre les versions 1.13 et 1.16 :
+les plus récentes travaillent avec les noms officiels de Mojang, alors que la Fabric API
+de 1.21.11 déclare ses élargisseurs d'accès en noms intermédiaires. Les deux refusent de
+se parler.
+
+Ce projet utilise donc **Loom 1.13.6** avec les mappings **Yarn**, la combinaison de
+l'époque de 1.21.11. C'est aussi pourquoi Loom est appliqué par un bloc `buildscript`
+plutôt que par `plugins {}` : les versions de cette génération ne publient pas de
+marqueur de plugin.
+
+Si vous portez le mod vers une version 26.x, repassez à Loom 1.17 et aux noms Mojang —
+les classes changent alors de nom (`MinecraftClient` devient `Minecraft`, `DrawContext`
+devient `GuiGraphicsExtractor`, et le rendu du HUD passe en deux temps).
 
 ---
 

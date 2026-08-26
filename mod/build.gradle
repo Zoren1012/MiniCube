@@ -1,6 +1,16 @@
-plugins {
-    id 'net.fabricmc.fabric-loom' version "${loom_version}"
+// Loom est applique par le chemin classique : les versions de cette epoque ne
+// publient pas de marqueur de plugin utilisable par le bloc plugins.
+buildscript {
+    repositories {
+        maven { url = uri("https://maven.fabricmc.net/") }
+        mavenCentral()
+    }
+    dependencies {
+        classpath "net.fabricmc:fabric-loom:${loom_version}"
+    }
 }
+
+apply plugin: "fabric-loom"
 
 version = project.mod_version
 group = project.maven_group
@@ -11,11 +21,11 @@ base {
 
 dependencies {
     minecraft "com.mojang:minecraft:${project.minecraft_version}"
-    // Depuis Loom 1.17, les mappings officiels de Mojang servent par defaut et les mods
-    // se declarent comme des dependances ordinaires : le plugin les repere et les
-    // remappe lui-meme. Le code utilise donc les vrais noms des classes du jeu.
-    implementation "net.fabricmc:fabric-loader:${project.loader_version}"
-    implementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
+    // Yarn : les noms lisibles des classes du jeu. Loom remappe le jar produit vers les
+    // noms intermediaires, ce qui rend le mod independant des mappings.
+    mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
+    modImplementation "net.fabricmc:fabric-loader:${project.loader_version}"
+    modImplementation "net.fabricmc.fabric-api:fabric-api:${project.fabric_api_version}"
 }
 
 processResources {
@@ -26,13 +36,12 @@ processResources {
 }
 
 tasks.withType(JavaCompile).configureEach {
-    // Minecraft 26.2 tourne sur Java 25 : viser plus bas ne compilerait pas contre le
-    // jeu, viser plus haut produirait un mod qu'il refuserait de charger.
-    it.options.release = 25
+    // Minecraft 1.21.11 tourne sur Java 21.
+    it.options.release = 21
     it.options.encoding = 'UTF-8'
 }
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_25
-    targetCompatibility = JavaVersion.VERSION_25
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 }
