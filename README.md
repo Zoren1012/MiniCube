@@ -33,12 +33,14 @@ Concrètement, il sait :
 - **installer Fabric, Quilt, NeoForge ou Forge** en un clic, sans aller chercher leur
   installeur ;
 - **tenir plusieurs profils** ayant chacun sa version, ses mods, ses shaders et ses
-  r00e9glages ;
+  réglages ;
 - **analyser votre machine** et corriger ce qui la brident, d'un clic ;
 - **connecter un compte Microsoft** ou fonctionner en mode hors-ligne ;
 - **imposer une liste de mods** à vos joueurs, vérifiée avant chaque partie ;
 - **rejoindre un serveur en un clic**, avec sa latence et sa fréquentation affichées ;
-- **régler les graphismes** sans ouvrir les menus du jeu.
+- **régler les graphismes** sans ouvrir les menus du jeu ;
+- **changer d'apparence** parmi sept styles complets, débloqués dans la Boutique avec
+  des pièces gagnées en jouant — rien à payer, tout fonctionne hors ligne.
 
 Il n'est ni affilié ni approuvé par Mojang Studios ou Microsoft.
 
@@ -268,11 +270,26 @@ personne ne pense à vérifier.
 
 | | |
 |---|---|
-| Démarrage | ~1,3 s |
+| Démarrage | ~1,75 s, écran d'accueil non compris |
 | Cadence | 132 images/s (suit la fréquence de l'écran) |
 | Mémoire du launcher | ~33 Mo |
 | Processeur au repos | 0,4 % |
 | Ouverture d'un onglet | 0 à 25 ms |
+
+Le démarrage, dans le détail — la moitié part avant que le code de MiniCube ne s'exécute :
+
+| Étape | Coût |
+|---|---|
+| JVM et JavaFX, avant notre code | ~720 ms |
+| Contexte et services | ~165 ms |
+| Coquille et onglet Accueil | ~320 ms |
+| Thème et feuilles de style | ~45 ms |
+| Premier affichage de la fenêtre | ~500 ms |
+
+Cette demi-seconde du premier affichage a été soupçonnée de venir des halos du fond — trois
+dégradés de 900 pixels de rayon repeints d'un coup. Mesure faite, l'écart entre un style à
+halos et un style mat qui n'en a aucun est de **50 ms** : c'est le coût de la première
+passe CSS de JavaFX, pas la décoration.
 
 La cadence suit l'écran : le rendu passe par Direct3D avec synchronisation verticale, donc
 un écran 144 Hz donne 144 images par seconde. Forcer une valeur fixe a été essayé puis
@@ -309,6 +326,11 @@ en ajouter un, c'est cette entrée et un fichier CSS.
 Le thème Minecraft n'est pas une simple variante de couleurs : il remplace aussi les
 **formes**. Les interrupteurs y redeviennent des cases à cocher avec une croix verte, et
 le fond animé s'éteint — des halos derrière des panneaux opaques ne se verraient pas.
+
+Le même onglet Accueil, dans ce style : angles droits, surfaces opaques, police à chasse
+fixe. Comparez avec la première capture de ce document.
+
+![L'onglet Accueil en style Minecraft](docs/images/home-minecraft.png)
 
 > **La police du jeu n'est pas embarquée** : elle n'est pas redistribuable. MiniCube
 > l'utilise si vous l'avez installée sur votre machine, sinon il retient une police à
@@ -400,6 +422,8 @@ les installe pas. Sur une version vanilla, aucun shader ne peut fonctionner.
 
 ### Mods
 
+![L'onglet Mods](docs/images/mods.png)
+
 Les mods de votre dossier `mods` sont listés avec leur nom, version, chargeur et
 description, lus directement dans les archives (`fabric.mod.json`, `META-INF/mods.toml`).
 
@@ -413,6 +437,8 @@ Pour poser le chargeur lui-même, voyez [Installer une version](#installer-une-v
 
 ### Discord
 
+![L'onglet Discord](docs/images/discord.png)
+
 L'invitation du serveur communautaire, avec un bouton pour l'ouvrir dans le navigateur et
 un autre pour la copier.
 
@@ -421,6 +447,8 @@ aucun champ pour la changer. Un lien d'invitation modifiable serait un moyen com
 rediriger les joueurs vers un autre serveur en éditant un fichier sur leur machine.
 
 ### Boutique
+
+![L'onglet Boutique](docs/images/shop.png)
 
 Le catalogue des cosmétiques du launcher : **dix habillages**, dont trois offerts et sept
 à débloquer avec les pièces gagnées en jouant.
@@ -474,11 +502,15 @@ peut pas en donner.
 
 ### Style
 
+![L'onglet Style](docs/images/style.png)
+
 La couleur d'accent et l'image de fond. Le style de la fenêtre, lui, se choisit dans la
 [Boutique](#boutique), où il va de pair avec sa couleur — les proposer aux deux endroits
 reviendrait à donner gratuitement ce que la Boutique demande de débloquer.
 
 ### Performances
+
+![L'onglet Performances](docs/images/performance.png)
 
 Mesures en direct, analyse de votre machine et état de vos serveurs. Voyez
 [Performances](#performances).
@@ -804,6 +836,13 @@ du HTML, du CSS et du JavaScript ordinaires, sans dépendance ni outil de constr
 | [AUDIT.md](AUDIT.md) | Audit de sécurité, mesures de performance, problèmes ouverts, recommandations |
 | [CHANGELOG.md](CHANGELOG.md) | Historique des versions |
 | [config.example.json](config.example.json) | Configuration commentée |
+
+### À propos des captures
+
+Les onze captures de ce document viennent du launcher réel, en version 1.19.0, prises
+**sans image de fond personnalisée** : elles montrent MiniCube tel qu'il est livré. Une
+image de fond appartenant à quelqu'un d'autre n'a rien à faire dans un dépôt public, et
+elle rendrait de toute façon l'interface moins lisible.
 
 ---
 

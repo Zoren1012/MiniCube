@@ -13,6 +13,44 @@ emplacements changent ensemble ; `package.ps1` lit le premier et le transmet aux
 
 ---
 
+## 1.19.1 — 27 août 2026
+
+### Les captures du README dataient de la 1.5.0
+
+- Les cinq images montraient une barre latérale à **neuf entrées**, avant la refonte
+  visuelle et avant les onglets Discord, Boutique, Style et Performances. Elles
+  décrivaient un launcher qui n'existe plus.
+- Onze captures les remplacent, prises sur la 1.19.0 : Accueil, Skin, Serveurs,
+  Graphismes, Mods, Discord, Boutique, Style, Performances, Mise à jour, plus l'Accueil
+  **en style Minecraft** pour montrer d'un coup d'œil ce que change un style.
+
+### Elles ne montrent plus une image qui ne nous appartient pas
+
+- Les anciennes captures affichaient l'**image de fond personnelle** de la machine de
+  développement — une illustration téléchargée. La publier dans un dépôt public revenait
+  à redistribuer l'œuvre de quelqu'un d'autre, et elle rendait l'interface moins lisible.
+- Les nouvelles sont prises **sans image de fond** : elles montrent MiniCube tel qu'il
+  est livré. Elles pèsent au passage la moitié de leur poids précédent.
+
+### Chiffres corrigés
+
+- Le README annonçait un **démarrage en 1,3 s**, mesuré avant l'ajout de quatre onglets
+  et de plusieurs services. La mesure réelle est de **1,75 s**, écran d'accueil non
+  compris, et le détail par étape est désormais donné : la moitié du temps part avant
+  que la moindre ligne de MiniCube ne s'exécute.
+- Le demi-seconde du premier affichage a été soupçonné de venir des halos du fond.
+  Vérification faite sur six passages, l'écart avec un style mat sans halos est de
+  **50 ms** : c'est la première passe CSS de JavaFX, pas la décoration. Rien à optimiser
+  là, et surtout rien à supprimer.
+
+### Corrections de texte
+
+- `r00e9glages` traînait dans la liste des fonctionnalités — un échappement mangé par une
+  commande de remplacement lors d'une édition précédente.
+- La liste des fonctionnalités mentionne enfin les **styles et la Boutique**.
+
+---
+
 ## 1.19.0 — 27 août 2026
 
 ### Des défis pour gagner des pièces
